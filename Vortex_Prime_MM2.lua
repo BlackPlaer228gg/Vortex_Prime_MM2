@@ -4974,6 +4974,31 @@ HeaderTag.Text = "MM2 • BETA"
 HeaderTag.Parent = Header
 Instance.new("UICorner", HeaderTag).CornerRadius = UDim.new(0, 5)
 
+(function()
+    local curExecutor = (identifyexecutor and identifyexecutor()) or (getexecutorname and getexecutorname()) or "Executor"
+    local curPlatform = (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled) and "[Mobile]" or "[PC]"
+    local hExec = Instance.new("TextLabel")
+    hExec.Name = "HeaderExecTag"
+    hExec.Size = UDim2.new(0, 115, 0, 18)
+    hExec.Position = UDim2.new(0, 260, 0.5, -9)
+    hExec.BackgroundColor3 = Color3.fromRGB(24, 28, 40)
+    hExec.BackgroundTransparency = 0.35
+    hExec.Font = Enum.Font.GothamMedium
+    hExec.TextSize = 8
+    hExec.TextColor3 = Color3.fromRGB(150, 180, 220)
+    hExec.Text = "⚡ " .. tostring(curExecutor) .. " " .. curPlatform
+    hExec.TextXAlignment = Enum.TextXAlignment.Center
+    hExec.TextTruncate = Enum.TextTruncate.AtEnd
+    hExec.Parent = Header
+    Instance.new("UICorner", hExec).CornerRadius = UDim.new(0, 4)
+
+    local strk = Instance.new("UIStroke")
+    strk.Color = Color3.fromRGB(45, 55, 80)
+    strk.Thickness = 1
+    strk.Transparency = 0.5
+    strk.Parent = hExec
+end)()
+
 do
     local MinBtn = Instance.new("TextButton")
     MinBtn.Size = UDim2.new(0, 26, 0, 26)
@@ -10182,8 +10207,11 @@ end)
 -- ====================================================================
 -- 📁 TAB: CONFIG MANAGER (PRESETS, CUSTOM PROFILES & CLOUD/CLIPBOARD)
 -- ====================================================================
-do
+(function()
     local parentTab = _G.TabConfigs
+    local C = {}
+    C.selectedConfig = ""
+    C.INDEX_FILE = "MM2_Configs_List.json"
 
     -- ⚡ SECTION 1: ONE-CLICK QUICK PRESETS
     createSectionHeader(parentTab, "⚡ БЫСТРЫЕ ПРЕСЕТЫ (ONE-CLICK PRESETS)")
@@ -10209,14 +10237,10 @@ do
             Config.WalkSpeed = 26
             Config.MurdererESP = true
             Config.SheriffESP = true
-            Config.HeroESP = true
             Config.InnocentESP = true
-            Config.GunDropESP = true
-            Config.CoinESP = true
-            Config.Tracers = true
             saveConfig()
             if _G.MM2_RefreshAllUI then _G.MM2_RefreshAllUI() end
-            showNotification("⚡ RAGE PRESET", "Rage Mode activated! All aggressive exploits ON.", Color3.fromRGB(255, 60, 80), "⚡", 3.5)
+            showNotification("⚡ RAGE PRESET", "Full Rage Config loaded! Dominate the lobby.", Color3.fromRGB(255, 50, 70), "⚡", 3.5)
         elseif presetType == "Legit" then
             Config.SilentAim = true
             Config.SilentAimWallBang = false
@@ -10225,28 +10249,21 @@ do
             Config.AutoShot = false
             Config.KnifeAura = true
             Config.KnifeAuraRadius = 14
-            Config.KnifeAuraShowRadius = true
+            Config.KnifeAuraShowRadius = false
             Config.KnifeAuraWallCheck = true
             Config.KnifeReachEnabled = false
             Config.KnifeThrowEnabled = false
-            Config.CoinAura = false
             Config.SpeedHack = false
-            Config.Noclip = false
+            Config.WalkSpeed = 16
             Config.MurdererESP = true
             Config.SheriffESP = true
-            Config.HeroESP = true
-            Config.GunDropESP = true
             Config.InnocentESP = false
-            Config.CoinESP = false
-            Config.Tracers = false
             saveConfig()
             if _G.MM2_RefreshAllUI then _G.MM2_RefreshAllUI() end
-            showNotification("🛡️ LEGIT PRESET", "Closet / Legit Mode activated. Subtle assistance.", Color3.fromRGB(50, 200, 120), "🛡️", 3.5)
+            showNotification("🛡️ LEGIT PRESET", "Closet / Legit Config loaded! Safe for high-level accounts.", Color3.fromRGB(50, 220, 120), "🛡️", 3.5)
         elseif presetType == "SafeFarm" then
-            Config.CoinAutoFarm = true
-            Config.CoinFarmMethod = "Tween"
-            Config.CoinFarmYOffset = -0.5
-            Config.CoinFarmDelay = 0.8
+            Config.AutoCoinFarm = true
+            Config.CoinFarmMode = "Cluster"
             Config.CoinTweenSpeed = 24
             Config.CoinAutoRespawn = true
             Config.CoinAntiVoid = true
@@ -10288,9 +10305,6 @@ do
     -- 💾 SECTION 2: ADVANCED CONFIG MANAGER (SPLIT SIDEBAR & CONFIRMATION MODALS)
     createSectionHeader(parentTab, "💾 МЕНЕДЖЕР ПРОФИЛЕЙ (CONFIG MANAGER)")
     createToggle(parentTab, "🔄 Auto-Load Config on Hub Launch", "AutoLoadConfig")
-
-    local selectedConfig = ""
-    local INDEX_FILE = "MM2_Configs_List.json"
 
     -- Modal confirmation window overlay attached to MainFrame
     local function showConfirmModal(opts)
@@ -10428,8 +10442,8 @@ do
         local list = {}
         local seen = {}
         pcall(function()
-            if isfile and isfile(INDEX_FILE) and readfile then
-                local data = HttpService:JSONDecode(readfile(INDEX_FILE))
+            if isfile and isfile(C.INDEX_FILE) and readfile then
+                local data = HttpService:JSONDecode(readfile(C.INDEX_FILE))
                 if type(data) == "table" then
                     for _, n in ipairs(data) do
                         if type(n) == "string" and n ~= "" and not seen[n] then
@@ -10458,7 +10472,7 @@ do
     local function saveList(list)
         pcall(function()
             if writefile then
-                writefile(INDEX_FILE, HttpService:JSONEncode(list))
+                writefile(C.INDEX_FILE, HttpService:JSONEncode(list))
             end
         end)
     end
@@ -10487,39 +10501,39 @@ do
     end
 
     -- Split View Container (Left = Configs Sidebar, Right = Controls & 4 Buttons)
-    local splitFrame = Instance.new("Frame")
-    splitFrame.Size = UDim2.new(1, 0, 0, 245)
-    splitFrame.BackgroundColor3 = Color3.fromRGB(15, 18, 26)
-    splitFrame.BackgroundTransparency = 0.25
-    splitFrame.BorderSizePixel = 0
-    splitFrame.Parent = parentTab
-    Instance.new("UICorner", splitFrame).CornerRadius = UDim.new(0, 8)
+    C.splitFrame = Instance.new("Frame")
+    C.splitFrame.Size = UDim2.new(1, 0, 0, 245)
+    C.splitFrame.BackgroundColor3 = Color3.fromRGB(15, 18, 26)
+    C.splitFrame.BackgroundTransparency = 0.25
+    C.splitFrame.BorderSizePixel = 0
+    C.splitFrame.Parent = parentTab
+    Instance.new("UICorner", C.splitFrame).CornerRadius = UDim.new(0, 8)
 
     local splitStroke = Instance.new("UIStroke")
     splitStroke.Color = Color3.fromRGB(36, 44, 62)
     splitStroke.Thickness = 1
     splitStroke.Transparency = 0.35
-    splitStroke.Parent = splitFrame
+    splitStroke.Parent = C.splitFrame
 
     -- Left Column: Configs Sidebar
-    local leftFrame = Instance.new("Frame")
-    leftFrame.Size = UDim2.new(0.42, 0, 1, -12)
-    leftFrame.Position = UDim2.new(0, 6, 0, 6)
-    leftFrame.BackgroundColor3 = Color3.fromRGB(18, 22, 32)
-    leftFrame.BorderSizePixel = 0
-    leftFrame.Parent = splitFrame
-    Instance.new("UICorner", leftFrame).CornerRadius = UDim.new(0, 7)
+    C.leftFrame = Instance.new("Frame")
+    C.leftFrame.Size = UDim2.new(0.42, 0, 1, -12)
+    C.leftFrame.Position = UDim2.new(0, 6, 0, 6)
+    C.leftFrame.BackgroundColor3 = Color3.fromRGB(18, 22, 32)
+    C.leftFrame.BorderSizePixel = 0
+    C.leftFrame.Parent = C.splitFrame
+    Instance.new("UICorner", C.leftFrame).CornerRadius = UDim.new(0, 7)
 
     local leftStroke = Instance.new("UIStroke")
     leftStroke.Color = Color3.fromRGB(34, 42, 60)
     leftStroke.Thickness = 1
     leftStroke.Transparency = 0.4
-    leftStroke.Parent = leftFrame
+    leftStroke.Parent = C.leftFrame
 
     local leftTopBar = Instance.new("Frame")
     leftTopBar.Size = UDim2.new(1, 0, 0, 28)
     leftTopBar.BackgroundTransparency = 1
-    leftTopBar.Parent = leftFrame
+    leftTopBar.Parent = C.leftFrame
 
     local leftTitle = Instance.new("TextLabel")
     leftTitle.Size = UDim2.new(1, -30, 1, 0)
@@ -10544,59 +10558,59 @@ do
     refreshBtn.Parent = leftTopBar
     Instance.new("UICorner", refreshBtn).CornerRadius = UDim.new(0, 5)
 
-    local listScroll = Instance.new("ScrollingFrame")
-    listScroll.Size = UDim2.new(1, -8, 1, -34)
-    listScroll.Position = UDim2.new(0, 4, 0, 30)
-    listScroll.BackgroundTransparency = 1
-    listScroll.BorderSizePixel = 0
-    listScroll.ScrollBarThickness = 3
-    listScroll.ScrollBarImageColor3 = currentTheme.Main or Color3.fromRGB(60, 140, 255)
-    listScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-    listScroll.Parent = leftFrame
+    C.listScroll = Instance.new("ScrollingFrame")
+    C.listScroll.Size = UDim2.new(1, -8, 1, -34)
+    C.listScroll.Position = UDim2.new(0, 4, 0, 30)
+    C.listScroll.BackgroundTransparency = 1
+    C.listScroll.BorderSizePixel = 0
+    C.listScroll.ScrollBarThickness = 3
+    C.listScroll.ScrollBarImageColor3 = currentTheme.Main or Color3.fromRGB(60, 140, 255)
+    C.listScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+    C.listScroll.Parent = C.leftFrame
 
-    local listLayout = Instance.new("UIListLayout")
-    listLayout.Padding = UDim.new(0, 4)
-    listLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    listLayout.Parent = listScroll
+    C.listLayout = Instance.new("UIListLayout")
+    C.listLayout.Padding = UDim.new(0, 4)
+    C.listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    C.listLayout.Parent = C.listScroll
 
-    listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        listScroll.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y + 4)
+    C.listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        C.listScroll.CanvasSize = UDim2.new(0, 0, 0, C.listLayout.AbsoluteContentSize.Y + 4)
     end)
 
     -- Right Column: Controls, Input & 4 Buttons
-    local rightFrame = Instance.new("Frame")
-    rightFrame.Size = UDim2.new(0.58, -12, 1, -12)
-    rightFrame.Position = UDim2.new(0.42, 6, 0, 6)
-    rightFrame.BackgroundColor3 = Color3.fromRGB(18, 22, 32)
-    rightFrame.BorderSizePixel = 0
-    rightFrame.Parent = splitFrame
-    Instance.new("UICorner", rightFrame).CornerRadius = UDim.new(0, 7)
+    C.rightFrame = Instance.new("Frame")
+    C.rightFrame.Size = UDim2.new(0.58, -12, 1, -12)
+    C.rightFrame.Position = UDim2.new(0.42, 6, 0, 6)
+    C.rightFrame.BackgroundColor3 = Color3.fromRGB(18, 22, 32)
+    C.rightFrame.BorderSizePixel = 0
+    C.rightFrame.Parent = C.splitFrame
+    Instance.new("UICorner", C.rightFrame).CornerRadius = UDim.new(0, 7)
 
     local rightStroke = Instance.new("UIStroke")
     rightStroke.Color = Color3.fromRGB(34, 42, 60)
     rightStroke.Thickness = 1
     rightStroke.Transparency = 0.4
-    rightStroke.Parent = rightFrame
+    rightStroke.Parent = C.rightFrame
 
-    local statusLabel = Instance.new("TextLabel")
-    statusLabel.Size = UDim2.new(1, -16, 0, 22)
-    statusLabel.Position = UDim2.new(0, 8, 0, 6)
-    statusLabel.BackgroundTransparency = 1
-    statusLabel.Font = Enum.Font.GothamBold
-    statusLabel.TextSize = 10
-    statusLabel.TextColor3 = currentTheme.Main or Color3.fromRGB(70, 160, 255)
-    statusLabel.TextXAlignment = Enum.TextXAlignment.Left
-    statusLabel.TextTruncate = Enum.TextTruncate.AtEnd
-    statusLabel.Text = "⚙️ ВЫБРАН: (не выбран)"
-    statusLabel.Parent = rightFrame
+    C.statusLabel = Instance.new("TextLabel")
+    C.statusLabel.Size = UDim2.new(1, -16, 0, 22)
+    C.statusLabel.Position = UDim2.new(0, 8, 0, 6)
+    C.statusLabel.BackgroundTransparency = 1
+    C.statusLabel.Font = Enum.Font.GothamBold
+    C.statusLabel.TextSize = 10
+    C.statusLabel.TextColor3 = currentTheme.Main or Color3.fromRGB(70, 160, 255)
+    C.statusLabel.TextXAlignment = Enum.TextXAlignment.Left
+    C.statusLabel.TextTruncate = Enum.TextTruncate.AtEnd
+    C.statusLabel.Text = "⚙️ ВЫБРАН: (не выбран)"
+    C.statusLabel.Parent = C.rightFrame
 
     local function updateStatus()
-        if selectedConfig and selectedConfig ~= "" then
-            statusLabel.Text = "⚙️ ВЫБРАН: " .. selectedConfig
-            statusLabel.TextColor3 = currentTheme.Main or Color3.fromRGB(70, 160, 255)
+        if C.selectedConfig and C.selectedConfig ~= "" then
+            C.statusLabel.Text = "⚙️ ВЫБРАН: " .. C.selectedConfig
+            C.statusLabel.TextColor3 = currentTheme.Main or Color3.fromRGB(70, 160, 255)
         else
-            statusLabel.Text = "⚙️ ВЫБРАН: (не выбран)"
-            statusLabel.TextColor3 = Color3.fromRGB(140, 160, 195)
+            C.statusLabel.Text = "⚙️ ВЫБРАН: (не выбран)"
+            C.statusLabel.TextColor3 = Color3.fromRGB(140, 160, 195)
         end
     end
 
@@ -10605,7 +10619,7 @@ do
     inputCard.Position = UDim2.new(0, 8, 0, 30)
     inputCard.BackgroundColor3 = Color3.fromRGB(24, 30, 44)
     inputCard.BorderSizePixel = 0
-    inputCard.Parent = rightFrame
+    inputCard.Parent = C.rightFrame
     Instance.new("UICorner", inputCard).CornerRadius = UDim.new(0, 6)
 
     local inputCardStroke = Instance.new("UIStroke")
@@ -10623,80 +10637,80 @@ do
     inputIcon.Text = "✏️"
     inputIcon.Parent = inputCard
 
-    local inputTextBox = Instance.new("TextBox")
-    inputTextBox.Size = UDim2.new(1, -32, 1, 0)
-    inputTextBox.Position = UDim2.new(0, 28, 0, 0)
-    inputTextBox.BackgroundTransparency = 1
-    inputTextBox.Font = Enum.Font.GothamMedium
-    inputTextBox.TextSize = 10
-    inputTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-    inputTextBox.PlaceholderText = "Введите имя конфига..."
-    inputTextBox.PlaceholderColor3 = Color3.fromRGB(120, 135, 165)
-    inputTextBox.Text = "MyConfig"
-    inputTextBox.ClearTextOnFocus = false
-    inputTextBox.Parent = inputCard
+    C.inputTextBox = Instance.new("TextBox")
+    C.inputTextBox.Size = UDim2.new(1, -32, 1, 0)
+    C.inputTextBox.Position = UDim2.new(0, 28, 0, 0)
+    C.inputTextBox.BackgroundTransparency = 1
+    C.inputTextBox.Font = Enum.Font.GothamMedium
+    C.inputTextBox.TextSize = 10
+    C.inputTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    C.inputTextBox.PlaceholderText = "Введите имя конфига..."
+    C.inputTextBox.PlaceholderColor3 = Color3.fromRGB(120, 135, 165)
+    C.inputTextBox.Text = "MyConfig"
+    C.inputTextBox.ClearTextOnFocus = false
+    C.inputTextBox.Parent = inputCard
 
-    -- Action Buttons Grid (2x2)
-    local buttonsGrid = Instance.new("Frame")
-    buttonsGrid.Size = UDim2.new(1, -16, 1, -74)
-    buttonsGrid.Position = UDim2.new(0, 8, 0, 66)
-    buttonsGrid.BackgroundTransparency = 1
-    buttonsGrid.Parent = rightFrame
+    -- Action Buttons Grid (2x2) stored in C table
+    C.buttonsGrid = Instance.new("Frame")
+    C.buttonsGrid.Size = UDim2.new(1, -16, 1, -74)
+    C.buttonsGrid.Position = UDim2.new(0, 8, 0, 66)
+    C.buttonsGrid.BackgroundTransparency = 1
+    C.buttonsGrid.Parent = C.rightFrame
 
     -- Button 1: ➕ Создать
-    local btnCreate = Instance.new("TextButton")
-    btnCreate.Size = UDim2.new(0.485, 0, 0.45, 0)
-    btnCreate.Position = UDim2.new(0, 0, 0, 0)
-    btnCreate.BackgroundColor3 = Color3.fromRGB(30, 120, 235)
-    btnCreate.Font = Enum.Font.GothamBold
-    btnCreate.TextSize = 10
-    btnCreate.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btnCreate.Text = "➕ Создать"
-    btnCreate.AutoButtonColor = true
-    btnCreate.Parent = buttonsGrid
-    Instance.new("UICorner", btnCreate).CornerRadius = UDim.new(0, 6)
+    C.btnCreate = Instance.new("TextButton")
+    C.btnCreate.Size = UDim2.new(0.485, 0, 0.45, 0)
+    C.btnCreate.Position = UDim2.new(0, 0, 0, 0)
+    C.btnCreate.BackgroundColor3 = Color3.fromRGB(30, 120, 235)
+    C.btnCreate.Font = Enum.Font.GothamBold
+    C.btnCreate.TextSize = 10
+    C.btnCreate.TextColor3 = Color3.fromRGB(255, 255, 255)
+    C.btnCreate.Text = "➕ Создать"
+    C.btnCreate.AutoButtonColor = true
+    C.btnCreate.Parent = C.buttonsGrid
+    Instance.new("UICorner", C.btnCreate).CornerRadius = UDim.new(0, 6)
 
     -- Button 2: 💾 Сохранить
-    local btnSave = Instance.new("TextButton")
-    btnSave.Size = UDim2.new(0.485, 0, 0.45, 0)
-    btnSave.Position = UDim2.new(0.515, 0, 0, 0)
-    btnSave.BackgroundColor3 = Color3.fromRGB(20, 155, 105)
-    btnSave.Font = Enum.Font.GothamBold
-    btnSave.TextSize = 10
-    btnSave.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btnSave.Text = "💾 Сохранить"
-    btnSave.AutoButtonColor = true
-    btnSave.Parent = buttonsGrid
-    Instance.new("UICorner", btnSave).CornerRadius = UDim.new(0, 6)
+    C.btnSave = Instance.new("TextButton")
+    C.btnSave.Size = UDim2.new(0.485, 0, 0.45, 0)
+    C.btnSave.Position = UDim2.new(0.515, 0, 0, 0)
+    C.btnSave.BackgroundColor3 = Color3.fromRGB(20, 155, 105)
+    C.btnSave.Font = Enum.Font.GothamBold
+    C.btnSave.TextSize = 10
+    C.btnSave.TextColor3 = Color3.fromRGB(255, 255, 255)
+    C.btnSave.Text = "💾 Сохранить"
+    C.btnSave.AutoButtonColor = true
+    C.btnSave.Parent = C.buttonsGrid
+    Instance.new("UICorner", C.btnSave).CornerRadius = UDim.new(0, 6)
 
     -- Button 3: 📂 Загрузить
-    local btnLoad = Instance.new("TextButton")
-    btnLoad.Size = UDim2.new(0.485, 0, 0.45, 0)
-    btnLoad.Position = UDim2.new(0, 0, 0.52, 0)
-    btnLoad.BackgroundColor3 = Color3.fromRGB(115, 80, 215)
-    btnLoad.Font = Enum.Font.GothamBold
-    btnLoad.TextSize = 10
-    btnLoad.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btnLoad.Text = "📂 Загрузить"
-    btnLoad.AutoButtonColor = true
-    btnLoad.Parent = buttonsGrid
-    Instance.new("UICorner", btnLoad).CornerRadius = UDim.new(0, 6)
+    C.btnLoad = Instance.new("TextButton")
+    C.btnLoad.Size = UDim2.new(0.485, 0, 0.45, 0)
+    C.btnLoad.Position = UDim2.new(0, 0, 0.52, 0)
+    C.btnLoad.BackgroundColor3 = Color3.fromRGB(115, 80, 215)
+    C.btnLoad.Font = Enum.Font.GothamBold
+    C.btnLoad.TextSize = 10
+    C.btnLoad.TextColor3 = Color3.fromRGB(255, 255, 255)
+    C.btnLoad.Text = "📂 Загрузить"
+    C.btnLoad.AutoButtonColor = true
+    C.btnLoad.Parent = C.buttonsGrid
+    Instance.new("UICorner", C.btnLoad).CornerRadius = UDim.new(0, 6)
 
     -- Button 4: 🗑️ Удалить
-    local btnDelete = Instance.new("TextButton")
-    btnDelete.Size = UDim2.new(0.485, 0, 0.45, 0)
-    btnDelete.Position = UDim2.new(0.515, 0, 0.52, 0)
-    btnDelete.BackgroundColor3 = Color3.fromRGB(215, 45, 65)
-    btnDelete.Font = Enum.Font.GothamBold
-    btnDelete.TextSize = 10
-    btnDelete.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btnDelete.Text = "🗑️ Удалить"
-    btnDelete.AutoButtonColor = true
-    btnDelete.Parent = buttonsGrid
-    Instance.new("UICorner", btnDelete).CornerRadius = UDim.new(0, 6)
+    C.btnDelete = Instance.new("TextButton")
+    C.btnDelete.Size = UDim2.new(0.485, 0, 0.45, 0)
+    C.btnDelete.Position = UDim2.new(0.515, 0, 0.52, 0)
+    C.btnDelete.BackgroundColor3 = Color3.fromRGB(215, 45, 65)
+    C.btnDelete.Font = Enum.Font.GothamBold
+    C.btnDelete.TextSize = 10
+    C.btnDelete.TextColor3 = Color3.fromRGB(255, 255, 255)
+    C.btnDelete.Text = "🗑️ Удалить"
+    C.btnDelete.AutoButtonColor = true
+    C.btnDelete.Parent = C.buttonsGrid
+    Instance.new("UICorner", C.btnDelete).CornerRadius = UDim.new(0, 6)
 
     local function renderSavedConfigs()
-        for _, ch in ipairs(listScroll:GetChildren()) do
+        for _, ch in ipairs(C.listScroll:GetChildren()) do
             if not ch:IsA("UIListLayout") and not ch:IsA("UIPadding") then
                 ch:Destroy()
             end
@@ -10711,19 +10725,19 @@ do
             empty.TextColor3 = Color3.fromRGB(130, 150, 185)
             empty.TextWrapped = true
             empty.Text = "Нет сохранённых конфигов.\nНажмите '➕ Создать'!"
-            empty.Parent = listScroll
+            empty.Parent = C.listScroll
             return
         end
 
         for _, cfgName in ipairs(list) do
-            local isSel = (cfgName == selectedConfig)
+            local isSel = (cfgName == C.selectedConfig)
             local item = Instance.new("TextButton")
             item.Size = UDim2.new(1, -4, 0, 28)
             item.BackgroundColor3 = isSel and Color3.fromRGB(35, 52, 82) or Color3.fromRGB(22, 27, 38)
             item.BorderSizePixel = 0
             item.Text = ""
             item.AutoButtonColor = true
-            item.Parent = listScroll
+            item.Parent = C.listScroll
             Instance.new("UICorner", item).CornerRadius = UDim.new(0, 6)
 
             local itemStroke = Instance.new("UIStroke")
@@ -10755,8 +10769,8 @@ do
             nameLbl.Parent = item
 
             item.MouseButton1Click:Connect(function()
-                selectedConfig = cfgName
-                inputTextBox.Text = cfgName
+                C.selectedConfig = cfgName
+                C.inputTextBox.Text = cfgName
                 updateStatus()
                 renderSavedConfigs()
             end)
@@ -10769,8 +10783,8 @@ do
     end)
 
     -- Button Logic: ➕ Создать
-    btnCreate.MouseButton1Click:Connect(function()
-        local raw = inputTextBox.Text or "MyConfig"
+    C.btnCreate.MouseButton1Click:Connect(function()
+        local raw = C.inputTextBox.Text or "MyConfig"
         local clean = raw:gsub("[^%w_%-]", "")
         if clean == "" then clean = "MyConfig" end
 
@@ -10789,8 +10803,8 @@ do
                 onConfirm = function()
                     local ok = saveConfigToFile(clean)
                     if ok then
-                        selectedConfig = clean
-                        inputTextBox.Text = clean
+                        C.selectedConfig = clean
+                        C.inputTextBox.Text = clean
                         renderSavedConfigs()
                         updateStatus()
                         showNotification("💾 КОНФИГ ПЕРЕЗАПИСАН", "Конфиг '" .. clean .. "' успешно сохранён!", Color3.fromRGB(50, 180, 255), "💾", 3)
@@ -10802,8 +10816,8 @@ do
         else
             local ok = saveConfigToFile(clean)
             if ok then
-                selectedConfig = clean
-                inputTextBox.Text = clean
+                C.selectedConfig = clean
+                C.inputTextBox.Text = clean
                 renderSavedConfigs()
                 updateStatus()
                 showNotification("➕ КОНФИГ СОЗДАН", "Новый конфиг '" .. clean .. "' успешно создан!", Color3.fromRGB(60, 220, 120), "➕", 3)
@@ -10814,8 +10828,8 @@ do
     end)
 
     -- Button Logic: 💾 Сохранить (с подтверждением перезаписи)
-    btnSave.MouseButton1Click:Connect(function()
-        local raw = (selectedConfig and selectedConfig ~= "") and selectedConfig or inputTextBox.Text
+    C.btnSave.MouseButton1Click:Connect(function()
+        local raw = (C.selectedConfig and C.selectedConfig ~= "") and C.selectedConfig or C.inputTextBox.Text
         local clean = (raw or "MyConfig"):gsub("[^%w_%-]", "")
         if clean == "" then clean = "MyConfig" end
 
@@ -10827,8 +10841,8 @@ do
             onConfirm = function()
                 local ok = saveConfigToFile(clean)
                 if ok then
-                    selectedConfig = clean
-                    inputTextBox.Text = clean
+                    C.selectedConfig = clean
+                    C.inputTextBox.Text = clean
                     renderSavedConfigs()
                     updateStatus()
                     showNotification("💾 КОНФИГ СОХРАНЁН", "Настройки сохранены в профиль '" .. clean .. "'!", Color3.fromRGB(0, 220, 150), "💾", 3)
@@ -10840,8 +10854,8 @@ do
     end)
 
     -- Button Logic: 📂 Загрузить
-    btnLoad.MouseButton1Click:Connect(function()
-        local raw = (selectedConfig and selectedConfig ~= "") and selectedConfig or inputTextBox.Text
+    C.btnLoad.MouseButton1Click:Connect(function()
+        local raw = (C.selectedConfig and C.selectedConfig ~= "") and C.selectedConfig or C.inputTextBox.Text
         local clean = (raw or ""):gsub("[^%w_%-]", "")
         if clean == "" then
             showNotification("⚠️ ВНИМАНИЕ", "Выберите или введите имя конфига для загрузки!", Color3.fromRGB(255, 180, 50), "⚠️", 3)
@@ -10866,8 +10880,8 @@ do
             applyUITheme(Config.UITheme)
             if MainFrame then MainFrame.BackgroundTransparency = Config.UIGlassTransparency or 0.12 end
             if _G.MM2_RefreshAllUI then _G.MM2_RefreshAllUI() end
-            selectedConfig = clean
-            inputTextBox.Text = clean
+            C.selectedConfig = clean
+            C.inputTextBox.Text = clean
             renderSavedConfigs()
             updateStatus()
             showNotification("📂 КОНФИГ ЗАГРУЖЕН", "Конфиг '" .. clean .. "' успешно применён!", Color3.fromRGB(60, 220, 120), "📂", 3)
@@ -10877,8 +10891,8 @@ do
     end)
 
     -- Button Logic: 🗑️ Удалить (с подтверждением)
-    btnDelete.MouseButton1Click:Connect(function()
-        local raw = (selectedConfig and selectedConfig ~= "") and selectedConfig or inputTextBox.Text
+    C.btnDelete.MouseButton1Click:Connect(function()
+        local raw = (C.selectedConfig and C.selectedConfig ~= "") and C.selectedConfig or C.inputTextBox.Text
         local clean = (raw or ""):gsub("[^%w_%-]", "")
         if clean == "" then
             showNotification("⚠️ ВНИМАНИЕ", "Выберите конфиг для удаления!", Color3.fromRGB(255, 180, 50), "⚠️", 3)
@@ -10903,9 +10917,9 @@ do
                     if n ~= clean then table.insert(newList, n) end
                 end
                 saveList(newList)
-                if selectedConfig == clean then
-                    selectedConfig = newList[1] or ""
-                    inputTextBox.Text = selectedConfig
+                if C.selectedConfig == clean then
+                    C.selectedConfig = newList[1] or ""
+                    C.inputTextBox.Text = C.selectedConfig
                 end
                 renderSavedConfigs()
                 updateStatus()
@@ -10960,13 +10974,13 @@ do
 
     -- Initial state setup
     local initialList = getSavedList()
-    if #initialList > 0 and selectedConfig == "" then
-        selectedConfig = initialList[1]
-        inputTextBox.Text = selectedConfig
+    if #initialList > 0 and C.selectedConfig == "" then
+        C.selectedConfig = initialList[1]
+        C.inputTextBox.Text = C.selectedConfig
     end
     renderSavedConfigs()
     updateStatus()
-end
+end)()
 
 -- Keybind Handling
 addConn(UserInputService.InputBegan:Connect(function(input, processed)
