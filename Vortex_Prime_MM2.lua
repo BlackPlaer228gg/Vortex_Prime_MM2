@@ -627,6 +627,7 @@ local Config = {
     MobileHudBtnHeight = 36,
     MobileHudTransparency = 0.20,
     MobileHudTransparencyPct = 20,
+    ShowMobileTabOnPC = false,
 }
 _G.MM2_Config = Config
 
@@ -5444,6 +5445,13 @@ local TabPersonalize = createTab("Themes", "🎨")
 local TabSettings = createTab("Settings", "⚙️")
 _G.TabConfigs = createTab("Configs", "📁")
 _G.TabMobile = createTab("Mobile", "📱")
+
+do
+    local isMobilePlatform = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+    if TabButtons["Mobile"] then
+        TabButtons["Mobile"].Visible = (isMobilePlatform == true) or (Config.ShowMobileTabOnPC == true)
+    end
+end
 
 Tabs._ActiveTab = "Visuals"
 TabButtons["Visuals"].BackgroundColor3 = currentTheme.Main
