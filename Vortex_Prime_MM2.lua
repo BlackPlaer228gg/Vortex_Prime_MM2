@@ -4974,8 +4974,9 @@ HeaderTag.Text = "MM2 • BETA"
 HeaderTag.Parent = Header
 Instance.new("UICorner", HeaderTag).CornerRadius = UDim.new(0, 5)
 
-(function()
-    local curExecutor = (identifyexecutor and identifyexecutor()) or (getexecutorname and getexecutorname()) or "Executor"
+do
+    local function initHeaderExecTag()
+        local curExecutor = (identifyexecutor and identifyexecutor()) or (getexecutorname and getexecutorname()) or "Executor"
     local curPlatform = (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled) and "[Mobile]" or "[PC]"
     local hExec = Instance.new("TextLabel")
     hExec.Name = "HeaderExecTag"
@@ -4997,7 +4998,9 @@ Instance.new("UICorner", HeaderTag).CornerRadius = UDim.new(0, 5)
     strk.Thickness = 1
     strk.Transparency = 0.5
     strk.Parent = hExec
-end)()
+    end
+    initHeaderExecTag()
+end
 
 do
     local MinBtn = Instance.new("TextButton")
@@ -10207,8 +10210,9 @@ end)
 -- ====================================================================
 -- 📁 TAB: CONFIG MANAGER (PRESETS, CUSTOM PROFILES & CLOUD/CLIPBOARD)
 -- ====================================================================
-(function()
-    local parentTab = _G.TabConfigs
+do
+    local function initConfigsTab()
+        local parentTab = _G.TabConfigs
     local C = {}
     C.selectedConfig = ""
     C.INDEX_FILE = "MM2_Configs_List.json"
@@ -10978,9 +10982,11 @@ end)
         C.selectedConfig = initialList[1]
         C.inputTextBox.Text = C.selectedConfig
     end
-    renderSavedConfigs()
-    updateStatus()
-end)()
+        renderSavedConfigs()
+        updateStatus()
+    end
+    initConfigsTab()
+end
 
 -- Keybind Handling
 addConn(UserInputService.InputBegan:Connect(function(input, processed)
