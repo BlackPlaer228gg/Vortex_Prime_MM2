@@ -1,6 +1,6 @@
 --[[
     ====================================================================
-    ⚡ VORTEX PRIME MM2 • UNIVERSAL LOADER
+    ⚡ VORTEX PRIME MM2 • UNIVERSAL LOADER [OFFICIAL RELEASE]
     GitHub: https://github.com/BlackPlaer228gg/Vortex_Prime_MM2
     Author: BlackPlaer228gg
     ====================================================================
@@ -22,7 +22,7 @@ print(string.format("[VORTEX PRIME] Запуск на инжекторе: %s%s..
 
 pcall(function()
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "⚡ VORTEX PRIME MM2",
+        Title = "⚡ VORTEX PRIME MM2 [RELEASE]",
         Text = "Инжектор: " .. tostring(executor) .. deviceTag .. "\nЗагрузка скрипта...",
         Duration = 3,
     })
