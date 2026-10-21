@@ -628,6 +628,7 @@ local Config = {
     MobileHudTransparency = 0.20,
     MobileHudTransparencyPct = 20,
     ShowMobileTabOnPC = false,
+    MobileIslandClickToggle = false,
 }
 _G.MM2_Config = Config
 
@@ -3838,6 +3839,10 @@ end
 -- Click on Dynamic Island to open / toggle GUI smoothly without squishing
 DynamicIsland.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+        if isMobile and not Config.MobileIslandClickToggle then
+            return
+        end
         if diStroke then
             local col = (UIThemes and UIThemes[Config.UITheme] and UIThemes[Config.UITheme].Main)
                 or IslandThemeColors[Config.IslandTheme] or IslandThemeColors.Red
@@ -3860,6 +3865,18 @@ DynamicIsland.InputBegan:Connect(function(input)
         end
     end
 end)
+
+do
+    local function updateIslandInteractivity()
+        local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+        local islandClickEnabled = (not isMobile) or (Config.MobileIslandClickToggle == true)
+        if DynamicIsland then
+            DynamicIsland.Active = islandClickEnabled
+        end
+    end
+    _G.MM2_UpdateIslandInteractivity = updateIslandInteractivity
+    pcall(updateIslandInteractivity)
+end
 
 pcall(function()
     applyIslandTextSize(Config.IslandTextSize or 10)
@@ -9715,6 +9732,13 @@ createToggle(TabIsland, "📢 Показывать статус и событи�
 end)
 createToggle(TabIsland, "✨ Анимация расширения при наведении", "IslandHoverExpand")
 createToggle(TabIsland, "⚡ Вспышка цвета при событиях", "IslandFlashAlerts")
+createToggle(TabIsland, "📱 Открывать меню кликом на Dynamic Island на телефонах", "MobileIslandClickToggle", function(on)
+    Config.MobileIslandClickToggle = on
+    saveConfig()
+    if _G.MM2_UpdateIslandInteractivity then
+        _G.MM2_UpdateIslandInteractivity()
+    end
+end)
 
 createSectionHeader(TabIsland, "📐 РАЗМЕР И ПОЗИЦИЯ ОСТРОВКА")
 createSlider(TabIsland, "Ширина островка", 320, 800, "IslandWidth", "%d px", function(v)
@@ -10395,6 +10419,14 @@ do
                 _G.MM2_ResetMobileButtonPos()
             end
             showNotification("🔘 MOBILE BUTTON", "Позиция кнопки меню сброшена!", Color3.fromRGB(60, 200, 255), "🔘", 2.0)
+        end)
+
+        createToggle(parentTab, "🏝️ Открывать меню по нажатию на Dynamic Island", "MobileIslandClickToggle", function(on)
+            Config.MobileIslandClickToggle = on
+            saveConfig()
+            if _G.MM2_UpdateIslandInteractivity then
+                _G.MM2_UpdateIslandInteractivity()
+            end
         end)
 
         -- 🎮 SECTION 3: ACTION HUD (DRAGGABLE BUTTONS WITH TEXT)
