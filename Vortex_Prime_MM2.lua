@@ -3953,7 +3953,8 @@ do
     titleLbl.TextSize = 26
     titleLbl.TextColor3 = Color3.fromRGB(0, 240, 180)
     titleLbl.TextXAlignment = Enum.TextXAlignment.Left
-    titleLbl.Text = "⚡ 3D RENDER ВЫКЛЮЧЕН (VORTEX PRIME • AFK DASHBOARD)"
+    local isRuAfk = ((Config and Config.Language) == "Russian")
+    titleLbl.Text = isRuAfk and "⚡ 3D RENDER ВЫКЛЮЧЕН (VORTEX PRIME • AFK DASHBOARD)" or "⚡ 3D RENDER DISABLED (VORTEX PRIME • AFK DASHBOARD)"
     titleLbl.Parent = header
 
     local subLbl = Instance.new("TextLabel")
@@ -3964,7 +3965,8 @@ do
     subLbl.TextSize = 15
     subLbl.TextColor3 = Color3.fromRGB(160, 175, 205)
     subLbl.TextXAlignment = Enum.TextXAlignment.Left
-    subLbl.Text = "Энергосбережение активно • 3D выгружен (20 FPS) • Нажмите [F7] для возврата"
+    subLbl.Text = isRuAfk and "Энергосбережение активно • 3D выгружен (20 FPS) • Нажмите [F7] для возврата"
+        or "Power save active • 3D unloaded (20 FPS) • Press [F7] to return"
     subLbl.Parent = header
 
     -- Live Stats Grid Container
@@ -4026,18 +4028,18 @@ do
         return valLbl
     end
 
-    local statFarm = createStatRow(1, "🌾", "Статус фарма:", "Ожидание...", Color3.fromRGB(255, 215, 60))
-    local statMap = createStatRow(2, "🗺️", "Текущая карта:", "Ожидание карты...", Color3.fromRGB(100, 200, 255))
-    local statRound = createStatRow(3, "⏱️", "Время раунда:", "--:--", Color3.fromRGB(220, 230, 255))
-    local statMurderer = createStatRow(4, "💀", "Убийца (Murderer):", "Неизвестен", Color3.fromRGB(255, 75, 95))
-    local statSheriff = createStatRow(5, "🛡️", "Шериф (Sheriff):", "Неизвестен", Color3.fromRGB(75, 160, 255))
-    local statGun = createStatRow(6, "⭐", "Пистолет на полу:", "Нет", Color3.fromRGB(255, 210, 50))
-    local statBag = createStatRow(7, "💰", "Мешок монет (раунд):", "0 / 40", Color3.fromRGB(255, 225, 75))
-    local statBalance = createStatRow(8, "🪙", "Баланс монет аккаунта:", "0", Color3.fromRGB(255, 220, 70))
-    local statServerCoins = createStatRow(9, "🌐", "За сессию на этом сервере:", "0", Color3.fromRGB(80, 235, 140))
-    local statAllTimeCoins = createStatRow(10, "💎", "За всё время (All-Time):", "0", Color3.fromRGB(0, 240, 210))
-    local statActiveCoins = createStatRow(11, "🗺️", "Монет на карте:", "0", Color3.fromRGB(255, 185, 75))
-    local statPerf = createStatRow(12, "⚡", "Производительность:", "20 FPS | 0 ms", Color3.fromRGB(0, 230, 190))
+    local statFarm = createStatRow(1, "🌾", isRuAfk and "Статус фарма:" or "Farm Status:", isRuAfk and "Ожидание..." or "Waiting...", Color3.fromRGB(255, 215, 60))
+    local statMap = createStatRow(2, "🗺️", isRuAfk and "Текущая карта:" or "Current Map:", isRuAfk and "Ожидание карты..." or "Waiting for map...", Color3.fromRGB(100, 200, 255))
+    local statRound = createStatRow(3, "⏱️", isRuAfk and "Время раунда:" or "Round Time:", "--:--", Color3.fromRGB(220, 230, 255))
+    local statMurderer = createStatRow(4, "💀", isRuAfk and "Убийца (Murderer):" or "Murderer:", isRuAfk and "Неизвестен" or "Unknown", Color3.fromRGB(255, 75, 95))
+    local statSheriff = createStatRow(5, "🛡️", isRuAfk and "Шериф (Sheriff):" or "Sheriff:", isRuAfk and "Неизвестен" or "Unknown", Color3.fromRGB(75, 160, 255))
+    local statGun = createStatRow(6, "⭐", isRuAfk and "Пистолет на полу:" or "Dropped Gun:", isRuAfk and "Нет" or "No", Color3.fromRGB(255, 210, 50))
+    local statBag = createStatRow(7, "💰", isRuAfk and "Мешок монет (раунд):" or "Round Bag:", "0 / 40", Color3.fromRGB(255, 225, 75))
+    local statBalance = createStatRow(8, "🪙", isRuAfk and "Баланс монет аккаунта:" or "Account Balance:", "0", Color3.fromRGB(255, 220, 70))
+    local statServerCoins = createStatRow(9, "🌐", isRuAfk and "За сессию на этом сервере:" or "Session Coins:", "0", Color3.fromRGB(80, 235, 140))
+    local statAllTimeCoins = createStatRow(10, "💎", isRuAfk and "За всё время (All-Time):" or "All-Time Coins:", "0", Color3.fromRGB(0, 240, 210))
+    local statActiveCoins = createStatRow(11, "🗺️", isRuAfk and "Монет на карте:" or "Coins on Map:", "0", Color3.fromRGB(255, 185, 75))
+    local statPerf = createStatRow(12, "⚡", isRuAfk and "Производительность:" or "Performance:", "20 FPS | 0 ms", Color3.fromRGB(0, 230, 190))
 
     -- Bottom Actions Row
     local btnRow = Instance.new("Frame")
@@ -4054,7 +4056,7 @@ do
     resumeBtn.Font = Enum.Font.GothamBlack
     resumeBtn.TextSize = 17
     resumeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    resumeBtn.Text = "🚀 ВКЛЮЧИТЬ 3D RENDER (F7)"
+    resumeBtn.Text = isRuAfk and "🚀 ВКЛЮЧИТЬ 3D RENDER (F7)" or "🚀 ENABLE 3D RENDER (F7)"
     resumeBtn.AutoButtonColor = false
     resumeBtn.Parent = btnRow
     Instance.new("UICorner", resumeBtn).CornerRadius = UDim.new(0, 10)
@@ -4067,7 +4069,7 @@ do
     resetStatsBtn.Font = Enum.Font.GothamBold
     resetStatsBtn.TextSize = 14
     resetStatsBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    resetStatsBtn.Text = "🗑️ СБРОСИТЬ СТАТУ"
+    resetStatsBtn.Text = isRuAfk and "🗑️ СБРОСИТЬ СТАТУ" or "🗑️ RESET STATS"
     resetStatsBtn.AutoButtonColor = false
     resetStatsBtn.Parent = btnRow
     Instance.new("UICorner", resetStatsBtn).CornerRadius = UDim.new(0, 10)
@@ -4459,8 +4461,526 @@ notifProgressBar.BackgroundColor3 = Color3.fromRGB(255, 215, 0)
 notifProgressBar.BorderSizePixel = 0
 notifProgressBar.Parent = NotificationCard
 
+-- ====================================================================
+-- 🌐 UNIVERSAL NOTIFICATION & LIVE STATS LOCALIZER (I18N ENGINE)
+-- ====================================================================
+do
+    local NOTIF_TITLES = {
+        ["👀 НАБЛЮДЕНИЕ (3-Е ЛИЦО)"] = { en = "👀 SPECTATE (3RD PERSON)", ru = "👀 НАБЛЮДЕНИЕ (3-Е ЛИЦО)" },
+        ["👀 SPECTATE (3RD PERSON)"] = { en = "👀 SPECTATE (3RD PERSON)", ru = "👀 НАБЛЮДЕНИЕ (3-Е ЛИЦО)" },
+        ["🛑 FLING СТОП"] = { en = "🛑 FLING STOPPED", ru = "🛑 FLING СТОП" },
+        ["🛑 FLING STOPPED"] = { en = "🛑 FLING STOPPED", ru = "🛑 FLING СТОП" },
+        ["🗑️ СТАТИСТИКА СБРОШЕНА"] = { en = "🗑️ STATS RESET", ru = "🗑️ СТАТИСТИКА СБРОШЕНА" },
+        ["🗑️ STATS RESET"] = { en = "🗑️ STATS RESET", ru = "🗑️ СТАТИСТИКА СБРОШЕНА" },
+        ["💥 SHOT FIRED!"] = { en = "💥 SHOT FIRED!", ru = "💥 ВЫСТРЕЛ ПРОИЗВЕДЁН!" },
+        ["💥 ВЫСТРЕЛ ПРОИЗВЕДЁН!"] = { en = "💥 SHOT FIRED!", ru = "💥 ВЫСТРЕЛ ПРОИЗВЕДЁН!" },
+        ["⚠️ NOT MURDERER"] = { en = "⚠️ NOT MURDERER", ru = "⚠️ НЕ МАРДЕР" },
+        ["⚠️ НЕ МАРДЕР"] = { en = "⚠️ NOT MURDERER", ru = "⚠️ НЕ МАРДЕР" },
+        ["⚠️ IN LOBBY"] = { en = "⚠️ IN LOBBY", ru = "⚠️ В ЛОББИ" },
+        ["⚠️ В ЛОББИ"] = { en = "⚠️ IN LOBBY", ru = "⚠️ В ЛОББИ" },
+        ["⚠️ NO TARGET"] = { en = "⚠️ NO TARGET", ru = "⚠️ НЕТ ЦЕЛИ" },
+        ["⚠️ НЕТ ЦЕЛИ"] = { en = "⚠️ NO TARGET", ru = "⚠️ НЕТ ЦЕЛИ" },
+        ["⚠️ NO KNIFE"] = { en = "⚠️ NO KNIFE", ru = "⚠️ НЕТ НОЖА" },
+        ["⚠️ НЕТ НОЖА"] = { en = "⚠️ NO KNIFE", ru = "⚠️ НЕТ НОЖА" },
+        ["🗡️ LONG-RANGE STRIKE!"] = { en = "🗡️ LONG-RANGE STRIKE!", ru = "🗡️ ДАЛЬНИЙ УДАР!" },
+        ["🗡️ ДАЛЬНИЙ УДАР!"] = { en = "🗡️ LONG-RANGE STRIKE!", ru = "🗡️ ДАЛЬНИЙ УДАР!" },
+        ["🗡️ KNIFE THROWN!"] = { en = "🗡️ KNIFE THROWN!", ru = "🗡️ НОЖ БРОШЕН!" },
+        ["🗡️ НОЖ БРОШЕН!"] = { en = "🗡️ KNIFE THROWN!", ru = "🗡️ НОЖ БРОШЕН!" },
+        ["🪙 AUTO-FARM"] = { en = "🪙 AUTO-FARM", ru = "🪙 АВТО-ФАРМ" },
+        ["🪙 АВТО-ФАРМ"] = { en = "🪙 AUTO-FARM", ru = "🪙 АВТО-ФАРМ" },
+        ["🌐 ЯЗЫК ИЗМЕНЁН"] = { en = "🌐 LANGUAGE UPDATED", ru = "🌐 ЯЗЫК ИЗМЕНЁН" },
+        ["🌐 LANGUAGE UPDATED"] = { en = "🌐 LANGUAGE UPDATED", ru = "🌐 ЯЗЫК ИЗМЕНЁН" },
+        ["⌨️ KEYBIND CHANGED"] = { en = "⌨️ KEYBIND CHANGED", ru = "⌨️ БИНД ИЗМЕНЁН" },
+        ["⌨️ БИНД ИЗМЕНЁН"] = { en = "⌨️ KEYBIND CHANGED", ru = "⌨️ БИНД ИЗМЕНЁН" },
+        ["⚠️ SERVER HOP ERROR"] = { en = "⚠️ SERVER HOP ERROR", ru = "⚠️ ОШИБКА СЕРВЕР ХОПА" },
+        ["⚠️ ОШИБКА СЕРВЕР ХОПА"] = { en = "⚠️ SERVER HOP ERROR", ru = "⚠️ ОШИБКА СЕРВЕР ХОПА" },
+        ["⚡ ПОИСК БЫСТРОГО СЕРВЕРА"] = { en = "⚡ FINDING FAST SERVER", ru = "⚡ ПОИСК БЫСТРОГО СЕРВЕРА" },
+        ["⚡ FINDING FAST SERVER"] = { en = "⚡ FINDING FAST SERVER", ru = "⚡ ПОИСК БЫСТРОГО СЕРВЕРА" },
+        ["🚀 БЫСТРЫЙ СЕРВЕР"] = { en = "🚀 FAST SERVER", ru = "🚀 БЫСТРЫЙ СЕРВЕР" },
+        ["🚀 FAST SERVER"] = { en = "🚀 FAST SERVER", ru = "🚀 БЫСТРЫЙ СЕРВЕР" },
+        ["🔄 MM2 HOP ALTERNATE"] = { en = "🔄 MM2 HOP ALTERNATE", ru = "🔄 MM2 HOP АЛЬТЕРНАТИВНЫЙ" },
+        ["🔄 MM2 HOP АЛЬТЕРНАТИВНЫЙ"] = { en = "🔄 MM2 HOP ALTERNATE", ru = "🔄 MM2 HOP АЛЬТЕРНАТИВНЫЙ" },
+        ["🔁 REJOINING SAME"] = { en = "🔁 REJOINING SAME", ru = "🔁 ПЕРЕЗАХОД НА ТОТ ЖЕ" },
+        ["🔁 ПЕРЕЗАХОД НА ТОТ ЖЕ"] = { en = "🔁 REJOINING SAME", ru = "🔁 ПЕРЕЗАХОД НА ТОТ ЖЕ" },
+        ["⚠️ ОШИБКА ПОДКЛЮЧЕНИЯ"] = { en = "⚠️ CONNECTION ERROR", ru = "⚠️ ОШИБКА ПОДКЛЮЧЕНИЯ" },
+        ["⚠️ CONNECTION ERROR"] = { en = "⚠️ CONNECTION ERROR", ru = "⚠️ ОШИБКА ПОДКЛЮЧЕНИЯ" },
+        ["🔁 АВТО-ПЕРЕЗАХОД В MM2"] = { en = "🔁 MM2 AUTO-RECONNECT", ru = "🔁 АВТО-ПЕРЕЗАХОД В MM2" },
+        ["🔁 MM2 AUTO-RECONNECT"] = { en = "🔁 MM2 AUTO-RECONNECT", ru = "🔁 АВТО-ПЕРЕЗАХОД В MM2" },
+        ["🌐 МАЛО ИГРОКОВ"] = { en = "🌐 LOW PLAYERS", ru = "🌐 МАЛО ИГРОКОВ" },
+        ["🌐 LOW PLAYERS"] = { en = "🌐 LOW PLAYERS", ru = "🌐 МАЛО ИГРОКОВ" },
+        ["⚠️ ЗАВИСШИЙ СЕРВЕР ОБНАРУЖЕН!"] = { en = "⚠️ FROZEN SERVER DETECTED!", ru = "⚠️ ЗАВИСШИЙ СЕРВЕР ОБНАРУЖЕН!" },
+        ["⚠️ FROZEN SERVER DETECTED!"] = { en = "⚠️ FROZEN SERVER DETECTED!", ru = "⚠️ ЗАВИСШИЙ СЕРВЕР ОБНАРУЖЕН!" },
+        ["♻️ RESET CONFIG"] = { en = "♻️ RESET CONFIG", ru = "♻️ СБРОС КОНФИГА" },
+        ["♻️ СБРОС КОНФИГА"] = { en = "♻️ RESET CONFIG", ru = "♻️ СБРОС КОНФИГА" },
+        ["🎨 ЦВЕТ ТРАССЕРА"] = { en = "🎨 TRACER COLOR", ru = "🎨 ЦВЕТ ТРАССЕРА" },
+        ["🎨 TRACER COLOR"] = { en = "🎨 TRACER COLOR", ru = "🎨 ЦВЕТ ТРАССЕРА" },
+        ["⚡ BULLET TRACER"] = { en = "⚡ BULLET TRACER", ru = "⚡ ТРАССЕР ПУЛИ" },
+        ["⚡ ТРАССЕР ПУЛИ"] = { en = "⚡ BULLET TRACER", ru = "⚡ ТРАССЕР ПУЛИ" },
+        ["📷 CAMERA ZOOM"] = { en = "📷 CAMERA ZOOM", ru = "📷 ЗУМ КАМЕРЫ" },
+        ["📷 ЗУМ КАМЕРЫ"] = { en = "📷 CAMERA ZOOM", ru = "📷 ЗУМ КАМЕРЫ" },
+        ["📐 РАСТЯГ ЭКРАНА"] = { en = "📐 STRETCHED RESOLUTION", ru = "📐 РАСТЯГ ЭКРАНА" },
+        ["📐 STRETCHED RESOLUTION"] = { en = "📐 STRETCHED RESOLUTION", ru = "📐 РАСТЯГ ЭКРАНА" },
+        ["📐 ПРЕСЕТ РАСТЯГА"] = { en = "📐 STRETCH PRESET", ru = "📐 ПРЕСЕТ РАСТЯГА" },
+        ["📐 STRETCH PRESET"] = { en = "📐 STRETCH PRESET", ru = "📐 ПРЕСЕТ РАСТЯГА" },
+        ["🎬 BLACK BARS"] = { en = "🎬 BLACK BARS", ru = "🎬 ЧЁРНЫЕ ПОЛОСЫ" },
+        ["🎬 ЧЁРНЫЕ ПОЛОСЫ"] = { en = "🎬 BLACK BARS", ru = "🎬 ЧЁРНЫЕ ПОЛОСЫ" },
+        ["📐 БЫСТРЫЙ РАСТЯГ"] = { en = "📐 QUICK STRETCH", ru = "📐 БЫСТРЫЙ РАСТЯГ" },
+        ["📐 QUICK STRETCH"] = { en = "📐 QUICK STRETCH", ru = "📐 БЫСТРЫЙ РАСТЯГ" },
+        ["📐 СБРОС РАСТЯГА"] = { en = "📐 RESET STRETCH", ru = "📐 СБРОС РАСТЯГА" },
+        ["📐 RESET STRETCH"] = { en = "📐 RESET STRETCH", ru = "📐 СБРОС РАСТЯГА" },
+        ["🎯 ПОЗИЦИЯ МЕТКИ"] = { en = "🎯 RETICLE POSITION", ru = "🎯 ПОЗИЦИЯ МЕТКИ" },
+        ["🎯 RETICLE POSITION"] = { en = "🎯 RETICLE POSITION", ru = "🎯 ПОЗИЦИЯ МЕТКИ" },
+        ["💀 KILL ALL"] = { en = "💀 KILL ALL", ru = "💀 МАССОВОЕ УНИЧТОЖЕНИЕ" },
+        ["💀 МАССОВОЕ УНИЧТОЖЕНИЕ"] = { en = "💀 KILL ALL", ru = "💀 МАССОВОЕ УНИЧТОЖЕНИЕ" },
+        ["⚠️ ОШИБКА"] = { en = "⚠️ ERROR", ru = "⚠️ ОШИБКА" },
+        ["⚠️ ERROR"] = { en = "⚠️ ERROR", ru = "⚠️ ОШИБКА" },
+        ["⚠️ FLING ERROR"] = { en = "⚠️ FLING ERROR", ru = "⚠️ ОШИБКА ФЛИНГА" },
+        ["⚠️ ОШИБКА ФЛИНГА"] = { en = "⚠️ FLING ERROR", ru = "⚠️ ОШИБКА ФЛИНГА" },
+        ["🛑 FLING СТОП"] = { en = "🛑 FLING STOP", ru = "🛑 FLING СТОП" },
+        ["🛑 FLING STOP"] = { en = "🛑 FLING STOP", ru = "🛑 FLING СТОП" },
+        ["⚠️ FLING"] = { en = "⚠️ FLING", ru = "⚠️ FLING" },
+        ["🌪️ FLING СТАРТ"] = { en = "🌪️ FLING START", ru = "🌪️ FLING СТАРТ" },
+        ["🌪️ FLING START"] = { en = "🌪️ FLING START", ru = "🌪️ FLING СТАРТ" },
+        ["🌪️ МЕТОД ФЛИНГА"] = { en = "🌪️ FLING METHOD", ru = "🌪️ МЕТОД ФЛИНГА" },
+        ["🌪️ FLING METHOD"] = { en = "🌪️ FLING METHOD", ru = "🌪️ МЕТОД ФЛИНГА" },
+        ["🎯 ФИЛЬТР"] = { en = "🎯 FILTER", ru = "🎯 ФИЛЬТР" },
+        ["🎯 FILTER"] = { en = "🎯 FILTER", ru = "🎯 ФИЛЬТР" },
+        ["🌪️ FLING"] = { en = "🌪️ FLING", ru = "🌪️ FLING" },
+        ["🗳️ VOTE DUPE"] = { en = "🗳️ VOTE DUPE", ru = "🗳️ ДЮП ГОЛОСОВ" },
+        ["🗳️ ДЮП ГОЛОСОВ"] = { en = "🗳️ VOTE DUPE", ru = "🗳️ ДЮП ГОЛОСОВ" },
+        ["🗳️ ГОЛОС"] = { en = "🗳️ VOTE", ru = "🗳️ ГОЛОС" },
+        ["🗳️ VOTE"] = { en = "🗳️ VOTE", ru = "🗳️ ГОЛОС" },
+        ["💀 RESET"] = { en = "💀 RESET", ru = "💀 РЕСЕТ" },
+        ["💀 РЕСЕТ"] = { en = "💀 RESET", ru = "💀 РЕСЕТ" },
+        ["🔄 ОБНОВЛЕНО"] = { en = "🔄 REFRESHED", ru = "🔄 ОБНОВЛЕНО" },
+        ["🔄 REFRESHED"] = { en = "🔄 REFRESHED", ru = "🔄 ОБНОВЛЕНО" },
+        ["👀 НАБЛЮДЕНИЕ ВЫКЛЮЧЕНО"] = { en = "👀 SPECTATE DISABLED", ru = "👀 НАБЛЮДЕНИЕ ВЫКЛЮЧЕНО" },
+        ["👀 SPECTATE DISABLED"] = { en = "👀 SPECTATE DISABLED", ru = "👀 НАБЛЮДЕНИЕ ВЫКЛЮЧЕНО" },
+        ["👀 ОШИБКА НАБЛЮДЕНИЯ"] = { en = "👀 SPECTATE ERROR", ru = "👀 ОШИБКА НАБЛЮДЕНИЯ" },
+        ["👀 SPECTATE ERROR"] = { en = "👀 SPECTATE ERROR", ru = "👀 ОШИБКА НАБЛЮДЕНИЯ" },
+        ["👀 SPECTATE"] = { en = "👀 SPECTATE", ru = "👀 НАБЛЮДЕНИЕ" },
+        ["👀 НАБЛЮДЕНИЕ"] = { en = "👀 SPECTATE", ru = "👀 НАБЛЮДЕНИЕ" },
+        ["👀 ИГРОК ВЫБЫЛ"] = { en = "👀 PLAYER ELIMINATED", ru = "👀 ИГРОК ВЫБЫЛ" },
+        ["👀 PLAYER ELIMINATED"] = { en = "👀 PLAYER ELIMINATED", ru = "👀 ИГРОК ВЫБЫЛ" },
+        ["🙈 ЛОББИ СКРЫТНОСТЬ"] = { en = "🙈 LOBBY STEALTH", ru = "🙈 ЛОББИ СКРЫТНОСТЬ" },
+        ["🙈 LOBBY STEALTH"] = { en = "🙈 LOBBY STEALTH", ru = "🙈 ЛОББИ СКРЫТНОСТЬ" },
+        ["🪙 COIN AUTO-FARM"] = { en = "🪙 COIN AUTO-FARM", ru = "🪙 COIN АВТО-ФАРМ" },
+        ["🪙 COIN АВТО-ФАРМ"] = { en = "🪙 COIN AUTO-FARM", ru = "🪙 COIN АВТО-ФАРМ" },
+        ["🛑 COIN AUTO-FARM"] = { en = "🛑 COIN AUTO-FARM", ru = "🛑 COIN АВТО-ФАРМ" },
+        ["🪙 РЕЖИМ ФАРМА"] = { en = "🪙 FARM MODE", ru = "🪙 РЕЖИМ ФАРМА" },
+        ["🪙 FARM MODE"] = { en = "🪙 FARM MODE", ru = "🪙 РЕЖИМ ФАРМА" },
+        ["🛡️ SAFE UNDERGROUND"] = { en = "🛡️ SAFE UNDERGROUND", ru = "🛡️ БЕЗОПАСНЫЙ ПОДЗЕМНЫЙ ФАРМ" },
+        ["🛡️ БЕЗОПАСНЫЙ ПОДЗЕМНЫЙ ФАРМ"] = { en = "🛡️ SAFE UNDERGROUND", ru = "🛡️ БЕЗОПАСНЫЙ ПОДЗЕМНЫЙ ФАРМ" },
+        ["🎯 ДЕЙСТВИЕ ПОСЛЕ ЛИМИТА"] = { en = "🎯 POST-LIMIT ACTION", ru = "🎯 ДЕЙСТВИЕ ПОСЛЕ ЛИМИТА" },
+        ["🎯 POST-LIMIT ACTION"] = { en = "🎯 POST-LIMIT ACTION", ru = "🎯 ДЕЙСТВИЕ ПОСЛЕ ЛИМИТА" },
+        ["🎃 BATTLE PASS"] = { en = "🎃 BATTLE PASS", ru = "🎃 BATTLE PASS" },
+        ["🎁 AUTO PASS"] = { en = "🎁 AUTO PASS", ru = "🎁 AUTO PASS" },
+        ["🛡️ ПОД КАРТУ"] = { en = "🛡️ UNDER MAP", ru = "🛡️ ПОД КАРТУ" },
+        ["🛡️ UNDER MAP"] = { en = "🛡️ UNDER MAP", ru = "🛡️ ПОД КАРТУ" },
+        ["🎨 THEME APPLIED"] = { en = "🎨 THEME APPLIED", ru = "🎨 ТЕМА ПРИМЕНЕНА" },
+        ["🎨 ТЕМА ПРИМЕНЕНА"] = { en = "🎨 THEME APPLIED", ru = "🎨 ТЕМА ПРИМЕНЕНА" },
+        ["🎨 CUSTOM COLOR"] = { en = "🎨 CUSTOM COLOR", ru = "🎨 КАСТОМНЫЙ ЦВЕТ" },
+        ["🎨 КАСТОМНЫЙ ЦВЕТ"] = { en = "🎨 CUSTOM COLOR", ru = "🎨 КАСТОМНЫЙ ЦВЕТ" },
+        ["📁 ТАБЫ ПЕРЕМЕЩЕНЫ"] = { en = "📁 TABS REPOSITIONED", ru = "📁 ТАБЫ ПЕРЕМЕЩЕНЫ" },
+        ["📁 TABS REPOSITIONED"] = { en = "📁 TABS REPOSITIONED", ru = "📁 ТАБЫ ПЕРЕМЕЩЕНЫ" },
+        ["💾 CONFIG SAVED"] = { en = "💾 CONFIG SAVED", ru = "💾 КОНФИГ СОХРАНЁН" },
+        ["📂 CONFIG LOADED"] = { en = "📂 CONFIG LOADED", ru = "📂 КОНФИГ ЗАГРУЖЕН" },
+        ["⚠️ LOAD FAILED"] = { en = "⚠️ LOAD FAILED", ru = "⚠️ ОШИБКА ЗАГРУЗКИ" },
+        ["📱 МОБИЛЬНАЯ КНОПКА"] = { en = "📱 MOBILE BUTTON", ru = "📱 МОБИЛЬНАЯ КНОПКА" },
+        ["📱 MOBILE BUTTON"] = { en = "📱 MOBILE BUTTON", ru = "📱 МОБИЛЬНАЯ КНОПКА" },
+        ["⚠️ РЕВОЛЬВЕР ВЫПАЛ!"] = { en = "⚠️ GUN DROPPED!", ru = "⚠️ РЕВОЛЬВЕР ВЫПАЛ!" },
+        ["⚠️ GUN DROPPED!"] = { en = "⚠️ GUN DROPPED!", ru = "⚠️ РЕВОЛЬВЕР ВЫПАЛ!" },
+        ["💀 МАРДЕР ОБНАРУЖЕН!"] = { en = "💀 MURDERER DETECTED!", ru = "💀 МАРДЕР ОБНАРУЖЕН!" },
+        ["💀 MURDERER DETECTED!"] = { en = "💀 MURDERER DETECTED!", ru = "💀 МАРДЕР ОБНАРУЖЕН!" },
+        ["📱 UI SCALE"] = { en = "📱 UI SCALE", ru = "📱 МАСШТАБ МЕНЮ" },
+        ["📱 МАСШТАБ МЕНЮ"] = { en = "📱 UI SCALE", ru = "📱 МАСШТАБ МЕНЮ" },
+        ["🔘 MOBILE BUTTON"] = { en = "🔘 MOBILE BUTTON", ru = "🔘 КНОПКА МЕНЮ" },
+        ["🔘 КНОПКА МЕНЮ"] = { en = "🔘 MOBILE BUTTON", ru = "🔘 КНОПКА МЕНЮ" },
+        ["🔒 HUD LOCK"] = { en = "🔒 HUD LOCK", ru = "🔒 ФИКСАЦИЯ КНОПОК" },
+        ["🔒 ФИКСАЦИЯ КНОПОК"] = { en = "🔒 HUD LOCK", ru = "🔒 ФИКСАЦИЯ КНОПОК" },
+        ["🎮 ACTION HUD"] = { en = "🎮 ACTION HUD", ru = "🎮 НАЭКРАННЫЕ КНОПКИ" },
+        ["🎮 НАЭКРАННЫЕ КНОПКИ"] = { en = "🎮 ACTION HUD", ru = "🎮 НАЭКРАННЫЕ КНОПКИ" },
+        ["⚡ RAGE PRESET"] = { en = "⚡ RAGE PRESET", ru = "⚡ RAGE ПРЕСЕТ" },
+        ["⚡ RAGE ПРЕСЕТ"] = { en = "⚡ RAGE PRESET", ru = "⚡ RAGE ПРЕСЕТ" },
+        ["🛡️ LEGIT PRESET"] = { en = "🛡️ LEGIT PRESET", ru = "🛡️ LEGIT ПРЕСЕТ" },
+        ["🛡️ LEGIT ПРЕСЕТ"] = { en = "🛡️ LEGIT PRESET", ru = "🛡️ LEGIT ПРЕСЕТ" },
+        ["💰 SAFE FARM PRESET"] = { en = "💰 SAFE FARM PRESET", ru = "💰 SAFE FARM ПРЕСЕТ" },
+        ["💰 SAFE FARM ПРЕСЕТ"] = { en = "💰 SAFE FARM PRESET", ru = "💰 SAFE FARM ПРЕСЕТ" },
+        ["🔄 СПИСОК ОБНОВЛЁН"] = { en = "🔄 LIST REFRESHED", ru = "🔄 СПИСОК ОБНОВЛЁН" },
+        ["🔄 LIST REFRESHED"] = { en = "🔄 LIST REFRESHED", ru = "🔄 СПИСОК ОБНОВЛЁН" },
+        ["💾 КОНФИГ ПЕРЕЗАПИСАН"] = { en = "💾 CONFIG OVERWRITTEN", ru = "💾 КОНФИГ ПЕРЕЗАПИСАН" },
+        ["💾 CONFIG OVERWRITTEN"] = { en = "💾 CONFIG OVERWRITTEN", ru = "💾 КОНФИГ ПЕРЕЗАПИСАН" },
+        ["➕ КОНФИГ СОЗДАН"] = { en = "➕ CONFIG CREATED", ru = "➕ КОНФИГ СОЗДАН" },
+        ["➕ CONFIG CREATED"] = { en = "➕ CONFIG CREATED", ru = "➕ КОНФИГ СОЗДАН" },
+        ["💾 КОНФИГ СОХРАНЁН"] = { en = "💾 CONFIG SAVED", ru = "💾 КОНФИГ СОХРАНЁН" },
+        ["⚠️ ВНИМАНИЕ"] = { en = "⚠️ WARNING", ru = "⚠️ ВНИМАНИЕ" },
+        ["⚠️ WARNING"] = { en = "⚠️ WARNING", ru = "⚠️ ВНИМАНИЕ" },
+        ["📂 КОНФИГ ЗАГРУЖЕН"] = { en = "📂 CONFIG LOADED", ru = "📂 КОНФИГ ЗАГРУЖЕН" },
+        ["🗑️ КОНФИГ УДАЛЁН"] = { en = "🗑️ CONFIG DELETED", ru = "🗑️ КОНФИГ УДАЛЁН" },
+        ["🗑️ CONFIG DELETED"] = { en = "🗑️ CONFIG DELETED", ru = "🗑️ КОНФИГ УДАЛЁН" },
+        ["📋 COPIED TO CLIPBOARD"] = { en = "📋 COPIED TO CLIPBOARD", ru = "📋 СКОПИРОВАНО В БУФЕР" },
+        ["📋 СКОПИРОВАНО В БУФЕР"] = { en = "📋 COPIED TO CLIPBOARD", ru = "📋 СКОПИРОВАНО В БУФЕР" },
+        ["⚠️ EXPORT FAILED"] = { en = "⚠️ EXPORT FAILED", ru = "⚠️ ОШИБКА ЭКСПОРТА" },
+        ["📥 IMPORT SUCCESSFUL"] = { en = "📥 IMPORT SUCCESSFUL", ru = "📥 ИМПОРТ УСПЕШЕН" },
+        ["📥 ИМПОРТ УСПЕШЕН"] = { en = "📥 IMPORT SUCCESSFUL", ru = "📥 ИМПОРТ УСПЕШЕН" },
+        ["⚠️ IMPORT FAILED"] = { en = "⚠️ IMPORT FAILED", ru = "⚠️ ОШИБКА ИМПОРТА" },
+        ["🎯 SILENT AIM"] = { en = "🎯 SILENT AIM", ru = "🎯 SILENT AIM" },
+        ["💥 AUTO-SHOT"] = { en = "💥 AUTO-SHOT", ru = "💥 АВТО-ВЫСТРЕЛ" },
+        ["💥 АВТО-ВЫСТРЕЛ"] = { en = "💥 AUTO-SHOT", ru = "💥 АВТО-ВЫСТРЕЛ" },
+        ["⚠️ SHOOT FAILED"] = { en = "⚠️ SHOOT FAILED", ru = "⚠️ ВЫСТРЕЛ НЕ УДАЛСЯ" },
+        ["⚡ 3D RENDER"] = { en = "⚡ 3D RENDER", ru = "⚡ 3D RENDER" },
+        ["☣️ РЕЖИМ INFECTION!"] = { en = "☣️ INFECTION MODE!", ru = "☣️ РЕЖИМ INFECTION!" },
+        ["☣️ INFECTION MODE!"] = { en = "☣️ INFECTION MODE!", ru = "☣️ РЕЖИМ INFECTION!" },
+        ["☣️ РЕЖИМ INFECTION"] = { en = "☣️ INFECTION MODE", ru = "☣️ РЕЖИМ INFECTION" },
+        ["☣️ INFECTION MODE"] = { en = "☣️ INFECTION MODE", ru = "☣️ РЕЖИМ INFECTION" },
+        ["🗺️ РАУНД НАЧАЛСЯ!"] = { en = "🗺️ ROUND STARTED!", ru = "🗺️ РАУНД НАЧАЛСЯ!" },
+        ["🗺️ ROUND STARTED!"] = { en = "🗺️ ROUND STARTED!", ru = "🗺️ РАУНД НАЧАЛСЯ!" },
+        ["🏛️ ВОЗВРАТ В ЛОББИ"] = { en = "🏛️ RETURN TO LOBBY", ru = "🏛️ ВОЗВРАТ В ЛОББИ" },
+        ["🏛️ RETURN TO LOBBY"] = { en = "🏛️ RETURN TO LOBBY", ru = "🏛️ ВОЗВРАТ В ЛОББИ" },
+        ["💀 ВЫ МАРДЕР!"] = { en = "💀 YOU ARE MURDERER!", ru = "💀 ВЫ МАРДЕР!" },
+        ["💀 YOU ARE MURDERER!"] = { en = "💀 YOU ARE MURDERER!", ru = "💀 ВЫ МАРДЕР!" },
+        ["🛡️ ВЫ ШЕРИФ!"] = { en = "🛡️ YOU ARE SHERIFF!", ru = "🛡️ ВЫ ШЕРИФ!" },
+        ["🛡️ YOU ARE SHERIFF!"] = { en = "🛡️ YOU ARE SHERIFF!", ru = "🛡️ ВЫ ШЕРИФ!" },
+        ["🛡️ ШЕРИФ ОБНАРУЖЕН!"] = { en = "🛡️ SHERIFF DETECTED!", ru = "🛡️ ШЕРИФ ОБНАРУЖЕН!" },
+        ["🛡️ SHERIFF DETECTED!"] = { en = "🛡️ SHERIFF DETECTED!", ru = "🛡️ ШЕРИФ ОБНАРУЖЕН!" },
+        ["🎉 МАРДЕР УНИЧТОЖЕН!"] = { en = "🎉 MURDERER ELIMINATED!", ru = "🎉 МАРДЕР УНИЧТОЖЕН!" },
+        ["🎉 МАРДЕР УСТРАНЁН!"] = { en = "🎉 MURDERER ELIMINATED!", ru = "🎉 МАРДЕР УСТРАНЁН!" },
+        ["🎉 MURDERER ELIMINATED!"] = { en = "🎉 MURDERER ELIMINATED!", ru = "🎉 МАРДЕР УНИЧТОЖЕН!" },
+        ["🔫 ВЫ ПОДОБРАЛИ ПИСТОЛЕТ!"] = { en = "🔫 YOU PICKED UP THE GUN!", ru = "🔫 ВЫ ПОДОБРАЛИ ПИСТОЛЕТ!" },
+        ["🔫 YOU PICKED UP THE GUN!"] = { en = "🔫 YOU PICKED UP THE GUN!", ru = "🔫 ВЫ ПОДОБРАЛИ ПИСТОЛЕТ!" },
+        ["⭐ НОВЫЙ ГЕРОЙ!"] = { en = "⭐ NEW HERO!", ru = "⭐ НОВЫЙ ГЕРОЙ!" },
+        ["⭐ NEW HERO!"] = { en = "⭐ NEW HERO!", ru = "⭐ НОВЫЙ ГЕРОЙ!" },
+        ["🎯 МАРДЕР ЛИКВИДИРОВАН!"] = { en = "🎯 MURDERER ELIMINATED!", ru = "🎯 МАРДЕР ЛИКВИДИРОВАН!" },
+        ["🔫 AUTO-SHOOT"] = { en = "🔫 AUTO-SHOOT", ru = "🔫 AUTO-SHOOT" },
+        ["🎯 ПИСТОЛЕТ В РУКАХ!"] = { en = "🎯 GUN IN HANDS!", ru = "🎯 ПИСТОЛЕТ В РУКАХ!" },
+        ["🎯 GUN IN HANDS!"] = { en = "🎯 GUN IN HANDS!", ru = "🎯 ПИСТОЛЕТ В РУКАХ!" },
+        ["🎯 ПИСТОЛЕТ ПОЛУЧЕН!"] = { en = "🎯 GUN RECEIVED!", ru = "🎯 ПИСТОЛЕТ ПОЛУЧЕН!" },
+        ["🎯 GUN RECEIVED!"] = { en = "🎯 GUN RECEIVED!", ru = "🎯 ПИСТОЛЕТ ПОЛУЧЕН!" },
+        ["🌪️ ФЛИНГ МАРДЕРА"] = { en = "🌪️ FLING MURDERER", ru = "🌪️ ФЛИНГ МАРДЕРА" },
+        ["🌪️ FLING MURDERER"] = { en = "🌪️ FLING MURDERER", ru = "🌪️ ФЛИНГ МАРДЕРА" },
+        ["🔄 ПОВТОРНЫЙ ФЛИНГ"] = { en = "🔄 RETRY FLING", ru = "🔄 ПОВТОРНЫЙ ФЛИНГ" },
+        ["🔄 RETRY FLING"] = { en = "🔄 RETRY FLING", ru = "🔄 ПОВТОРНЫЙ ФЛИНГ" },
+        ["🛡️ ANTI-VOID"] = { en = "🛡️ ANTI-VOID", ru = "🛡️ ANTI-VOID" },
+        ["🛡️ ЛОВУШКИ ОБЕЗВРЕЖЕНЫ"] = { en = "🛡️ TRAPS DISARMED", ru = "🛡️ ЛОВУШКИ ОБЕЗВРЕЖЕНЫ" },
+        ["🛡️ TRAPS DISARMED"] = { en = "🛡️ TRAPS DISARMED", ru = "🛡️ ЛОВУШКИ ОБЕЗВРЕЖЕНЫ" },
+        ["⭐ PRESTIGE"] = { en = "⭐ PRESTIGE", ru = "⭐ PRESTIGE" },
+        ["🎭 MM2 EMOTE"] = { en = "🎭 MM2 EMOTE", ru = "🎭 MM2 ЭМОЦИЯ" },
+        ["🎭 MM2 ЭМОЦИЯ"] = { en = "🎭 MM2 EMOTE", ru = "🎭 MM2 ЭМОЦИЯ" },
+        ["🍬 ВСЕ КОНФЕТЫ СОБРАНЫ!"] = { en = "🍬 ALL CANDIES COLLECTED!", ru = "🍬 ВСЕ КОНФЕТЫ СОБРАНЫ!" },
+        ["🍬 ALL CANDIES COLLECTED!"] = { en = "🍬 ALL CANDIES COLLECTED!", ru = "🍬 ВСЕ КОНФЕТЫ СОБРАНЫ!" },
+        ["🪙 ВСЕ МОНЕТЫ СОБРАНЫ!"] = { en = "🪙 ALL COINS COLLECTED!", ru = "🪙 ВСЕ МОНЕТЫ СОБРАНЫ!" },
+        ["🪙 ALL COINS COLLECTED!"] = { en = "🪙 ALL COINS COLLECTED!", ru = "🪙 ВСЕ МОНЕТЫ СОБРАНЫ!" },
+        ["🍬 МЕШОК КОНФЕТ ПОЛОН!"] = { en = "🍬 CANDY BAG FULL!", ru = "🍬 МЕШОК КОНФЕТ ПОЛОН!" },
+        ["🍬 CANDY BAG FULL!"] = { en = "🍬 CANDY BAG FULL!", ru = "🍬 МЕШОК КОНФЕТ ПОЛОН!" },
+        ["💰 МЕШОК ПОЛОН!"] = { en = "💰 COIN BAG FULL!", ru = "💰 МЕШОК ПОЛОН!" },
+        ["💰 COIN BAG FULL!"] = { en = "💰 COIN BAG FULL!", ru = "💰 МЕШОК ПОЛОН!" },
+        ["⚠️ КОНФИГ УЖЕ СУЩЕСТВУЕТ"] = { en = "⚠️ CONFIG ALREADY EXISTS", ru = "⚠️ КОНФИГ УЖЕ СУЩЕСТВУЕТ" },
+        ["⚠️ CONFIG ALREADY EXISTS"] = { en = "⚠️ CONFIG ALREADY EXISTS", ru = "⚠️ КОНФИГ УЖЕ СУЩЕСТВУЕТ" },
+        ["💾 ПОДТВЕРЖДЕНИЕ СОХРАНЕНИЯ"] = { en = "💾 CONFIRM SAVE", ru = "💾 ПОДТВЕРЖДЕНИЕ СОХРАНЕНИЯ" },
+        ["💾 CONFIRM SAVE"] = { en = "💾 CONFIRM SAVE", ru = "💾 ПОДТВЕРЖДЕНИЕ СОХРАНЕНИЯ" },
+        ["📂 ЗАГРУЗКА КОНФИГА"] = { en = "📂 LOAD CONFIG", ru = "📂 ЗАГРУЗКА КОНФИГА" },
+        ["📂 LOAD CONFIG"] = { en = "📂 LOAD CONFIG", ru = "📂 ЗАГРУЗКА КОНФИГА" },
+        ["🗑️ УДАЛЕНИЕ КОНФИГА"] = { en = "🗑️ DELETE CONFIG", ru = "🗑️ УДАЛЕНИЕ КОНФИГА" },
+        ["🗑️ DELETE CONFIG"] = { en = "🗑️ DELETE CONFIG", ru = "🗑️ УДАЛЕНИЕ КОНФИГА" },
+        ["🗑️ ПОДТВЕРЖДЕНИЕ УДАЛЕНИЯ"] = { en = "🗑️ CONFIRM DELETION", ru = "🗑️ ПОДТВЕРЖДЕНИЕ УДАЛЕНИЯ" },
+        ["🗑️ CONFIRM DELETION"] = { en = "🗑️ CONFIRM DELETION", ru = "🗑️ ПОДТВЕРЖДЕНИЕ УДАЛЕНИЯ" }
+    }
+
+    local NOTIF_DESCS = {
+        ["Фарм включен!"] = { en = "Farm enabled!", ru = "Фарм включен!" },
+        ["Фарм выключен!"] = { en = "Farm disabled!", ru = "Фарм выключен!" },
+        ["Авто-покупка уровней за 600 конфет включена!"] = { en = "Auto-purchase tiers for 600 candies enabled!", ru = "Авто-покупка уровней за 600 конфет включена!" },
+        ["Авто-покупка выключена"] = { en = "Auto-purchase disabled", ru = "Авто-покупка выключена" },
+        ["Пасс уже прокачан на максимум (30/30)!"] = { en = "Pass already maxed out (30/30)!", ru = "Пасс уже прокачан на максимум (30/30)!" },
+        ["Включен настоящий физический Tween (с репликацией)"] = { en = "Real physical Tween enabled (with replication)", ru = "Включен настоящий физический Tween (с репликацией)" },
+        ["Включен мгновенный телепорт с задержкой (КД)"] = { en = "Instant teleport with cooldown enabled", ru = "Включен мгновенный телепорт с задержкой (КД)" },
+        ["Кнопки зафиксированы!"] = { en = "Action buttons locked!", ru = "Кнопки зафиксированы!" },
+        ["Кнопки можно перетаскивать!"] = { en = "Action buttons can be dragged!", ru = "Кнопки можно перетаскивать!" },
+        ["3D Рендеринг ОТКЛЮЧЕН (20 FPS)"] = { en = "3D Rendering DISABLED (20 FPS)", ru = "3D Рендеринг ОТКЛЮЧЕН (20 FPS)" },
+        ["3D Рендеринг ВКЛЮЧЕН"] = { en = "3D Rendering ENABLED", ru = "3D Рендеринг ВКЛЮЧЕН" },
+        ["Режим чёрных полос (4:3 Black Bars) включен"] = { en = "Black bars mode (4:3 Black Bars) enabled", ru = "Режим чёрных полос (4:3 Black Bars) включен" },
+        ["Режим полного растяга (Full Stretched) включен"] = { en = "Full Stretched mode enabled", ru = "Режим полного растяга (Full Stretched) включен" },
+        ["Отключен (16:9 Standard)"] = { en = "Disabled (16:9 Standard)", ru = "Отключен (16:9 Standard)" },
+        ["Активирован турнирный 4:3 Stretched (1440x1080)!"] = { en = "Tournament 4:3 Stretched (1440x1080) activated!", ru = "Активирован турнирный 4:3 Stretched (1440x1080)!" },
+        ["Возвращено стандартное соотношение 16:9"] = { en = "Standard 16:9 aspect ratio restored", ru = "Возвращено стандартное соотношение 16:9" },
+        ["Установлен максимальный зум 2000 studs (Сквозь стены)"] = { en = "Max zoom set to 2000 studs (Through walls)", ru = "Установлен максимальный зум 2000 studs (Сквозь стены)" },
+        ["Сброшено на стандартную дистанцию MM2 (15 studs)"] = { en = "Reset to standard MM2 zoom distance (15 studs)", ru = "Сброшено на стандартную дистанцию MM2 (15 studs)" },
+        ["Тестовый лазерный трассер выпущен!"] = { en = "Test laser bullet tracer fired!", ru = "Тестовый лазерный трассер выпущен!" },
+        ["Multi-Fling успешно остановлен"] = { en = "Multi-Fling successfully stopped", ru = "Multi-Fling успешно остановлен" },
+        ["Выбран только Murderer"] = { en = "Murderer only selected", ru = "Выбран только Murderer" },
+        ["Выбраны Sheriff & Hero"] = { en = "Sheriff & Hero selected", ru = "Выбраны Sheriff & Hero" },
+        ["Выбраны все мирные игроки"] = { en = "All innocent players selected", ru = "Выбраны все мирные игроки" },
+        ["Выбраны ВСЕ игроки на сервере"] = { en = "ALL players on server selected", ru = "Выбраны ВСЕ игроки на сервере" },
+        ["Мардер ещё не обнаружен или погиб!"] = { en = "Murderer not detected yet or dead!", ru = "Мардер ещё не обнаружен или погиб!" },
+        ["Шериф ещё не обнаружен или погиб!"] = { en = "Sheriff not detected yet or dead!", ru = "Шериф ещё не обнаружен или погиб!" },
+        ["Все цели на карте устранены!"] = { en = "All targets on map eliminated!", ru = "Все цели на карте устранены!" },
+        ["Авто-фарм и функции скрытности ВЫКЛЮЧЕНЫ. Физика восстановлена!"] = { en = "Auto-farm and stealth features DISABLED. Physics restored!", ru = "Авто-фарм и функции скрытности ВЫКЛЮЧЕНЫ. Физика восстановлена!" },
+        ["Авто-фарм и функции скрытности АКТИВИРОВАНЫ!"] = { en = "Auto-farm and stealth features ACTIVATED!", ru = "Авто-фарм и функции скрытности АКТИВИРОВАНЫ!" },
+        ["У вас револьвер! Защитите невинных!"] = { en = "You have the revolver! Protect the innocents!", ru = "У вас револьвер! Защитите невинных!" },
+        ["Статистика за сессию и всё время сброшена на 0!"] = { en = "Session and all-time stats reset to 0!", ru = "Статистика за сессию и всё время сброшена на 0!" },
+        ["Long-Range Strike is only available for Murderer role!"] = { en = "Long-Range Strike is only available for Murderer role!", ru = "Дальний удар доступен только за роль Мардера!" },
+        ["Cannot strike players while in Lobby!"] = { en = "Cannot strike players while in Lobby!", ru = "Нельзя атаковать игроков в лобби!" },
+        ["Hover cursor over an Innocent or Sheriff to lock!"] = { en = "Hover cursor over an Innocent or Sheriff to lock!", ru = "Наведите прицел на игрока для захвата цели!" },
+        ["Knife not found in Backpack or Character!"] = { en = "Knife not found in Backpack or Character!", ru = "Нож не найден в инвентаре или в руках!" },
+        ["Фарм включен!"] = { en = "Farm enabled!", ru = "Фарм включен!" },
+        ["Фарм выключен!"] = { en = "Farm disabled!", ru = "Фарм выключен!" },
+        ["Язык интерфейса успешно переключен на Русский!"] = { en = "Interface language switched to Russian!", ru = "Язык интерфейса успешно переключен на Русский!" },
+        ["Interface language has been changed to English!"] = { en = "Interface language has been changed to English!", ru = "Язык интерфейса успешно переключен на английский!" },
+        ["Server hop is restricted to MM2 places only!"] = { en = "Server hop is restricted to MM2 places only!", ru = "Сервер хоп доступен только в MM2!" },
+        ["Поиск сервера с минимальным пингом..."] = { en = "Searching for server with lowest ping...", ru = "Поиск сервера с минимальным пингом..." },
+        ["Переход через альтернативный MM2 хаб..."] = { en = "Connecting via alternate MM2 hub...", ru = "Переход через альтернативный MM2 хаб..." },
+        ["Reconnecting to same MM2 server..."] = { en = "Reconnecting to same MM2 server...", ru = "Переподключение к тому же серверу MM2..." },
+        ["Сервер заполнился! Поиск другого сервера..."] = { en = "Server is full! Searching for another server...", ru = "Сервер заполнился! Поиск другого сервера..." },
+        ["Settings reset to default values!"] = { en = "Settings reset to default values!", ru = "Настройки сброшены к стандартным значениям!" },
+        ["Тестовый лазерный трассер выпущен!"] = { en = "Test laser tracer fired!", ru = "Тестовый лазерный трассер выпущен!" },
+        ["Установлен максимальный зум 2000 studs (Сквозь стены)"] = { en = "Max zoom 2000 studs applied (Camera noclip)", ru = "Установлен максимальный зум 2000 studs (Сквозь стены)" },
+        ["Сброшено на стандартную дистанцию MM2 (15 studs)"] = { en = "Reset to default MM2 distance (15 studs)", ru = "Сброшено на стандартную дистанцию MM2 (15 studs)" },
+        ["Возвращено стандартное соотношение 16:9"] = { en = "Restored default 16:9 aspect ratio", ru = "Возвращено стандартное соотношение 16:9" },
+        ["Все цели на карте устранены!"] = { en = "All targets on map eliminated!", ru = "Все цели на карте устранены!" },
+        ["Multi-Fling успешно остановлен"] = { en = "Multi-Fling successfully stopped", ru = "Multi-Fling успешно остановлен" },
+        ["Сначала выберите хотя бы одного игрока в списке!"] = { en = "Select at least one player in list first!", ru = "Сначала выберите хотя бы одного игрока в списке!" },
+        ["Выбран только Murderer"] = { en = "Murderer selected only", ru = "Выбран только Murderer" },
+        ["Выбраны Sheriff & Hero"] = { en = "Sheriff & Hero selected", ru = "Выбраны Sheriff & Hero" },
+        ["Выбраны все мирные игроки"] = { en = "All innocents selected", ru = "Выбраны все мирные игроки" },
+        ["Выбраны ВСЕ игроки на сервере"] = { en = "ALL players on server selected", ru = "Выбраны ВСЕ игроки на сервере" },
+        ["Выбор целей очищен"] = { en = "Target selection cleared", ru = "Выбор целей очищен" },
+        ["Авто-дюп запущен! Вставание на плитку + быстрый сброс..."] = { en = "Auto vote dupe started! Moving to tile + fast reset...", ru = "Авто-дюп запущен! Вставание на плитку + быстрый сброс..." },
+        ["Авто-дюп остановлен."] = { en = "Auto vote dupe stopped.", ru = "Авто-дюп остановлен." },
+        ["Персонаж сброшен для нового голоса"] = { en = "Character reset for next vote", ru = "Персонаж сброшен для нового голоса" },
+        ["Данные голосования обновлены"] = { en = "Vote data updated", ru = "Данные голосования обновлены" },
+        ["Камера возвращена на вашего персонажа."] = { en = "Camera returned to your character.", ru = "Камера возвращена на вашего персонажа." },
+        ["Мардер ещё не обнаружен или погиб!"] = { en = "Murderer not detected yet or dead!", ru = "Мардер ещё не обнаружен или погиб!" },
+        ["Шериф ещё не обнаружен или погиб!"] = { en = "Sheriff not detected yet or dead!", ru = "Шериф ещё не обнаружен или погиб!" },
+        ["Наблюдаемый игрок погиб или покинул сервер. Камера возвращена."] = { en = "Spectated player died or left. Camera returned.", ru = "Наблюдаемый игрок погиб или покинул сервер. Камера возвращена." },
+        ["Вы телепортированы под лобби на платформу!"] = { en = "Teleported under lobby to platform!", ru = "Вы телепортированы под лобби на платформу!" },
+        ["Авто-фарм и функции скрытности АКТИВИРОВАНЫ!"] = { en = "Auto-farm & stealth features ACTIVATED!", ru = "Авто-фарм и функции скрытности АКТИВИРОВАНЫ!" },
+        ["Авто-фарм и функции скрытности ВЫКЛЮЧЕНЫ. Физика восстановлена!"] = { en = "Auto-farm & stealth features DISABLED. Physics restored!", ru = "Авто-фарм и функции скрытности ВЫКЛЮЧЕНЫ. Физика восстановлена!" },
+        ["Фарм строго под землёй включен! Мардер не достанет ножом."] = { en = "Strictly underground farm enabled! Murderer cannot reach.", ru = "Фарм строго под землёй включен! Мардер не достанет ножом." },
+        ["Авто-покупка уровней за 600 конфет включена!"] = { en = "Auto-skip tiers for 600 candies enabled!", ru = "Авто-покупка уровней за 600 конфет включена!" },
+        ["Авто-покупка выключена"] = { en = "Auto-skip tiers disabled", ru = "Авто-покупка выключена" },
+        ["Уровень успешно куплен за 600 конфет!"] = { en = "Tier successfully purchased for 600 candies!", ru = "Уровень успешно куплен за 600 конфет!" },
+        ["Пасс уже прокачан на максимум (30/30)"] = { en = "Battle Pass is already maxed out (30/30)", ru = "Пасс уже прокачан на максимум (30/30)" },
+        ["Все открытые награды Пасса уже забраны!"] = { en = "All unlocked Pass rewards already claimed!", ru = "Все открытые награды Пасса уже забраны!" },
+        ["Вы телепортированы на защитную подземную платформу!"] = { en = "Teleported to safe underground platform!", ru = "Вы телепортированы на защитную подземную платформу!" },
+        ["Settings written to MM2_Hub_Config.json"] = { en = "Settings written to MM2_Hub_Config.json", ru = "Настройки сохранены в MM2_Hub_Config.json" },
+        ["Successfully restored configuration!"] = { en = "Successfully restored configuration!", ru = "Конфигурация успешно восстановлена!" },
+        ["No config file found on device."] = { en = "No config file found on device.", ru = "Конфиг-файл не найден на устройстве." },
+        ["Шериф погиб! Пистолет лежит на карте — подберите его!"] = { en = "Sheriff died! The gun is dropped on map — pick it up!", ru = "Шериф погиб! Пистолет лежит на карте — подберите его!" },
+        ["Опасность! Мардер достал оружие!"] = { en = "Danger! Murderer equipped weapon!", ru = "Опасность! Мардер достал оружие!" },
+        ["Масштаб меню сброшен на 65%!"] = { en = "Menu UI scale reset to 65%!", ru = "Масштаб меню сброшен на 65%!" },
+        ["Позиция кнопки меню сброшена!"] = { en = "Menu button position reset!", ru = "Позиция кнопки меню сброшена!" },
+        ["Кнопки зафиксированы!"] = { en = "Buttons locked in place!", ru = "Кнопки зафиксированы!" },
+        ["Кнопки можно перетаскивать!"] = { en = "Buttons can now be dragged!", ru = "Кнопки можно перетаскивать!" },
+        ["Позиции экранных кнопок сброшены!"] = { en = "HUD button positions reset!", ru = "Позиции экранных кнопок сброшены!" },
+        ["Full Rage Config loaded! Dominate the lobby."] = { en = "Full Rage Config loaded! Dominate the lobby.", ru = "Rage конфиг загружен! Доминируйте на сервере." },
+        ["Closet / Legit Config loaded! Safe for high-level accounts."] = { en = "Closet / Legit Config loaded! Safe for high-level accounts.", ru = "Legit конфиг загружен! Безопасно для аккаунта." },
+        ["Zero-kick AFK Farm configured! 3D Render disabled."] = { en = "Zero-kick AFK Farm configured! 3D Render disabled.", ru = "AFK Фарм настроен! 3D Рендер отключен." },
+        ["Список сохранённых конфигов обновлён!"] = { en = "Saved configs list refreshed!", ru = "Список сохранённых конфигов обновлён!" },
+        ["Не удалось перезаписать конфиг."] = { en = "Failed to overwrite config.", ru = "Не удалось перезаписать конфиг." },
+        ["Не удалось создать конфиг."] = { en = "Failed to create config.", ru = "Не удалось создать конфиг." },
+        ["Не удалось сохранить конфиг."] = { en = "Failed to save config.", ru = "Не удалось сохранить конфиг." },
+        ["Выберите или введите имя конфига для загрузки!"] = { en = "Select or enter config name to load!", ru = "Выберите или введите имя конфига для загрузки!" },
+        ["Выберите конфиг для удаления!"] = { en = "Select a config to delete!", ru = "Выберите конфиг для удаления!" },
+        ["Configuration JSON copied! Share it anywhere."] = { en = "Configuration JSON copied! Share it anywhere.", ru = "JSON конфига скопирован в буфер!" },
+        ["setclipboard is not supported on this executor."] = { en = "setclipboard is not supported on this executor.", ru = "setclipboard не поддерживается инжектором." },
+        ["Config loaded from clipboard!"] = { en = "Config loaded from clipboard!", ru = "Конфиг успешно загружен из буфера!" },
+        ["Clipboard does not contain valid config JSON."] = { en = "Clipboard does not contain valid config JSON.", ru = "Буфер не содержит корректного JSON конфига." },
+        ["Раунд завершен! Все игроки вернулись в лобби."] = { en = "Round finished! All players returned to lobby.", ru = "Раунд завершен! Все игроки вернулись в лобби." },
+        ["Ликвидируйте всех невинных и шерифа!"] = { en = "Eliminate all innocents and the sheriff!", ru = "Ликвидируйте всех невинных и шерифа!" },
+        ["У вас револьвер! Защитите невинных!"] = { en = "You have the gun! Protect the innocents!", ru = "У вас револьвер! Защитите невинных!" },
+        ["Мардер ликвидирован! Победа невинных!"] = { en = "Murderer eliminated! Innocents victory!", ru = "Мардер ликвидирован! Победа невинных!" },
+        ["Теперь вы ГЕРОЙ! Уничтожьте мардера!"] = { en = "You are now the HERO! Eliminate the murderer!", ru = "Теперь вы ГЕРОЙ! Уничтожьте мардера!" },
+        ["Шериф успешно ликвидировал мардера! Ожидание нового раунда..."] = { en = "Sheriff eliminated the murderer! Waiting for next round...", ru = "Шериф успешно ликвидировал мардера! Ожидание нового раунда..." },
+        ["Обнаружен револьвер! Переключение с флинга на выстрел в мардера..."] = { en = "Gun detected! Switching from fling to shooting murderer...", ru = "Обнаружен револьвер! Переключение с флинга на выстрел в мардера..." },
+        ["Мардер ликвидирован! Цикл флинга остановлен."] = { en = "Murderer eliminated! Fling cycle stopped.", ru = "Мардер ликвидирован! Цикл флинга остановлен." },
+        ["Мардер мёртв или покинул сервер! Цикл флинга остановлен."] = { en = "Murderer dead or left! Fling cycle stopped.", ru = "Мардер мёртв или покинул сервер! Цикл флинга остановлен." },
+        ["Подобран револьвер! Переключаемся на выстрел в мардера..."] = { en = "Gun picked up! Switching to shooting murderer...", ru = "Подобран револьвер! Переключаемся на выстрел в мардера..." },
+        ["Мардер ликвидирован! Остановка цикла флинга."] = { en = "Murderer eliminated! Stopping fling cycle.", ru = "Мардер ликвидирован! Остановка цикла флинга." },
+        ["Мешок полон! Зомби бесконечно возрождаются — ожидание таймера под картой ⏱️"] = { en = "Bag full! Zombies endlessly respawn — waiting timer under map ⏱️", ru = "Мешок полон! Зомби бесконечно возрождаются — ожидание таймера под картой ⏱️" },
+        ["Фарм завершен! Ресет персонажа..."] = { en = "Farm finished! Resetting character...", ru = "Фарм завершен! Ресет персонажа..." },
+        ["Режим AFK: Ожидание конца раунда под картой."] = { en = "AFK Mode: Waiting for round end under map.", ru = "Режим AFK: Ожидание конца раунда под картой." },
+        ["Вы Мардер! Запуск ликвидации всех игроков..."] = { en = "You are Murderer! Eliminating all players...", ru = "Вы Мардер! Запуск ликвидации всех игроков..." },
+        ["Пистолет в руках! Устранение мардера выстрелом..."] = { en = "Gun in hands! Eliminating murderer with shot...", ru = "Пистолет в руках! Устранение мардера выстрелом..." },
+        ["Пистолета нет! Физический флинг мардера..."] = { en = "No gun! Physical fling on murderer...", ru = "Пистолета нет! Физический флинг мардера..." },
+        ["Спасен от падения в лобби!"] = { en = "Saved from falling in lobby!", ru = "Спасен от падения в лобби!" },
+        ["Спасен от падения в бездну карты!"] = { en = "Saved from falling into void!", ru = "Спасен от падения в бездну карты!" },
+        ["Запрос на Престиж отправлен серверу!"] = { en = "Prestige request sent to server!", ru = "Запрос на Престиж отправлен серверу!" },
+        ["Позиция сброшена на стандартную (20, 80)"] = { en = "Position reset to default (20, 80)", ru = "Позиция сброшена на стандартную (20, 80)" }
+    }
+
+    local FARM_STATUSES = {
+        ["Ожидание"] = { en = "Idle", ru = "Ожидание" },
+        ["Ожидание..."] = { en = "Waiting...", ru = "Ожидание..." },
+        ["Запуск фарма..."] = { en = "Starting farm...", ru = "Запуск фарма..." },
+        ["Ожидание спавна монет ⏳"] = { en = "Waiting for coins to spawn ⏳", ru = "Ожидание спавна монет ⏳" },
+        ["Вы погибли • Ожидание нового раунда ⏳"] = { en = "You died • Waiting for new round ⏳", ru = "Вы погибли • Ожидание нового раунда ⏳" },
+        ["В лобби (Ожидание раунда)"] = { en = "In lobby (Waiting for round)", ru = "В лобби (Ожидание раунда)" },
+        ["Выключен"] = { en = "Disabled", ru = "Выключен" },
+        ["Фарм выключен"] = { en = "Farm disabled", ru = "Фарм выключен" },
+        ["Мардер убит • Ожидание нового раунда ⏳"] = { en = "Murderer eliminated • Waiting for next round ⏳", ru = "Мардер убит • Ожидание нового раунда ⏳" },
+        ["Лимит монет • Скрыт под картой 🛡️"] = { en = "Coin limit reached • Hidden under map 🛡️", ru = "Лимит монет • Скрыт под картой 🛡️" },
+        ["Режим Infection • Ожидание конца раунда по таймеру ⏱️"] = { en = "Infection Mode • Waiting for round timer ⏱️", ru = "Режим Infection • Ожидание конца раунда по таймеру ⏱️" },
+        ["Ожидание голосования за карту 🗳️"] = { en = "Waiting for map vote 🗳️", ru = "Ожидание голосования за карту 🗳️" },
+        ["Вы погибли • Ожидание в лобби ⏳"] = { en = "You died • Waiting in lobby ⏳", ru = "Вы погибли • Ожидание в лобби ⏳" },
+        ["Вы погибли • Ожидание конца раунда ⏳"] = { en = "You died • Waiting for round end ⏳", ru = "Вы погибли • Ожидание конца раунда ⏳" },
+        ["В лобби • Ожидание след. раунда ⏳"] = { en = "In lobby • Waiting for next round ⏳", ru = "В лобби • Ожидание след. раунда ⏳" },
+        ["Ожидание вступления в игру ⏳"] = { en = "Waiting to join game ⏳", ru = "Ожидание вступления в игру ⏳" },
+        ["Все игроки ликвидированы • Ожидание нового раунда ⏳"] = { en = "All players eliminated • Waiting for next round ⏳", ru = "Все игроки ликвидированы • Ожидание нового раунда ⏳" },
+        ["Раунд завершен • Ожидание нового раунда ⏳"] = { en = "Round finished • Waiting for next round ⏳", ru = "Раунд завершен • Ожидание нового раунда ⏳" },
+        ["Плавный полёт к монете 🚀"] = { en = "Flying smoothly to coin 🚀", ru = "Плавный полёт к монете 🚀" }
+    }
+
+    local function localizeDesc(desc, lang)
+        if not desc or desc == "" then return desc end
+        local isRu = (lang == "Russian")
+        local entry = NOTIF_DESCS[desc]
+        if entry then
+            return isRu and entry.ru or entry.en
+        end
+        if not isRu then
+            local s = tostring(desc)
+            if s:find("Режим чёрных полос %(4:3 Black Bars%)") then
+                return s:find("ВКЛЮЧЕН") and "Black bars mode (4:3 Black Bars) ENABLED" or "Black bars mode (4:3 Black Bars) DISABLED"
+            end
+            if s:find("Включен настоящий физический Tween") then
+                return "Real physical Tween enabled (server replication)"
+            end
+            if s:find("Включен мгновенный телепорт с задержкой") then
+                local cd = s:match("КД:%s*([%d%.]+s?)")
+                return cd and string.format("Instant teleport enabled (Cooldown: %s)", cd) or "Instant teleport with cooldown enabled"
+            end
+            s = s:gsub("Конфиг '([^']+)' успешно сохранён!", "Config '%1' successfully saved!")
+            s = s:gsub("Новый конфиг '([^']+)' успешно создан!", "New config '%1' successfully created!")
+            s = s:gsub("Настройки сохранены в профиль '([^']+)'!", "Settings saved to profile '%1'!")
+            s = s:gsub("Конфиг '([^']+)' успешно применён!", "Config '%1' successfully applied!")
+            s = s:gsub("Файл '([^']+)' не найден или повреждён%.", "File '%1' not found or corrupted.")
+            s = s:gsub("Конфиг '([^']+)' успешно удалён%.", "Config '%1' successfully deleted.")
+            s = s:gsub("Выбран пресет:%s*(.*)", "Selected preset: %1")
+            s = s:gsub("Выбран режим физики:%s*(.*)", "Selected physics mode: %1")
+            s = s:gsub("Выбрано:%s*(.*)", "Selected: %1")
+            s = s:gsub("Запуск одиночного флинга:%s*(.*)", "Starting single fling: %1")
+            s = s:gsub("Выбрана Карта #(%d+):%s*(.*)", "Map #%1 selected: %2")
+            s = s:gsub("Голос успешно отдан за карту #(%d+)", "Vote cast for map #%1")
+            s = s:gsub("^(.*) погиб или персонаж не найден!", "%1 died or character not found!")
+            s = s:gsub("^(.*) не имеет физических частей!", "%1 has no physical body parts!")
+            s = s:gsub("Запуск атаки на (%d+) целей %((.*)%)", "Launching attack on %1 targets (%2)")
+            s = s:gsub("Подключение к лучшему серверу(.*)%.%.%.", "Connecting to best server%1...")
+            s = s:gsub("На сервере осталось (%d+) чел%! Поиск нового активного сервера MM2%.%.%.", "%1 players remaining! Searching for active MM2 server...")
+            s = s:gsub("Катка не начинается уже (%d+) сек%. %(баг MM2%)%. Поиск нового сервера%.%.%.", "Match hasn't started for %1s (MM2 bug). Searching for new server...")
+            s = s:gsub("Включен режим:%s*(.*)", "Enabled mode: %1")
+            s = s:gsub("Активирован турнирный 4:3 Stretched %(1440x1080%)", "Tournament 4:3 Stretched (1440x1080) activated")
+            s = s:gsub("Недостаточно конфет! У вас: (%d+) / 600", "Not enough candies! You have: %1 / 600")
+            s = s:gsub("Успешно куплено (%d+) уровней Пасса!", "Successfully purchased %1 Battle Pass levels!")
+            s = s:gsub("Забрано (%d+) наград Battle Pass!", "Claimed %1 Battle Pass rewards!")
+            s = s:gsub("Кастомный цвет RGB %((.*)%)", "Custom RGB color (%1)")
+            s = s:gsub("Новое расположение:%s*(.*)", "New position: %1")
+            s = s:gsub("Позиция сброшена на стандартную %(20, 80%)", "Position reset to default (20, 80)")
+            s = s:gsub("3D Рендеринг ОТКЛЮЧЕН%s*(.*)", "3D Rendering DISABLED %1")
+            s = s:gsub("3D Рендеринг ВКЛЮЧЕН%s*(.*)", "3D Rendering ENABLED %1")
+            s = s:gsub("Карта:%s*(.*)%s*•%s*Зомби против Выживших!", "Map: %1 • Zombies vs Survivors!")
+            s = s:gsub("Карта:%s*(.*)%s*•%s*Роли распределяются!", "Map: %1 • Roles being assigned!")
+            s = s:gsub("^(.*) — МАРДЕР! Будьте осторожны!", "%1 is MURDERER! Be careful!")
+            s = s:gsub("^(.*) — Шериф с оружием!", "%1 is Sheriff with gun!")
+            s = s:gsub("^(.*) подобрал револьвер!", "%1 picked up the revolver!")
+            s = s:gsub("Мардер уничтожен выстрелом шерифа! %(Всего выстрелов: (%d+)%)", "Murderer eliminated by sheriff shot! (Total shots: %1)")
+            s = s:gsub("Авто%-выстрел в мардера #(%d+) • Перезарядка%.%.%.", "Auto-shot at murderer #%1 • Reloading...")
+            s = s:gsub("Атака на мардера (.*) %(Попытка #(%d+)%)", "Attacking murderer %1 (Attempt #%2)")
+            s = s:gsub("Мардер не сброшен! Запуск повторной атаки #(%d+)%.%.%.", "Murderer not flung! Retrying attack #%1...")
+            s = s:gsub("Обезврежено ловушек:%s*(.*)", "Traps disarmed: %1")
+            s = s:gsub("Забраны награды за Tier:%s*(.*)!", "Claimed rewards for Tier: %1!")
+            s = s:gsub("Воспроизведение эмоции:%s*(.*)", "Playing emote: %1")
+            s = s:gsub("Подключение к лучшему серверу(.*)%.%.%.", "Connecting to best server%1...")
+            s = s:gsub("Обнаружен кик/дисконнект %((.-)%)! Поиск нового сервера через (%d+)%s*сек%.%.%.", "Kick/disconnect detected (%1)! Searching for new server in %2s...")
+            s = s:gsub("Обнаружен кик/дисконнект %((.-)%)", "Kick/disconnect detected (%1)")
+            s = s:gsub("На сервере осталось (%d+) чел%.! Поиск нового активного сервера MM2%.%.%.", "%1 players remaining! Searching for active MM2 server...")
+            s = s:gsub("Катка не начинается уже (%d+) сек%. %(баг MM2%)%. Ищем живой рабочий сервер%.%.%.", "Match hasn't started for %1s (MM2 bug). Searching for active server...")
+            s = s:gsub("Катка не начинается уже (%d+) сек%. %(баг MM2%)%. Поиск нового сервера%.%.%.", "Match hasn't started for %1s (MM2 bug). Searching for new server...")
+            s = s:gsub("Камера переключена на:%s*(.*)%s*%[(.*)%]", "Camera switched to: %1 [%2]")
+            s = s:gsub("Камера переключена на:%s*(.*)", "Camera switched to: %1")
+            s = s:gsub("Запуск одиночного флинга:%s*(.*)", "Starting single fling: %1")
+            s = s:gsub("Запуск атаки на (%d+) целей %((.*)%)", "Launching attack on %1 targets (%2)")
+            s = s:gsub("Выбран режим физики:%s*(.*)", "Selected physics mode: %1")
+            s = s:gsub("Выбрана Карта #(%d+):%s*(.*)", "Map #%1 selected: %2")
+            s = s:gsub("Голос успешно отдан за карту #(.*)", "Vote cast for map #%1")
+            s = s:gsub("(.-) погиб или персонаж не найден!", "%1 died or character not found!")
+            s = s:gsub("(.-) не имеет физических частей!", "%1 has no physical body parts!")
+            s = s:gsub("Недостаточно конфет! У вас:%s*(%d+)%s*/%s*600", "Not enough candies! You have: %1 / 600")
+            s = s:gsub("Успешно куплено (%d+) уровней Пасса!", "Successfully purchased %1 Battle Pass levels!")
+            s = s:gsub("Забрано (%d+) наград Battle Pass!", "Claimed %1 Battle Pass rewards!")
+            s = s:gsub("Куплен уровень Пасса %(%+(%d+)%) за (%d+) конфет!", "Purchased Battle Pass level (+%1) for %2 candies!")
+            s = s:gsub("Куплен уровень Пасса %((.*)%)", "Battle Pass level purchased (%1)")
+            s = s:gsub("Обезврежено ловушек:%s*(%d+)", "Traps disarmed: %1")
+            s = s:gsub("Забраны награды за Tier:%s*(.*)!", "Claimed rewards for Tier: %1!")
+            s = s:gsub("Мардер уничтожен выстрелом шерифа! %(Всего выстрелов:%s*(%d+)%)", "Murderer eliminated by sheriff shot! (Total shots: %1)")
+            s = s:gsub("Авто%-выстрел в мардера #(%d+) • Перезарядка%.%.%.", "Auto-shot at murderer #%1 • Reloading...")
+            s = s:gsub("Атака на мардера (.-) %(Попытка #(%d+)%)%.%.%.", "Attacking murderer %1 (Attempt #%2)...")
+            s = s:gsub("Атака на мардера (.-) %(Попытка #(%d+)%)", "Attacking murderer %1 (Attempt #%2)")
+            s = s:gsub("Мардер не сброшен! Запуск повторной атаки #(%d+)%.%.%.", "Murderer not flung! Retrying attack #%1...")
+            s = s:gsub("(.-) — МАРДЕР! Будьте осторожны!", "%1 is MURDERER! Be careful!")
+            s = s:gsub("(.-) — Шериф с оружием!", "%1 is Sheriff with gun!")
+            s = s:gsub("(.-) подобрал револьвер!", "%1 picked up the revolver!")
+            s = s:gsub("Карта:%s*(.*)%s*•%s*Зомби против Выживших!", "Map: %1 • Zombies vs Survivors!")
+            s = s:gsub("Карта:%s*(.*)%s*•%s*Роли распределяются!", "Map: %1 • Roles being assigned!")
+            s = s:gsub("Позиция сброшена на стандартную %((.-)%)", "Position reset to default (%1)")
+            s = s:gsub("Выбран пресет:%s*(.*)", "Selected preset: %1")
+            s = s:gsub("Выбрано:%s*(.*)", "Selected: %1")
+            s = s:gsub("Воспроизведение эмоции:%s*(.*)", "Playing emote: %1")
+            s = s:gsub("Новое расположение:%s*(.*)", "New position: %1")
+            s = s:gsub("Включен режим:%s*(.*)", "Enabled mode: %1")
+            s = s:gsub("⬆️ Сверху", "⬆️ Top"):gsub("⬅️ Слева", "⬅️ Left"):gsub("➡️ Справа", "➡️ Right"):gsub("⬇️ Снизу", "⬇️ Bottom")
+            return s
+        end
+        return desc
+    end
+
+    local function localizeNotification(title, desc, lang)
+        local curLang = lang or (Config and Config.Language) or "English"
+        local isRu = (curLang == "Russian")
+        local lTitle = title
+        if title and NOTIF_TITLES[title] then
+            lTitle = isRu and NOTIF_TITLES[title].ru or NOTIF_TITLES[title].en
+        end
+        local lDesc = localizeDesc(desc, curLang)
+        return lTitle, lDesc
+    end
+    _G.MM2_LocalizeNotification = localizeNotification
+
+    local function localizeFarmStatus(status, lang)
+        if not status or status == "" then return status end
+        local curLang = lang or (Config and Config.Language) or "English"
+        local isRu = (curLang == "Russian")
+        local entry = FARM_STATUSES[status]
+        if entry then
+            return isRu and entry.ru or entry.en
+        end
+        if not isRu then
+            local s = tostring(status)
+            s = s:gsub("В лобби %(Ожидание раунда • ⏳ (%d+) сек%)", "In lobby (Waiting for round • ⏳ %1s)")
+            s = s:gsub("В лобби • Ожидание катки: (%d+)с %(Возможно завис%?%) ⏳", "In lobby • Waiting for match: %1s (Stuck?) ⏳")
+            s = s:gsub("В лобби • Ожидание след%. раунда %(⏳ (%d+) сек%)", "In lobby • Waiting for next round (⏳ %1s)")
+            s = s:gsub("Выстрел в мардера 🎯 %[Выстрел #(%d+)%]", "Shooting murderer 🎯 [Shot #%1]")
+            s = s:gsub("Флинг мардера 🌪️ %[Попытка (%d+)%]", "Flinging murderer 🌪️ [Attempt %1]")
+            s = s:gsub("Мардер жив • Повторный флинг %[Попытка (%d+)%] ⏳", "Murderer alive • Retrying fling [Attempt %1] ⏳")
+            s = s:gsub("Все конфеты собраны", "All candies collected")
+            s = s:gsub("Лимит %((.*)%)", "Limit reached (%1)")
+            s = s:gsub("• Ресет 💀", "• Reset 💀")
+            s = s:gsub("• AFK под картой 🛡️", "• AFK under map 🛡️")
+            s = s:gsub("• Kill All ⚔️", "• Kill All ⚔️")
+            s = s:gsub("• Выстрел в мардера 🎯", "• Shoot murderer 🎯")
+            s = s:gsub("• Флинг мардера 🌪️", "• Fling murderer 🌪️")
+            return s
+        end
+        return status
+    end
+    _G.MM2_LocalizeFarmStatus = localizeFarmStatus
+end
+
 local activeNotifId = 0
 showNotification = function(title, desc, color, icon, duration)
+    if not Config.EventNotifications then return end
+    if _G.MM2_LocalizeNotification then
+        title, desc = _G.MM2_LocalizeNotification(title, desc, Config and Config.Language)
+    end
     if not Config.EventNotifications then return end
     duration = duration or 4.5
     color = color or Color3.fromRGB(45, 140, 255)
@@ -5719,6 +6239,7 @@ do
         ["🧱 Silent Aim WallBang (Прострел сквозь стены)"] = { en = "🧱 Silent Aim WallBang", ru = "🧱 Silent Aim WallBang (Сквозь стены)" },
         ["🧱 ПРОСТРЕЛ ЧЕРЕЗ СТЕНЫ (WALLBANG)"] = { en = "🧱 WALLBANG PENETRATION", ru = "🧱 ПРОСТРЕЛ ЧЕРЕЗ СТЕНЫ (WALLBANG)" },
         ["🧱 Проверка прямой видимости (Wall Check)"] = { en = "🧱 Line of Sight (Wall Check)", ru = "🧱 Проверка прямой видимости (Wall Check)" },
+        ["🌐 INTERFACE LANGUAGE (ЯЗЫК ИНТЕРФЕЙСА)"] = { en = "🌐 INTERFACE LANGUAGE", ru = "🌐 ЯЗЫК ИНТЕРФЕЙСА" },
         ["🧲 COIN & CANDY AURA (МАГНИТ 2–7 STUDS)"] = { en = "🧲 COIN & CANDY AURA (MAGNET)", ru = "🧲 COIN & CANDY AURA (МАГНИТ)" },
         ["🧲 Coin & Candy Aura (Авто-сбор монет и конфет)"] = { en = "🧲 Coin & Candy Aura (Auto-Collect)", ru = "🧲 Авто-сбор монет и конфет (Aura)" },
         ["🩸 Damage Vignette (Пульс при получении урона)"] = { en = "🩸 Damage Vignette Pulse", ru = "🩸 Пульсирующий экран при уроне" },
@@ -5945,6 +6466,41 @@ do
         -- 6. Header Tag (Release / Релиз)
         if _G.MM2_HeaderTag and _G.MM2_HeaderTag.Parent then
             _G.MM2_HeaderTag.Text = (lang == "Russian" and "MM2 • РЕЛИЗ") or "MM2 • RELEASE"
+        end
+
+        -- 7. Config Manager UI (Profiles, Buttons, Status)
+        if _G.MM2_UpdateConfigManagerLang then
+            pcall(_G.MM2_UpdateConfigManagerLang, lang)
+        end
+
+        -- 8. Auto-Farm Live Stats Card
+        if _G.MM2_UpdateFarmStatsLang then
+            pcall(_G.MM2_UpdateFarmStatsLang, lang)
+        end
+
+        -- 9. 3D Render Screen (AFK Dashboard)
+        if _G.MM2_UpdateAFKDashboardLang then
+            pcall(_G.MM2_UpdateAFKDashboardLang, lang)
+        end
+
+        -- 10. Troll Fling UI
+        if _G.MM2_UpdateFlingLang then
+            pcall(_G.MM2_UpdateFlingLang, lang)
+        end
+
+        -- 11. Troll Vote Dupe UI
+        if _G.MM2_UpdateVoteDupeLang then
+            pcall(_G.MM2_UpdateVoteDupeLang, lang)
+        end
+
+        -- 12. Spectate UI
+        if _G.MM2_UpdateSpectateLang then
+            pcall(_G.MM2_UpdateSpectateLang, lang)
+        end
+
+        -- 13. World Visuals Presets UI
+        if _G.MM2_UpdateWorldVisualsLang then
+            pcall(_G.MM2_UpdateWorldVisualsLang, lang)
         end
     end
     _G.MM2_UpdateAllLocalizedTexts = updateAllLocalizedTexts
@@ -7472,6 +8028,7 @@ do
         greetCard.Parent = welcome
         Instance.new("UICorner", greetCard).CornerRadius = UDim.new(0, 9)
 
+        local isRuWel = ((Config and Config.Language) == "Russian")
         local info1 = Instance.new("TextLabel")
         info1.Size = UDim2.new(1, -20, 0, 22)
         info1.Position = UDim2.new(0, 10, 0, 6)
@@ -7480,7 +8037,8 @@ do
         info1.TextSize = 12
         info1.TextColor3 = Color3.fromRGB(240, 245, 255)
         info1.TextXAlignment = Enum.TextXAlignment.Left
-        info1.Text = string.format("👋 Привет, %s! (@%s)", LocalPlayer.DisplayName, LocalPlayer.Name)
+        info1.Text = isRuWel and string.format("👋 Привет, %s! (@%s)", LocalPlayer.DisplayName, LocalPlayer.Name)
+            or string.format("👋 Welcome, %s! (@%s)", LocalPlayer.DisplayName, LocalPlayer.Name)
         info1.ZIndex = 52
         info1.Parent = greetCard
 
@@ -7493,9 +8051,8 @@ do
         info2.TextColor3 = Color3.fromRGB(160, 175, 200)
         info2.TextXAlignment = Enum.TextXAlignment.Left
         info2.TextWrapped = true
-        local isRu = ((Config and Config.Language) == "Russian")
         local keyText = tostring(Config.MenuKeybind)
-        info2.Text = isRu
+        info2.Text = isRuWel
             and ("• Официальный РЕЛИЗ: стабильная работа, максимальная защита и оптимизация\n• Нажмите [" .. keyText .. "] для открытия меню\n• Сохранение и загрузка конфигов во вкладке Settings")
             or ("• Official RELEASE: stable build, max protection & full optimization\n• Press [" .. keyText .. "] to toggle Hub menu\n• Save & load configs in Settings tab")
         info2.ZIndex = 52
@@ -7509,7 +8066,8 @@ do
         info3.TextSize = 10
         info3.TextColor3 = curTh.Accent
         info3.TextXAlignment = Enum.TextXAlignment.Left
-        info3.Text = string.format("🎮 MM2 Place ID: %d • Раунд активен!", game.PlaceId)
+        info3.Text = isRuWel and string.format("🎮 MM2 Place ID: %d • Раунд активен!", game.PlaceId)
+            or string.format("🎮 MM2 Place ID: %d • Match active!", game.PlaceId)
         info3.ZIndex = 52
         info3.Parent = greetCard
 
@@ -7567,7 +8125,7 @@ do
         dontShowLabel.TextSize = 10
         dontShowLabel.TextColor3 = Color3.fromRGB(180, 195, 220)
         dontShowLabel.TextXAlignment = Enum.TextXAlignment.Left
-        dontShowLabel.Text = "Больше не показывать при входе"
+        dontShowLabel.Text = isRuWel and "Больше не показывать при входе" or "Do not show again on startup"
         dontShowLabel.ZIndex = 53
         dontShowLabel.Parent = dontShowFrame
 
@@ -7612,7 +8170,7 @@ do
         skipBtn.Font = Enum.Font.GothamBold
         skipBtn.TextSize = 11
         skipBtn.TextColor3 = Color3.fromRGB(220, 230, 245)
-        skipBtn.Text = "🚫 НЕ ПОКАЗЫВАТЬ"
+        skipBtn.Text = isRuWel and "🚫 НЕ ПОКАЗЫВАТЬ" or "🚫 DO NOT SHOW"
         skipBtn.AutoButtonColor = false
         skipBtn.ZIndex = 52
         skipBtn.Parent = welcome
@@ -7637,7 +8195,7 @@ do
         launchBtn.Font = Enum.Font.GothamBold
         launchBtn.TextSize = 11
         launchBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        launchBtn.Text = "🚀 ОТКРЫТЬ HUB"
+        launchBtn.Text = isRuWel and "🚀 ОТКРЫТЬ HUB" or "🚀 OPEN HUB"
         launchBtn.AutoButtonColor = false
         launchBtn.ZIndex = 52
         launchBtn.Parent = welcome
@@ -8355,14 +8913,14 @@ createButton(SubCombatMurderer, "💀 Убить всех сейчас (Kill All
     if _G.MM2_PerformKillAll then
         local ok, err = _G.MM2_PerformKillAll()
         if ok then
-            StatusText.Text = "💀 Успешно: Все цели устранены!"
+            StatusText.Text = ((Config and Config.Language) == "Russian") and "💀 Успешно: Все цели устранены!" or "💀 Success: All targets eliminated!"
             showNotification("💀 KILL ALL", "Все цели на карте устранены!", Color3.fromRGB(255, 45, 60), "💀", 3.5)
         else
             StatusText.Text = "⚠️ " .. tostring(err)
             showNotification("⚠️ ОШИБКА", tostring(err), Color3.fromRGB(240, 160, 30), "⚠️", 3)
         end
     else
-        StatusText.Text = "⚠️ Функция Kill All не инициализирована"
+        StatusText.Text = ((Config and Config.Language) == "Russian") and "⚠️ Функция Kill All не инициализирована" or "⚠️ Kill All function not initialized"
     end
 end)
 createToggle(SubCombatMurderer, "⚡ Авто-убийство после начала раунда (Auto Kill All)", "AutoKillAllOnRoundStart")
@@ -8914,15 +9472,20 @@ _G.MM2_ExecuteSingleFling = executeSingleFling
 local flingStatusTextLabel = nil
 local updateFlingPlayerListCards = nil
 
-local function updateFlingUIStatus()
+local function updateFlingUIStatus(lang)
     local selectedCount = 0
     for _ in pairs(SelectedFlingTargets) do selectedCount = selectedCount + 1 end
+    local isRu = ((lang or (Config and Config.Language)) == "Russian")
     if flingStatusTextLabel then
         if isFlingRunning then
-            flingStatusTextLabel.Text = string.format("🌪️ АТАКА АКТИВНА: флинг %d целей...", selectedCount)
+            flingStatusTextLabel.Text = isRu
+                and string.format("🌪️ АТАКА АКТИВНА: флинг %d целей...", selectedCount)
+                or string.format("🌪️ ATTACK ACTIVE: flinging %d targets...", selectedCount)
             flingStatusTextLabel.TextColor3 = Color3.fromRGB(255, 75, 75)
         else
-            flingStatusTextLabel.Text = string.format("🎯 Выбрано целей: %d / %d", selectedCount, math.max(0, #Players:GetPlayers() - 1))
+            flingStatusTextLabel.Text = isRu
+                and string.format("🎯 Выбрано целей: %d / %d", selectedCount, math.max(0, #Players:GetPlayers() - 1))
+                or string.format("🎯 Targets selected: %d / %d", selectedCount, math.max(0, #Players:GetPlayers() - 1))
             flingStatusTextLabel.TextColor3 = Color3.fromRGB(180, 205, 235)
         end
     end
@@ -9127,7 +9690,7 @@ end
     flingStatusTextLabel.TextSize = 10
     flingStatusTextLabel.TextColor3 = Color3.fromRGB(180, 205, 235)
     flingStatusTextLabel.TextXAlignment = Enum.TextXAlignment.Left
-    flingStatusTextLabel.Text = "🎯 Выберите игроков из списка ниже для запуска флинга"
+    flingStatusTextLabel.Text = ((Config and Config.Language) == "Russian") and "🎯 Выберите игроков из списка ниже для запуска флинга" or "🎯 Select players from the list below to start fling"
     flingStatusTextLabel.Parent = fStatusCard
 
     -- Start / Stop Action Buttons
@@ -9141,13 +9704,21 @@ end
 
     -- Method Selector Button
     local methodSelectorBtn = nil
-    methodSelectorBtn = createButton(SubTrollFling, "⚙️ Метод: " .. (Config.FlingMethod or "BodyVelocity"), Color3.fromRGB(34, 44, 64), function()
+    local function getFlingMethodLabel(m, lang)
+        local isRu = ((lang or (Config and Config.Language)) == "Russian")
+        return (isRu and "⚙️ Метод: " or "⚙️ Method: ") .. tostring(m or "BodyVelocity")
+    end
+    methodSelectorBtn = createButton(SubTrollFling, getFlingMethodLabel(Config.FlingMethod), Color3.fromRGB(34, 44, 64), function()
         flingCurrentMethodIndex = (flingCurrentMethodIndex % #flingMethodList) + 1
         Config.FlingMethod = flingMethodList[flingCurrentMethodIndex]
         saveConfig()
-        methodSelectorBtn.Text = "⚙️ Метод: " .. Config.FlingMethod
+        methodSelectorBtn.Text = getFlingMethodLabel(Config.FlingMethod)
         showNotification("🌪️ МЕТОД ФЛИНГА", "Выбран режим физики: " .. Config.FlingMethod, Color3.fromRGB(80, 200, 255), "⚙️", 2.5)
     end)
+    _G.MM2_UpdateFlingLang = function(newLang)
+        updateFlingUIStatus(newLang)
+        if methodSelectorBtn then methodSelectorBtn.Text = getFlingMethodLabel(Config.FlingMethod, newLang) end
+    end
 
     -- Power and Duration Sliders
     createSlider(SubTrollFling, "⚡ Сила импульса (Power)", 1, 50, "FlingPower", "%dx")
@@ -9541,7 +10112,7 @@ end)
     voteDupeStatusLbl.TextColor3 = Color3.fromRGB(180, 205, 235)
     voteDupeStatusLbl.TextXAlignment = Enum.TextXAlignment.Left
     voteDupeStatusLbl.TextWrapped = true
-    voteDupeStatusLbl.Text = "⏸️ Дюп выключен • Выберите карту из списка ниже"
+    voteDupeStatusLbl.Text = ((Config and Config.Language) == "Russian") and "⏸️ Дюп выключен • Выберите карту из списка ниже" or "⏸️ Dupe disabled • Select a map from the list below"
     voteDupeStatusLbl.Parent = vdStatusCard
 
     -- Map Cards Header
@@ -9775,16 +10346,18 @@ end)
                     refs.Stroke.Color = curTh.Main
                     refs.Stroke.Transparency = 0
                     refs.Stroke.Thickness = 1.6
+                    local isRuVd = ((Config and Config.Language) == "Russian")
                     refs.SelectBtn.BackgroundColor3 = Color3.fromRGB(35, 175, 80)
                     refs.SelectBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-                    refs.SelectBtn.Text = "✓ ВЫБРАНО"
+                    refs.SelectBtn.Text = isRuVd and "✓ ВЫБРАНО" or "✓ SELECTED"
                 else
+                    local isRuVd = ((Config and Config.Language) == "Russian")
                     refs.Stroke.Color = Color3.fromRGB(45, 55, 75)
                     refs.Stroke.Transparency = 0.5
                     refs.Stroke.Thickness = 1.0
                     refs.SelectBtn.BackgroundColor3 = Color3.fromRGB(30, 38, 54)
                     refs.SelectBtn.TextColor3 = Color3.fromRGB(180, 195, 220)
-                    refs.SelectBtn.Text = "ВЫБРАТЬ"
+                    refs.SelectBtn.Text = isRuVd and "ВЫБРАТЬ" or "SELECT"
                 end
             end
         end
@@ -9792,27 +10365,33 @@ end)
         if voteDupeStatusLbl then
             local info = fetchMapSlotInfo(chosenSlot)
             local voting = isVotingActive()
+            local isRuVd = ((Config and Config.Language) == "Russian")
             if Config.VoteDupeActive then
                 if not voting then
                     if isRoundActive() then
                         local rSecs = _G.MM2_GetRoundTimerSeconds and _G.MM2_GetRoundTimerSeconds() or -1
-                        local tStr = (rSecs > 0) and string.format(" (⏳ %d сек)", rSecs) or ""
-                        voteDupeStatusLbl.Text = string.format("⏸️ Дюп на паузе • Идет раунд%s • Ожидание лобби", tStr)
+                        local tStr = (rSecs > 0) and (isRuVd and string.format(" (⏳ %d сек)", rSecs) or string.format(" (⏳ %ds)", rSecs)) or ""
+                        voteDupeStatusLbl.Text = isRuVd and string.format("⏸️ Дюп на паузе • Идет раунд%s • Ожидание лобби", tStr)
+                            or string.format("⏸️ Dupe paused • Round in progress%s • Waiting for lobby", tStr)
                         voteDupeStatusLbl.TextColor3 = Color3.fromRGB(255, 175, 55)
                     else
-                        voteDupeStatusLbl.Text = "⏸️ Дюп на паузе • Голосование окончено или карты недоступны"
+                        voteDupeStatusLbl.Text = isRuVd and "⏸️ Дюп на паузе • Голосование окончено или карты недоступны"
+                            or "⏸️ Dupe paused • Voting ended or maps unavailable"
                         voteDupeStatusLbl.TextColor3 = Color3.fromRGB(255, 175, 55)
                     end
                 else
-                    voteDupeStatusLbl.Text = string.format("⚡ АКТИВЕН ДЮП • Карта #%d (%s) • Дюпнуто: %d голосов", chosenSlot, info.MapName, voteDupeCount)
+                    voteDupeStatusLbl.Text = isRuVd and string.format("⚡ АКТИВЕН ДЮП • Карта #%d (%s) • Дюпнуто: %d голосов", chosenSlot, info.MapName, voteDupeCount)
+                        or string.format("⚡ DUPE ACTIVE • Map #%d (%s) • Duped: %d votes", chosenSlot, info.MapName, voteDupeCount)
                     voteDupeStatusLbl.TextColor3 = Color3.fromRGB(80, 255, 140)
                 end
             else
                 if not voting then
-                    voteDupeStatusLbl.Text = string.format("⏸️ Дюп выключен • Голосование не идет • Выбрана: #%d (%s)", chosenSlot, info.MapName)
+                    voteDupeStatusLbl.Text = isRuVd and string.format("⏸️ Дюп выключен • Голосование не идет • Выбрана: #%d (%s)", chosenSlot, info.MapName)
+                        or string.format("⏸️ Dupe disabled • Voting inactive • Selected: #%d (%s)", chosenSlot, info.MapName)
                     voteDupeStatusLbl.TextColor3 = Color3.fromRGB(150, 170, 195)
                 else
-                    voteDupeStatusLbl.Text = string.format("⏸️ Дюп выключен • Выбрана: Карта #%d (%s) • Сделано: %d", chosenSlot, info.MapName, voteDupeCount)
+                    voteDupeStatusLbl.Text = isRuVd and string.format("⏸️ Дюп выключен • Выбрана: Карта #%d (%s) • Сделано: %d", chosenSlot, info.MapName, voteDupeCount)
+                        or string.format("⏸️ Dupe disabled • Selected: Map #%d (%s) • Done: %d", chosenSlot, info.MapName, voteDupeCount)
                     voteDupeStatusLbl.TextColor3 = Color3.fromRGB(180, 205, 235)
                 end
             end
@@ -10004,7 +10583,7 @@ do
             Camera.CameraSubject = hum
         end
         if spectateStatusLbl then
-            spectateStatusLbl.Text = "👤 Наблюдение: Вы (Сам за собой)"
+            spectateStatusLbl.Text = ((Config and Config.Language) == "Russian") and "👤 Наблюдение: Вы (Сам за собой)" or "👤 Spectating: You (Self)"
             spectateStatusLbl.TextColor3 = Color3.fromRGB(150, 220, 255)
         end
         if not silent and showNotification then
@@ -10040,7 +10619,9 @@ do
         end
 
         if spectateStatusLbl then
-            spectateStatusLbl.Text = string.format("👀 Наблюдение: %s (%s)", plr.DisplayName, role)
+            local isRuSp = ((Config and Config.Language) == "Russian")
+            spectateStatusLbl.Text = isRuSp and string.format("👀 Наблюдение: %s (%s)", plr.DisplayName, role)
+                or string.format("👀 Spectating: %s (%s)", plr.DisplayName, role)
             spectateStatusLbl.TextColor3 = roleColor
         end
 
@@ -10451,13 +11032,14 @@ do
     pad.PaddingLeft = UDim.new(0, 8)
     pad.PaddingRight = UDim.new(0, 8)
 
+    local isRuFarm = ((Config and Config.Language) == "Russian")
     local rLbl = Instance.new("TextLabel")
     rLbl.BackgroundTransparency = 1
     rLbl.Font = Enum.Font.GothamBold
     rLbl.TextSize = 10
     rLbl.TextColor3 = Color3.fromRGB(255, 215, 60)
     rLbl.TextXAlignment = Enum.TextXAlignment.Left
-    rLbl.Text = "🪙 В раунде: 0 / 40"
+    rLbl.Text = isRuFarm and "🪙 В раунде: 0 / 40" or "🪙 Round: 0 / 40"
     rLbl.Parent = card
 
     local bLbl = Instance.new("TextLabel")
@@ -10466,7 +11048,7 @@ do
     bLbl.TextSize = 10
     bLbl.TextColor3 = Color3.fromRGB(255, 230, 90)
     bLbl.TextXAlignment = Enum.TextXAlignment.Left
-    bLbl.Text = "💎 Баланс: 0 монет"
+    bLbl.Text = isRuFarm and "💎 Баланс: 0 монет" or "💎 Balance: 0 coins"
     bLbl.Parent = card
 
     local tLbl = Instance.new("TextLabel")
@@ -10475,7 +11057,7 @@ do
     tLbl.TextSize = 10
     tLbl.TextColor3 = Color3.fromRGB(100, 225, 140)
     tLbl.TextXAlignment = Enum.TextXAlignment.Left
-    tLbl.Text = "💰 За сессию: 0"
+    tLbl.Text = isRuFarm and "💰 За сессию: 0" or "💰 Session: 0"
     tLbl.Parent = card
 
     local mLbl = Instance.new("TextLabel")
@@ -10484,7 +11066,7 @@ do
     mLbl.TextSize = 10
     mLbl.TextColor3 = Color3.fromRGB(130, 205, 255)
     mLbl.TextXAlignment = Enum.TextXAlignment.Left
-    mLbl.Text = "🗺️ На карте: 0"
+    mLbl.Text = isRuFarm and "🗺️ На карте: 0" or "🗺️ On Map: 0"
     mLbl.Parent = card
 
     local sLbl = Instance.new("TextLabel")
@@ -10493,7 +11075,7 @@ do
     sLbl.TextSize = 10
     sLbl.TextColor3 = Color3.fromRGB(255, 175, 75)
     sLbl.TextXAlignment = Enum.TextXAlignment.Left
-    sLbl.Text = "⚡ Статус: Ожидание"
+    sLbl.Text = isRuFarm and "⚡ Статус: Ожидание" or "⚡ Status: Idle"
     sLbl.Parent = card
 
     task.spawn(function()
@@ -10505,29 +11087,96 @@ do
                     local isCandy = (bagName == "Candy")
                     local maxLimit = bagMax or (CoinTracker and CoinTracker.Max) or Config.MaxCoins or 50
                     local roundCoins = (isPlayerInLobby(LocalPlayer) or not isRoundActive()) and 0 or ((bagCoins and bagCoins > 0) and bagCoins or (CoinsCollectedThisRound or 0))
+                    local isR = ((Config and Config.Language) == "Russian")
                     if isCandy then
-                        rLbl.Text = string.format("🍬 В раунде: %d / %d", roundCoins, maxLimit)
+                        rLbl.Text = isR and string.format("🍬 В раунде: %d / %d", roundCoins, maxLimit)
+                            or string.format("🍬 Round: %d / %d", roundCoins, maxLimit)
                     else
-                        rLbl.Text = string.format("🪙 В раунде: %d / %d", roundCoins, maxLimit)
+                        rLbl.Text = isR and string.format("🪙 В раунде: %d / %d", roundCoins, maxLimit)
+                            or string.format("🪙 Round: %d / %d", roundCoins, maxLimit)
                     end
                     local curBal = getLocalPlayerCoinBalance()
                     local curCandy = getLocalPlayerCandyBalance and getLocalPlayerCandyBalance() or 0
                     if curCandy > 0 or isCandy then
-                        bLbl.Text = string.format("💎 Монеты: %d | 🍬 Конфеты: %d", curBal, curCandy)
+                        bLbl.Text = isR and string.format("💎 Монеты: %d | 🍬 Конфеты: %d", curBal, curCandy)
+                            or string.format("💎 Coins: %d | 🍬 Candies: %d", curBal, curCandy)
                     else
-                        bLbl.Text = string.format("💎 Баланс: %d монет", curBal)
+                        bLbl.Text = isR and string.format("💎 Баланс: %d монет", curBal)
+                            or string.format("💎 Balance: %d coins", curBal)
                     end
                     local sCoins = TotalCoinsSession or (_G.MM2_Stats and _G.MM2_Stats.ServerCoins) or 0
                     local aCoins = (_G.MM2_Stats and _G.MM2_Stats.AllTimeCoins) or 0
                     local currIcon = isCandy and "🍬" or "🪙"
-                    tLbl.Text = string.format("%s За сессию: %d | 💎 Всё время: %d", currIcon, sCoins, aCoins)
+                    tLbl.Text = isR and string.format("%s За сессию: %d | 💎 Всё время: %d", currIcon, sCoins, aCoins)
+                        or string.format("%s Session: %d | 💎 All-Time: %d", currIcon, sCoins, aCoins)
                     local activeCoins = getActiveCoins and getActiveCoins() or {}
-                    mLbl.Text = string.format("🗺️ На карте: %d", #activeCoins)
-                    sLbl.Text = "⚡ Статус: " .. (CurrentFarmStatus or "Ожидание")
+                    mLbl.Text = isR and string.format("🗺️ На карте: %d", #activeCoins)
+                        or string.format("🗺️ On Map: %d", #activeCoins)
+                    local st = _G.MM2_LocalizeFarmStatus and _G.MM2_LocalizeFarmStatus(CurrentFarmStatus, Config and Config.Language) or CurrentFarmStatus or (isR and "Ожидание" or "Idle")
+                    sLbl.Text = (isR and "⚡ Статус: " or "⚡ Status: ") .. st
                 end)
             end
         end
     end)
+
+    local mBtn = nil
+    local postActionBtn = nil
+
+    local function getFarmMethodLabel(m, lang)
+        local isR = ((lang or (Config and Config.Language)) == "Russian")
+        if m == "Teleport" then
+            return isR and "⚡ Режим: TELEPORT (Мгновенный с КД)" or "⚡ Mode: TELEPORT (Instant with CD)"
+        else
+            return isR and "🚀 Режим: TWEEN (Настоящий полёт)" or "🚀 Mode: TWEEN (Smooth Flight)"
+        end
+    end
+
+    local function getPostActionTitle(lang)
+        local isR = ((lang or (Config and Config.Language)) == "Russian")
+        if Config.CoinPostAction == "Afk" then
+            return isR and "🎯 Действие после лимита: 🛡️ AFK (Под картой)" or "🎯 Limit Action: 🛡️ AFK (Under Map)"
+        elseif Config.CoinPostAction == "KillAll_Or_Shoot" then
+            return isR and "🎯 Действие после лимита: ⚔️ Kill All / Shoot / Fling" or "🎯 Limit Action: ⚔️ Kill All / Shoot / Fling"
+        else
+            return isR and "🎯 Действие после лимита: 💀 Reset (Респавн)" or "🎯 Limit Action: 💀 Reset (Respawn)"
+        end
+    end
+
+    _G.MM2_UpdateFarmStatsLang = function(newLang)
+        local isR = (newLang == "Russian")
+        local bagCoins, isFull, bagName, bagMax = getMM2CoinBagInfo()
+        local isCandy = (bagName == "Candy")
+        local maxLimit = bagMax or (CoinTracker and CoinTracker.Max) or Config.MaxCoins or 50
+        local roundCoins = (isPlayerInLobby(LocalPlayer) or not isRoundActive()) and 0 or ((bagCoins and bagCoins > 0) and bagCoins or (CoinsCollectedThisRound or 0))
+        if isCandy then
+            rLbl.Text = isR and string.format("🍬 В раунде: %d / %d", roundCoins, maxLimit)
+                or string.format("🍬 Round: %d / %d", roundCoins, maxLimit)
+        else
+            rLbl.Text = isR and string.format("🪙 В раунде: %d / %d", roundCoins, maxLimit)
+                or string.format("🪙 Round: %d / %d", roundCoins, maxLimit)
+        end
+        local curBal = getLocalPlayerCoinBalance()
+        local curCandy = getLocalPlayerCandyBalance and getLocalPlayerCandyBalance() or 0
+        if curCandy > 0 or isCandy then
+            bLbl.Text = isR and string.format("💎 Монеты: %d | 🍬 Конфеты: %d", curBal, curCandy)
+                or string.format("💎 Coins: %d | 🍬 Candies: %d", curBal, curCandy)
+        else
+            bLbl.Text = isR and string.format("💎 Баланс: %d монет", curBal)
+                or string.format("💎 Balance: %d coins", curBal)
+        end
+        local sCoins = TotalCoinsSession or (_G.MM2_Stats and _G.MM2_Stats.ServerCoins) or 0
+        local aCoins = (_G.MM2_Stats and _G.MM2_Stats.AllTimeCoins) or 0
+        local currIcon = isCandy and "🍬" or "🪙"
+        tLbl.Text = isR and string.format("%s За сессию: %d | 💎 Всё время: %d", currIcon, sCoins, aCoins)
+            or string.format("%s Session: %d | 💎 All-Time: %d", currIcon, sCoins, aCoins)
+        local activeCoins = getActiveCoins and getActiveCoins() or {}
+        mLbl.Text = isR and string.format("🗺️ На карте: %d", #activeCoins)
+            or string.format("🗺️ On Map: %d", #activeCoins)
+        local st = _G.MM2_LocalizeFarmStatus and _G.MM2_LocalizeFarmStatus(CurrentFarmStatus, newLang) or CurrentFarmStatus or (isR and "Ожидание" or "Idle")
+        sLbl.Text = (isR and "⚡ Статус: " or "⚡ Status: ") .. st
+        if mBtn then mBtn.Text = getFarmMethodLabel(Config.CoinFarmMethod, newLang) end
+        if postActionBtn then postActionBtn.Text = getPostActionTitle(newLang) end
+    end
 
     createButton(TabFarm, "🗑️ Сбросить статистику монет (Сервер + Всё время)", Color3.fromRGB(180, 45, 60), function()
         if _G.MM2_ResetStats then _G.MM2_ResetStats() end
@@ -10578,15 +11227,14 @@ do
         end
     end)
 
-    local mBtn = nil
-    mBtn = createButton(TabFarm, (Config.CoinFarmMethod == "Teleport") and "⚡ Режим: TELEPORT (Мгновенный с КД)" or "🚀 Режим: TWEEN (Настоящий полёт)", Color3.fromRGB(32, 38, 54), function()
+    mBtn = createButton(TabFarm, getFarmMethodLabel(Config.CoinFarmMethod), Color3.fromRGB(32, 38, 54), function()
         if Config.CoinFarmMethod == "Teleport" then
             Config.CoinFarmMethod = "Tween"
-            mBtn.Text = "🚀 Режим: TWEEN (Настоящий полёт)"
+            mBtn.Text = getFarmMethodLabel("Tween")
             showNotification("🪙 РЕЖИМ ФАРМА", "Включен настоящий физический Tween (с репликацией)", Color3.fromRGB(45, 140, 255), "🚀", 2.5)
         else
             Config.CoinFarmMethod = "Teleport"
-            mBtn.Text = "⚡ Режим: TELEPORT (Мгновенный с КД)"
+            mBtn.Text = getFarmMethodLabel("Teleport")
             showNotification("🪙 РЕЖИМ ФАРМА", "Включен мгновенный телепорт с задержкой (КД)", Color3.fromRGB(255, 205, 30), "⚡", 2.5)
         end
         saveConfig()
@@ -10632,16 +11280,6 @@ do
         if serverHop then serverHop() end
     end)
 
-    local postActionBtn = nil
-    local function getPostActionTitle()
-        if Config.CoinPostAction == "Afk" then
-            return "🎯 Действие после лимита: 🛡️ AFK (Под картой)"
-        elseif Config.CoinPostAction == "KillAll_Or_Shoot" then
-            return "🎯 Действие после лимита: ⚔️ Kill All / Shoot / Fling"
-        else
-            return "🎯 Действие после лимита: 💀 Reset (Респавн)"
-        end
-    end
     postActionBtn = createButton(TabFarm, getPostActionTitle(), Color3.fromRGB(36, 44, 62), function()
         if Config.CoinPostAction == "Reset" then
             Config.CoinPostAction = "Afk"
@@ -10849,10 +11487,11 @@ end)
 
 createSectionHeader(TabPersonalize, "📁 РАСПОЛОЖЕНИЕ ВКЛАДОК (TAB POSITION)")
 _G.MM2_GetTabPosLabel = function(p)
-    if p == "Top" then return "⬆️ Сверху"
-    elseif p == "Left" then return "⬅️ Слева"
-    elseif p == "Right" then return "➡️ Справа"
-    else return "⬇️ Снизу" end
+    local isRu = ((Config and Config.Language) == "Russian")
+    if p == "Top" then return isRu and "⬆️ Сверху" or "⬆️ Top"
+    elseif p == "Left" then return isRu and "⬅️ Слева" or "⬅️ Left"
+    elseif p == "Right" then return isRu and "➡️ Справа" or "➡️ Right"
+    else return isRu and "⬇️ Снизу" or "⬇️ Bottom" end
 end
 _G.MM2_TabButtonsList = {}
 
@@ -11445,7 +12084,8 @@ do
         titleLbl.TextSize = 11
         titleLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
         titleLbl.TextXAlignment = Enum.TextXAlignment.Left
-        titleLbl.Text = opts.title or "⚠️ Подтверждение"
+        local isRuModal = ((Config and Config.Language) == "Russian")
+        titleLbl.Text = opts.title or (isRuModal and "⚠️ Подтверждение" or "⚠️ Confirmation")
         titleLbl.ZIndex = 253
         titleLbl.Parent = topBar
 
@@ -11472,7 +12112,7 @@ do
         msgLbl.TextColor3 = Color3.fromRGB(230, 238, 250)
         msgLbl.TextWrapped = true
         msgLbl.TextYAlignment = Enum.TextYAlignment.Center
-        msgLbl.Text = opts.desc or "Вы уверены, что хотите выполнить это действие?"
+        msgLbl.Text = opts.desc or (isRuModal and "Вы уверены, что хотите выполнить это действие?" or "Are you sure you want to proceed?")
         msgLbl.ZIndex = 253
         msgLbl.Parent = modal
 
@@ -11490,7 +12130,7 @@ do
         cancelBtn.Font = Enum.Font.GothamBold
         cancelBtn.TextSize = 10
         cancelBtn.TextColor3 = Color3.fromRGB(220, 230, 245)
-        cancelBtn.Text = "✖ Отмена"
+        cancelBtn.Text = opts.cancelText or (isRuModal and "✖ Отмена" or "✖ Cancel")
         cancelBtn.AutoButtonColor = true
         cancelBtn.ZIndex = 254
         cancelBtn.Parent = btnBox
@@ -11506,7 +12146,7 @@ do
         confirmBtn.Font = Enum.Font.GothamBold
         confirmBtn.TextSize = 10
         confirmBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        confirmBtn.Text = opts.confirmText or "✔ Подтвердить"
+        confirmBtn.Text = opts.confirmText or (isRuModal and "✔ Подтвердить" or "✔ Confirm")
         confirmBtn.AutoButtonColor = true
         confirmBtn.ZIndex = 254
         confirmBtn.Parent = btnBox
@@ -11616,6 +12256,7 @@ do
     leftTopBar.BackgroundTransparency = 1
     leftTopBar.Parent = C.leftFrame
 
+    local isRu = ((Config and Config.Language) == "Russian")
     local leftTitle = Instance.new("TextLabel")
     leftTitle.Size = UDim2.new(1, -30, 1, 0)
     leftTitle.Position = UDim2.new(0, 8, 0, 0)
@@ -11624,7 +12265,7 @@ do
     leftTitle.TextSize = 10
     leftTitle.TextColor3 = Color3.fromRGB(195, 210, 240)
     leftTitle.TextXAlignment = Enum.TextXAlignment.Left
-    leftTitle.Text = "📁 СПИСОК КОНФИГОВ"
+    leftTitle.Text = isRu and "📁 СПИСОК КОНФИГОВ" or "📁 CONFIG PROFILES"
     leftTitle.Parent = leftTopBar
 
     local refreshBtn = Instance.new("TextButton")
@@ -11682,15 +12323,16 @@ do
     C.statusLabel.TextColor3 = currentTheme.Main or Color3.fromRGB(70, 160, 255)
     C.statusLabel.TextXAlignment = Enum.TextXAlignment.Left
     C.statusLabel.TextTruncate = Enum.TextTruncate.AtEnd
-    C.statusLabel.Text = "⚙️ ВЫБРАН: (не выбран)"
+    C.statusLabel.Text = isRu and "⚙️ ВЫБРАН: (не выбран)" or "⚙️ SELECTED: (none)"
     C.statusLabel.Parent = C.rightFrame
 
     local function updateStatus()
+        local isR = ((Config and Config.Language) == "Russian")
         if C.selectedConfig and C.selectedConfig ~= "" then
-            C.statusLabel.Text = "⚙️ ВЫБРАН: " .. C.selectedConfig
+            C.statusLabel.Text = (isR and "⚙️ ВЫБРАН: " or "⚙️ SELECTED: ") .. C.selectedConfig
             C.statusLabel.TextColor3 = currentTheme.Main or Color3.fromRGB(70, 160, 255)
         else
-            C.statusLabel.Text = "⚙️ ВЫБРАН: (не выбран)"
+            C.statusLabel.Text = isR and "⚙️ ВЫБРАН: (не выбран)" or "⚙️ SELECTED: (none)"
             C.statusLabel.TextColor3 = Color3.fromRGB(140, 160, 195)
         end
     end
@@ -11725,7 +12367,7 @@ do
     C.inputTextBox.Font = Enum.Font.GothamMedium
     C.inputTextBox.TextSize = 10
     C.inputTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-    C.inputTextBox.PlaceholderText = "Введите имя конфига..."
+    C.inputTextBox.PlaceholderText = isRu and "Введите имя конфига..." or "Enter config name..."
     C.inputTextBox.PlaceholderColor3 = Color3.fromRGB(120, 135, 165)
     C.inputTextBox.Text = "MyConfig"
     C.inputTextBox.ClearTextOnFocus = false
@@ -11746,7 +12388,7 @@ do
     C.btnCreate.Font = Enum.Font.GothamBold
     C.btnCreate.TextSize = 10
     C.btnCreate.TextColor3 = Color3.fromRGB(255, 255, 255)
-    C.btnCreate.Text = "➕ Создать"
+    C.btnCreate.Text = isRu and "➕ Создать" or "➕ Create"
     C.btnCreate.AutoButtonColor = true
     C.btnCreate.Parent = C.buttonsGrid
     Instance.new("UICorner", C.btnCreate).CornerRadius = UDim.new(0, 6)
@@ -11759,7 +12401,7 @@ do
     C.btnSave.Font = Enum.Font.GothamBold
     C.btnSave.TextSize = 10
     C.btnSave.TextColor3 = Color3.fromRGB(255, 255, 255)
-    C.btnSave.Text = "💾 Сохранить"
+    C.btnSave.Text = isRu and "💾 Сохранить" or "💾 Save"
     C.btnSave.AutoButtonColor = true
     C.btnSave.Parent = C.buttonsGrid
     Instance.new("UICorner", C.btnSave).CornerRadius = UDim.new(0, 6)
@@ -11772,7 +12414,7 @@ do
     C.btnLoad.Font = Enum.Font.GothamBold
     C.btnLoad.TextSize = 10
     C.btnLoad.TextColor3 = Color3.fromRGB(255, 255, 255)
-    C.btnLoad.Text = "📂 Загрузить"
+    C.btnLoad.Text = isRu and "📂 Загрузить" or "📂 Load"
     C.btnLoad.AutoButtonColor = true
     C.btnLoad.Parent = C.buttonsGrid
     Instance.new("UICorner", C.btnLoad).CornerRadius = UDim.new(0, 6)
@@ -11785,7 +12427,7 @@ do
     C.btnDelete.Font = Enum.Font.GothamBold
     C.btnDelete.TextSize = 10
     C.btnDelete.TextColor3 = Color3.fromRGB(255, 255, 255)
-    C.btnDelete.Text = "🗑️ Удалить"
+    C.btnDelete.Text = isRu and "🗑️ Удалить" or "🗑️ Delete"
     C.btnDelete.AutoButtonColor = true
     C.btnDelete.Parent = C.buttonsGrid
     Instance.new("UICorner", C.btnDelete).CornerRadius = UDim.new(0, 6)
@@ -11805,7 +12447,8 @@ do
             empty.TextSize = 9
             empty.TextColor3 = Color3.fromRGB(130, 150, 185)
             empty.TextWrapped = true
-            empty.Text = "Нет сохранённых конфигов.\nНажмите '➕ Создать'!"
+            local isR = ((Config and Config.Language) == "Russian")
+            empty.Text = isR and "Нет сохранённых конфигов.\nНажмите '➕ Создать'!" or "No saved configs found.\nClick '➕ Create' to begin!"
             empty.Parent = C.listScroll
             return
         end
@@ -11858,6 +12501,18 @@ do
         end
     end
 
+    _G.MM2_UpdateConfigManagerLang = function(newLang)
+        local isR = (newLang == "Russian")
+        leftTitle.Text = isR and "📁 СПИСОК КОНФИГОВ" or "📁 CONFIG PROFILES"
+        C.inputTextBox.PlaceholderText = isR and "Введите имя конфига..." or "Enter config name..."
+        C.btnCreate.Text = isR and "➕ Создать" or "➕ Create"
+        C.btnSave.Text = isR and "💾 Сохранить" or "💾 Save"
+        C.btnLoad.Text = isR and "📂 Загрузить" or "📂 Load"
+        C.btnDelete.Text = isR and "🗑️ Удалить" or "🗑️ Delete"
+        updateStatus()
+        renderSavedConfigs()
+    end
+
     refreshBtn.MouseButton1Click:Connect(function()
         renderSavedConfigs()
         showNotification("🔄 СПИСОК ОБНОВЛЁН", "Список сохранённых конфигов обновлён!", Color3.fromRGB(60, 180, 255), "🔄", 2)
@@ -11876,10 +12531,13 @@ do
         end
 
         if exists then
+            local isR = ((Config and Config.Language) == "Russian")
             showConfirmModal({
-                title = "⚠️ КОНФИГ УЖЕ СУЩЕСТВУЕТ",
-                desc = "Конфиг '" .. clean .. "' уже существует!\nВы хотите перезаписать его текущими настройками?",
-                confirmText = "💾 Перезаписать",
+                title = isR and "⚠️ КОНФИГ УЖЕ СУЩЕСТВУЕТ" or "⚠️ CONFIG ALREADY EXISTS",
+                desc = isR and ("Конфиг '" .. clean .. "' уже существует!\nВы хотите перезаписать его текущими настройками?")
+                    or ("Config '" .. clean .. "' already exists!\nDo you want to overwrite it with current settings?"),
+                confirmText = isR and "💾 Перезаписать" or "💾 Overwrite",
+                cancelText = isR and "✖ Отмена" or "✖ Cancel",
                 confirmColor = Color3.fromRGB(230, 140, 30),
                 onConfirm = function()
                     local ok = saveConfigToFile(clean)
@@ -11914,10 +12572,13 @@ do
         local clean = (raw or "MyConfig"):gsub("[^%w_%-]", "")
         if clean == "" then clean = "MyConfig" end
 
+        local isR = ((Config and Config.Language) == "Russian")
         showConfirmModal({
-            title = "💾 ПОДТВЕРЖДЕНИЕ СОХРАНЕНИЯ",
-            desc = "Перезаписать конфиг '" .. clean .. "'\nтекущими настройками чита?",
-            confirmText = "💾 Да, сохранить",
+            title = isR and "💾 ПОДТВЕРЖДЕНИЕ СОХРАНЕНИЯ" or "💾 CONFIRM SAVE",
+            desc = isR and ("Перезаписать конфиг '" .. clean .. "'\nтекущими настройками чита?")
+                or ("Overwrite config '" .. clean .. "'\nwith current hub settings?"),
+            confirmText = isR and "💾 Да, сохранить" or "💾 Yes, Save",
+            cancelText = isR and "✖ Отмена" or "✖ Cancel",
             confirmColor = Color3.fromRGB(20, 155, 105),
             onConfirm = function()
                 local ok = saveConfigToFile(clean)
@@ -11980,10 +12641,13 @@ do
             return
         end
 
+        local isR = ((Config and Config.Language) == "Russian")
         showConfirmModal({
-            title = "🗑️ ПОДТВЕРЖДЕНИЕ УДАЛЕНИЯ",
-            desc = "Вы действительно хотите удалить конфиг '" .. clean .. "'?\nЭто действие нельзя отменить!",
-            confirmText = "🗑️ Удалить навсегда",
+            title = isR and "🗑️ ПОДТВЕРЖДЕНИЕ УДАЛЕНИЯ" or "🗑️ CONFIRM DELETION",
+            desc = isR and ("Вы действительно хотите удалить конфиг '" .. clean .. "'?\nЭто действие нельзя отменить!")
+                or ("Are you sure you want to delete config '" .. clean .. "'?\nThis action cannot be undone!"),
+            confirmText = isR and "🗑️ Удалить навсегда" or "🗑️ Delete Permanently",
+            cancelText = isR and "✖ Отмена" or "✖ Cancel",
             confirmColor = Color3.fromRGB(215, 45, 65),
             onConfirm = function()
                 local fileName = "MM2_Config_" .. clean .. ".json"
@@ -12801,7 +13465,7 @@ task.spawn(function()
         local mapStr = activeMap and activeMap.Name or "In Lobby"
 
         if not activeMap or mapStr == "In Lobby" then
-            StatusText.Text = "🗺️ В лобби | Ожидание раунда..."
+            StatusText.Text = ((Config and Config.Language) == "Russian") and "🗺️ В лобби | Ожидание раунда..." or "🗺️ In Lobby | Waiting for round..."
         elseif isInf then
             local zCount = 0
             local sCount = 0
@@ -12829,7 +13493,7 @@ task.spawn(function()
                 diRoleText.TextColor3 = Color3.fromRGB(180, 195, 220)
                 if diRoleDot then diRoleDot.BackgroundColor3 = Color3.fromRGB(160, 180, 210) end
                 diStroke.Color = IslandThemeColors[Config.IslandTheme] or Color3.fromRGB(80, 100, 140)
-                diStatusText.Text = "Ожидание раунда..."
+                diStatusText.Text = ((Config and Config.Language) == "Russian") and "Ожидание раунда..." or "Waiting for round..."
             else
                 if isInf then
                     if myRole == "Zombie" then
@@ -15076,7 +15740,7 @@ task.spawn(function()
                             end
                         end
                     end
-                    StatusText.Text = string.format("⚡ РОЛИ: 💀 %s | 🛡️ %s", foundMurd and foundMurd.Name or "None", foundSher and foundSher.Name or "None")
+                    StatusText.Text = string.format(((Config and Config.Language) == "Russian" and "⚡ РОЛИ: 💀 %s | 🛡️ %s" or "⚡ ROLES: 💀 %s | 🛡️ %s"), foundMurd and foundMurd.Name or "None", foundSher and foundSher.Name or "None")
                     break
                 end
                 task.wait(0.1)
