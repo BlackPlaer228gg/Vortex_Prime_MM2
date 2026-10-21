@@ -5091,7 +5091,9 @@ HeaderTitle.Text = "⚡ VORTEX PRIME"
 HeaderTitle.Parent = Header
 
 local HeaderTag = Instance.new("TextLabel")
-HeaderTag.Size = UDim2.new(0, 85, 0, 20)
+_G.MM2_HeaderTag = HeaderTag
+HeaderTag.AutomaticSize = Enum.AutomaticSize.X
+HeaderTag.Size = UDim2.new(0, 95, 0, 20)
 HeaderTag.Position = UDim2.new(0, 165, 0.5, -10)
 
 do
@@ -5119,8 +5121,14 @@ HeaderTag.BackgroundColor3 = Color3.fromRGB(28, 33, 46)
 HeaderTag.Font = Enum.Font.GothamBold
 HeaderTag.TextSize = 9
 HeaderTag.TextColor3 = currentTheme.Accent
-HeaderTag.Text = "MM2 • BETA"
+HeaderTag.Text = ((Config and Config.Language) == "Russian" and "MM2 • РЕЛИЗ") or "MM2 • RELEASE"
 HeaderTag.Parent = Header
+do
+    local tagPad = Instance.new("UIPadding")
+    tagPad.PaddingLeft = UDim.new(0, 8)
+    tagPad.PaddingRight = UDim.new(0, 8)
+    tagPad.Parent = HeaderTag
+end
 Instance.new("UICorner", HeaderTag).CornerRadius = UDim.new(0, 5)
 
 do
@@ -5932,6 +5940,11 @@ do
         -- 5. Language selector button visual
         if _G.MM2_UpdateLangSelectorVisual then
             _G.MM2_UpdateLangSelectorVisual(lang)
+        end
+
+        -- 6. Header Tag (Release / Релиз)
+        if _G.MM2_HeaderTag and _G.MM2_HeaderTag.Parent then
+            _G.MM2_HeaderTag.Text = (lang == "Russian" and "MM2 • РЕЛИЗ") or "MM2 • RELEASE"
         end
     end
     _G.MM2_UpdateAllLocalizedTexts = updateAllLocalizedTexts
@@ -7236,7 +7249,7 @@ do
         versionBadge.Font = Enum.Font.GothamBold
         versionBadge.TextSize = 10
         versionBadge.TextColor3 = curTh.Accent
-        versionBadge.Text = "MURDER MYSTERY 2  •  PREMIUM EDITION  [v4.2 BETA]"
+        versionBadge.Text = ((Config and Config.Language) == "Russian" and "MURDER MYSTERY 2  •  PREMIUM EDITION  [v4.2 РЕЛИЗ]") or "MURDER MYSTERY 2  •  PREMIUM EDITION  [v4.2 RELEASE]"
         versionBadge.TextTransparency = 1
         versionBadge.ZIndex = 62
         versionBadge.Parent = splash
@@ -7446,7 +7459,7 @@ do
         subtitle.TextSize = 11
         subtitle.TextColor3 = curTh.Main
         subtitle.TextXAlignment = Enum.TextXAlignment.Left
-        subtitle.Text = "Release [BETA] • Все функции активны и оптимизированы"
+        subtitle.Text = ((Config and Config.Language) == "Russian" and "Официальный [РЕЛИЗ] • Все функции активны и оптимизированы") or "Official [RELEASE] • All features active & optimized"
         subtitle.ZIndex = 51
         subtitle.Parent = welcome
 
@@ -7480,7 +7493,11 @@ do
         info2.TextColor3 = Color3.fromRGB(160, 175, 200)
         info2.TextXAlignment = Enum.TextXAlignment.Left
         info2.TextWrapped = true
-        info2.Text = "• Скрипт находится в стадии BETA (постоянные обновления и оптимизация)\n• Нажмите [" .. tostring(Config.MenuKeybind) .. "] для открытия меню\n• Сохранение и загрузка конфигов во вкладке Settings"
+        local isRu = ((Config and Config.Language) == "Russian")
+        local keyText = tostring(Config.MenuKeybind)
+        info2.Text = isRu
+            and ("• Официальный РЕЛИЗ: стабильная работа, максимальная защита и оптимизация\n• Нажмите [" .. keyText .. "] для открытия меню\n• Сохранение и загрузка конфигов во вкладке Settings")
+            or ("• Official RELEASE: stable build, max protection & full optimization\n• Press [" .. keyText .. "] to toggle Hub menu\n• Save & load configs in Settings tab")
         info2.ZIndex = 52
         info2.Parent = greetCard
 
@@ -18236,5 +18253,5 @@ task.spawn(function()
     end)
 end)
 
-print("[VORTEX PRIME MM2 • BETA] Successfully Loaded! Dynamic Island, Smart Cluster Farm, Spectate & 3D Render active.")
+print("[VORTEX PRIME MM2 • RELEASE] Successfully Loaded! Dynamic Island, Smart Cluster Farm, Spectate & 3D Render active.")
 _G.MM2_Hub_Initializing = nil
