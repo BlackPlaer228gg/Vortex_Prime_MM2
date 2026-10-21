@@ -629,6 +629,7 @@ local Config = {
     MobileHudTransparencyPct = 20,
     ShowMobileTabOnPC = false,
     MobileIslandClickToggle = false,
+    Language = "English",
 }
 _G.MM2_Config = Config
 
@@ -4930,8 +4931,12 @@ do
         contentLbl.TextSize = 10
         contentLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
         contentLbl.TextXAlignment = Enum.TextXAlignment.Center
-        contentLbl.Text = iconText .. " " .. labelText
+        local isRu = ((Config and Config.Language) == "Russian")
+        local hudTxt = isRu and labelText or (labelText == "ВЫСТРЕЛ" and "SHOOT" or (labelText == "НОЖ" and "KNIFE" or (labelText == "ФАРМ" and "FARM" or labelText)))
+        contentLbl.Text = iconText .. " " .. hudTxt
         contentLbl.ZIndex = 46
+        if not _G.MM2_ActionHUDLabels then _G.MM2_ActionHUDLabels = {} end
+        table.insert(_G.MM2_ActionHUDLabels, { lbl = contentLbl, icon = iconText, orig = labelText })
         contentLbl.Parent = btn
 
         local isDragging = false
@@ -5028,6 +5033,19 @@ do
             showNotification("🪙 AUTO-FARM", Config.CoinAutoFarm and "Фарм включен!" or "Фарм выключен!", Config.CoinAutoFarm and Color3.fromRGB(60, 220, 100) or Color3.fromRGB(240, 70, 70), "🪙", 2.0)
         end
     end)
+
+    _G.MM2_UpdateActionHUDLabels = function(lang)
+        local isRu = (lang == "Russian")
+        for _, item in ipairs(_G.MM2_ActionHUDLabels or {}) do
+            if item.lbl and item.lbl.Parent then
+                local t = item.orig
+                if item.orig == "ВЫСТРЕЛ" then t = isRu and "ВЫСТРЕЛ" or "SHOOT"
+                elseif item.orig == "НОЖ" then t = isRu and "НОЖ" or "KNIFE"
+                elseif item.orig == "ФАРМ" then t = isRu and "ФАРМ" or "FARM" end
+                item.lbl.Text = item.icon .. " " .. t
+            end
+        end
+    end
 
     _G.MM2_UpdateMobileActionHUD = function()
         local isOverallEnabled = (Config.MobileActionHUD ~= false)
@@ -5340,6 +5358,599 @@ local function applyCustomColor(r, g, b)
     saveConfig()
 end
 
+-- ====================================================================
+-- 🌐 LOCALIZATION SYSTEM (FULL ENGLISH & RUSSIAN SUPPORT)
+-- ====================================================================
+do
+    local I18N_DICT = {
+        ["Combat"] = { en = "Combat", ru = "Бой" },
+        ["Configs"] = { en = "Configs", ru = "Конфиги" },
+        ["ESP"] = { en = "ESP & Chams", ru = "ESP & Подсветка" },
+        ["Farm"] = { en = "Farm", ru = "Фарм" },
+        ["Fling"] = { en = "Player Fling", ru = "Флинг Игроков" },
+        ["Fly Speed"] = { en = "Fly Speed", ru = "Скорость полета (Fly Speed)" },
+        ["Island"] = { en = "Island", ru = "Островок" },
+        ["Items"] = { en = "Items & Gun", ru = "Оружие & Лут" },
+        ["Knife Reach"] = { en = "Knife Reach", ru = "Дальний Нож" },
+        ["Knife Throw"] = { en = "Knife Throw", ru = "Бросок Ножа" },
+        ["Mobile"] = { en = "Mobile", ru = "Мобильные" },
+        ["Move"] = { en = "Move", ru = "Движение" },
+        ["Settings"] = { en = "Settings", ru = "Настройки" },
+        ["Shoot Murderer"] = { en = "Shoot Murderer", ru = "Авто-Выстрел" },
+        ["Silent Aim"] = { en = "Silent Aim", ru = "Аимбот (Silent Aim)" },
+        ["Spectate"] = { en = "Spectate", ru = "Наблюдение" },
+        ["Themes"] = { en = "Themes", ru = "Темы" },
+        ["Troll"] = { en = "Troll", ru = "Троллинг" },
+        ["UI Glass Transparency"] = { en = "UI Glass Transparency", ru = "Прозрачность стекла меню" },
+        ["Visuals"] = { en = "Visuals", ru = "Визуалы" },
+        ["Vote Dupe"] = { en = "Vote Dupe", ru = "Дюп Голосов" },
+        ["WalkSpeed Value"] = { en = "WalkSpeed Value", ru = "Скорость бега (WalkSpeed)" },
+        ["World"] = { en = "World & FX", ru = "Мир & Эффекты" },
+        ["Высота кнопок HUD"] = { en = "HUD Buttons Height", ru = "Высота кнопок HUD" },
+        ["Высота островка"] = { en = "Island Height", ru = "Высота островка" },
+        ["Дистанция тревоги (Studs)"] = { en = "Alert Distance (Studs)", ru = "Дистанция тревоги (Studs)" },
+        ["Задержка авто-выстрела"] = { en = "Auto-Shoot Delay", ru = "Задержка авто-выстрела" },
+        ["Зелёный (Green G)"] = { en = "Green (G)", ru = "Зелёный (G)" },
+        ["Кнопка '🔫 ВЫСТРЕЛ' (Shoot)"] = { en = "Button '🔫 SHOOT'", ru = "Кнопка '🔫 ВЫСТРЕЛ'" },
+        ["Кнопка '🗡️ НОЖ' (Knife Aura)"] = { en = "Button '🗡️ KNIFE'", ru = "Кнопка '🗡️ НОЖ'" },
+        ["Кнопка '🪙 ФАРМ' (Toggle Farm)"] = { en = "Button '🪙 FARM'", ru = "Кнопка '🪙 ФАРМ'" },
+        ["Красный (Red R)"] = { en = "Red (R)", ru = "Красный (R)" },
+        ["Лимит монет для действия"] = { en = "Coin Limit for Action", ru = "Лимит монет для действия" },
+        ["Отступ сверху Y"] = { en = "Top Margin Y", ru = "Отступ сверху Y" },
+        ["Прозрачность кнопки меню"] = { en = "Menu Button Transparency", ru = "Прозрачность кнопки меню" },
+        ["Прозрачность кнопок HUD"] = { en = "HUD Buttons Transparency", ru = "Прозрачность кнопок HUD" },
+        ["Прозрачность стекла"] = { en = "Glass Transparency", ru = "Прозрачность стекла" },
+        ["Радиус Aura (2–7 studs)"] = { en = "Aura Radius (2–7 studs)", ru = "Радиус Aura (2–7 studs)" },
+        ["Размер кнопки меню"] = { en = "Menu Button Size", ru = "Размер кнопки меню" },
+        ["Синий (Blue B)"] = { en = "Blue (B)", ru = "Синий (B)" },
+        ["Скорость пули для упреждения"] = { en = "Bullet Velocity for Prediction", ru = "Скорость пули для упреждения" },
+        ["Смещение прострела"] = { en = "WallBang Offset", ru = "Смещение прострела" },
+        ["Ширина кнопок HUD"] = { en = "HUD Buttons Width", ru = "Ширина кнопок HUD" },
+        ["Ширина островка"] = { en = "Island Width", ru = "Ширина островка" },
+        ["↔️ Фактор растяга (Stretch Factor / Custom)"] = { en = "↔️ Custom Stretch Factor", ru = "↔️ Фактор растяга (Stretch Factor)" },
+        ["⌨️ Бинд броска ножа (Silent Aim)"] = { en = "⌨️ Knife Throw Keybind", ru = "⌨️ Бинд броска ножа (Silent Aim)" },
+        ["⌨️ Бинд выстрела (Instant Shoot)"] = { en = "⌨️ Instant Shoot Keybind", ru = "⌨️ Бинд выстрела (Instant Shoot)" },
+        ["⌨️ Бинд удара по цели"] = { en = "⌨️ Target Strike Keybind", ru = "⌨️ Бинд удара по цели" },
+        ["⌨️ НАЗНАЧЕНИЕ КЛАВИШ (БИНДЫ)"] = { en = "⌨️ KEYBIND CONFIGURATION", ru = "⌨️ НАЗНАЧЕНИЕ КЛАВИШ (БИНДЫ)" },
+        ["⏱️ Длительность на цель"] = { en = "⏱️ Target Duration", ru = "⏱️ Длительность на цель" },
+        ["⏱️ Задержка перед авто-перезаходом"] = { en = "⏱️ Auto-Reconnect Delay", ru = "⏱️ Задержка перед авто-перезаходом" },
+        ["⏱️ Задержка перед сбросом"] = { en = "⏱️ Delay Before Reset", ru = "⏱️ Задержка перед сбросом" },
+        ["⏱️ Макс. ожидание катки в лобби"] = { en = "⏱️ Max Lobby Wait Time", ru = "⏱️ Макс. ожидание катки в лобби" },
+        ["⏳ Длительность трассера"] = { en = "⏳ Tracer Duration", ru = "⏳ Длительность трассера" },
+        ["⏳ Задержка авто-инжекта после ТП"] = { en = "⏳ Teleport Re-inject Delay", ru = "⏳ Задержка авто-инжекта после ТП" },
+        ["⏳ Показывать таймер раунда"] = { en = "⏳ Show Round Timer", ru = "⏳ Показывать таймер раунда" },
+        ["⏹️ Остановить эмоцию (Stop Emote)"] = { en = "⏹️ Stop Emote", ru = "⏹️ Остановить эмоцию (Stop Emote)" },
+        ["☀️ Volumetric Sun Rays (Лучи солнца)"] = { en = "☀️ Volumetric Sun Rays", ru = "☀️ Volumetric Sun Rays (Лучи солнца)" },
+        ["☀️ Дневное освещение (Day Time)"] = { en = "☀️ Day Lighting", ru = "☀️ Дневное освещение (Day Time)" },
+        ["♻️ Reset to Factory Defaults"] = { en = "♻️ Reset to Factory Defaults", ru = "♻️ Сброс к заводским настройкам" },
+        ["♻️ Ручной респавн персонажа"] = { en = "♻️ Manual Character Respawn", ru = "♻️ Ручной респавн персонажа" },
+        ["⚙️ Метод: "] = { en = "⚙️ Method: ", ru = "⚙️ Метод: " },
+        ["⚠️ Murderer Proximity Alert (Тревога при приближении)"] = { en = "⚠️ Murderer Proximity Alert", ru = "⚠️ Тревога при приближении Мардера" },
+        ["⚠️ Trap ESP & Highlights"] = { en = "⚠️ Trap ESP & Highlights", ru = "⚠️ Trap ESP & Подсветка ловушек" },
+        ["⚠️ Авто-смена зависшего сервера (Зависшая катка)"] = { en = "⚠️ Auto-Hop Broken / Frozen Server", ru = "⚠️ Авто-смена зависшего сервера" },
+        ["⚠️ ОПОВЕЩЕНИЕ ОБ ОПАСНОСТИ"] = { en = "⚠️ DANGER NOTIFICATIONS", ru = "⚠️ ОПОВЕЩЕНИЕ ОБ ОПАСНОСТИ" },
+        ["⚡ Auto-Grab Gun (Авто-подбор выпавшего оружия)"] = { en = "⚡ Auto-Grab Dropped Gun", ru = "⚡ Авто-подбор выпавшего оружия" },
+        ["⚡ Bullet Tracers (Лазерные трассеры пуль)"] = { en = "⚡ Bullet Laser Tracers", ru = "⚡ Лазерные трассеры пуль" },
+        ["⚡ Disable 3D Render (Энергосбережение & 20 FPS) [F7]"] = { en = "⚡ Disable 3D Render (20 FPS Saver) [F7]", ru = "⚡ Отключить 3D рендер (20 FPS Saver) [F7]" },
+        ["⚡ FPS Booster (Удаление теней, декоров и лагов)"] = { en = "⚡ FPS Booster (Remove Shadows & Lag)", ru = "⚡ FPS Booster (Удаление теней и лагов)" },
+        ["⚡ Rage MM2 (Silent Aim, Max Knife Aura & Speed)"] = { en = "⚡ Rage MM2 (Silent Aim, Max Aura & Speed)", ru = "⚡ Rage MM2 (Silent Aim, Max Аура & Скорость)" },
+        ["⚡ Visual Tracers"] = { en = "⚡ Visual Snaplines", ru = "⚡ Линии к игрокам (Tracers)" },
+        ["⚡ WalkSpeed Boost"] = { en = "⚡ WalkSpeed Boost", ru = "⚡ Увеличение скорости (Speed Boost)" },
+        ["⚡ Авто-ТП к плитке сразу после респавна"] = { en = "⚡ Auto-TP to Platform on Spawn", ru = "⚡ Авто-ТП к плитке сразу после респавна" },
+        ["⚡ Авто-дюп голосов (Auto Vote Dupe)"] = { en = "⚡ Auto Vote Dupe", ru = "⚡ Авто-дюп голосов (Auto Vote Dupe)" },
+        ["⚡ Авто-убийство после начала раунда (Auto Kill All)"] = { en = "⚡ Auto Kill All on Round Start", ru = "⚡ Авто-убийство после начала раунда" },
+        ["⚡ Авто-экипировка ножа при ударе"] = { en = "⚡ Auto-Equip Knife on Strike", ru = "⚡ Авто-экипировка ножа при ударе" },
+        ["⚡ БЫСТРЫЕ ДЕЙСТВИЯ"] = { en = "⚡ QUICK ACTIONS", ru = "⚡ БЫСТРЫЕ ДЕЙСТВИЯ" },
+        ["⚡ БЫСТРЫЕ ПРЕСЕТЫ (ONE-CLICK PRESETS)"] = { en = "⚡ ONE-CLICK PRESETS", ru = "⚡ БЫСТРЫЕ ПРЕСЕТЫ (ONE-CLICK PRESETS)" },
+        ["⚡ Вспышка цвета при событиях"] = { en = "⚡ Color Flash on Events", ru = "⚡ Вспышка цвета при событиях" },
+        ["⚡ Задержка телепорта (Cooldown)"] = { en = "⚡ Teleport Cooldown", ru = "⚡ Задержка телепорта (Cooldown)" },
+        ["⚡ Найти быстрый сервер по пингу (Server Hop)"] = { en = "⚡ Fast Server Hop (Lowest Ping)", ru = "⚡ Найти быстрый сервер по пингу" },
+        ["⚡ ОПТИМИЗАЦИЯ И ПРОИЗВОДИТЕЛЬНОСТЬ (FPS BOOST)"] = { en = "⚡ PERFORMANCE & OPTIMIZATION", ru = "⚡ ОПТИМИЗАЦИЯ И ПРОИЗВОДИТЕЛЬНОСТЬ" },
+        ["⚡ Показывать счётчик FPS"] = { en = "⚡ Show FPS Counter", ru = "⚡ Показывать счётчик FPS" },
+        ["⚡ РАДАР И ЛИНИИ (TRACERS & RADAR)"] = { en = "⚡ RADAR & TRACERS", ru = "⚡ РАДАР И ЛИНИИ (TRACERS & RADAR)" },
+        ["⚡ Сила импульса (Power)"] = { en = "⚡ Impulse Power", ru = "⚡ Сила импульса (Power)" },
+        ["⚡ Турнирный 4:3 Стритч (1440x1080 Mode)"] = { en = "⚡ Tournament 4:3 Stretch (1440x1080)", ru = "⚡ Турнирный 4:3 Стритч (1440x1080)" },
+        ["⚡ УПРАВЛЕНИЕ И АВТОМАТИЗАЦИЯ ДЮПА"] = { en = "⚡ VOTE DUPE CONTROLS", ru = "⚡ УПРАВЛЕНИЕ И АВТОМАТИЗАЦИЯ ДЮПА" },
+        ["⚪ Stealth Silver (Minimal Monolith)"] = { en = "⚪ Stealth Silver (Minimal Monolith)", ru = "⚪ Stealth Silver (Серебряный монолит)" },
+        ["⛏️ НАСТРОЙКИ СКРЫТНОСТИ И БЕЗОПАСНОСТИ"] = { en = "⛏️ STEALTH & SAFETY SETTINGS", ru = "⛏️ НАСТРОЙКИ СКРЫТНОСТИ И БЕЗОПАСНОСТИ" },
+        ["✨ Glow Bloom (Неоновое свечение мира)"] = { en = "✨ Glow Bloom (Neon World Bloom)", ru = "✨ Glow Bloom (Неоновое свечение мира)" },
+        ["✨ АУРЫ И ЭФФЕКТЫ ПЕРСОНАЖА (PLAYER AURAS)"] = { en = "✨ PLAYER AURAS & COSMETICS", ru = "✨ АУРЫ И ЭФФЕКТЫ ПЕРСОНАЖА" },
+        ["✨ Анимация расширения при наведении"] = { en = "✨ Expand Animation on Hover", ru = "✨ Анимация расширения при наведении" },
+        ["✨ НАСТРОЙКИ ИНТЕРФЕЙСА"] = { en = "✨ INTERFACE SETTINGS", ru = "✨ НАСТРОЙКИ ИНТЕРФЕЙСА" },
+        ["✨ Подсветка целевой монеты (Highlight)"] = { en = "✨ Target Coin Highlight", ru = "✨ Подсветка целевой монеты (Highlight)" },
+        ["✨ Применить кастомный цвет (Apply)"] = { en = "✨ Apply Custom Color", ru = "✨ Применить кастомный цвет" },
+        ["✨ ЭФФЕКТЫ И ВИЗУАЛЫ (WORLD VISUALS)"] = { en = "✨ WORLD VISUALS & EFFECTS", ru = "✨ ЭФФЕКТЫ И ВИЗУАЛЫ (WORLD VISUALS)" },
+        ["❌ Снять выбор со всех игроков"] = { en = "❌ Deselect All Players", ru = "❌ Снять выбор со всех игроков" },
+        ["⭐ Auto-Prestige (Авто-престиж при уровне 100)"] = { en = "⭐ Auto-Prestige at Level 100", ru = "⭐ Авто-престиж при уровне 100" },
+        ["⭐ Dropped Gun ESP"] = { en = "⭐ Dropped Gun ESP", ru = "⭐ ESP Выпавшего Оружия" },
+        ["⭐ Hero ESP & Highlight"] = { en = "⭐ Hero ESP & Highlight", ru = "⭐ ESP Героя & Подсветка" },
+        ["⭐ Instant Grab Gun (Подобрать сейчас)"] = { en = "⭐ Instant Grab Dropped Gun", ru = "⭐ Подобрать пистолет сейчас" },
+        ["⭐ PRESTIGE (АВТО-ПРЕСТИЖ)"] = { en = "⭐ PRESTIGE CONTROLS", ru = "⭐ PRESTIGE (АВТО-ПРЕСТИЖ)" },
+        ["⭐ Выполнить Prestige прямо сейчас"] = { en = "⭐ Execute Prestige Right Now", ru = "⭐ Выполнить Prestige прямо сейчас" },
+        ["⭐ ПОДБОР ОРУЖИЯ (GUN DROP)"] = { en = "⭐ WEAPON PICKUP (GUN DROP)", ru = "⭐ ПОДБОР ОРУЖИЯ (GUN DROP)" },
+        ["⭐ ПРЕДМЕТЫ И ЛУТ (ITEMS & TRAPS ESP)"] = { en = "⭐ ITEMS & LOOT ESP", ru = "⭐ ПРЕДМЕТЫ И ЛУТ (ITEMS & TRAPS ESP)" },
+        ["⭐ Тест: Оповещение выпадения пистолета"] = { en = "⭐ Test: Dropped Gun Alert", ru = "⭐ Тест: Оповещение выпадения пистолета" },
+        ["⭕ 3D Показ радиуса поражения (Круг на полу)"] = { en = "⭕ 3D Strike Radius Circle (Floor)", ru = "⭕ 3D Показ радиуса поражения (Круг)" },
+        ["⭕ Jump Circles (Ударные кольца при прыжке)"] = { en = "⭕ Jump Impact Rings", ru = "⭕ Ударные кольца при прыжке" },
+        ["🌀 Микро-блинк (100% регистрация сервером)"] = { en = "🌀 Micro-Blink (100% Hit Reg)", ru = "🌀 Микро-блинк (100% регистрация)" },
+        ["🌅 Sunset Orange (Vibrant Coral)"] = { en = "🌅 Sunset Orange (Vibrant Coral)", ru = "🌅 Sunset Orange (Оранжевый коралл)" },
+        ["🌅 Закат (Sunset Time)"] = { en = "🌅 Sunset Lighting", ru = "🌅 Закат (Sunset Time)" },
+        ["🌈 Chroma Skin (Переливающийся RGB скин)"] = { en = "🌈 Chroma RGB Character Skin", ru = "🌈 Chroma RGB Скин персонажа" },
+        ["🌈 ВЫБОР СВОЕГО ЦВЕТА (CUSTOM COLOR)"] = { en = "🌈 CUSTOM ACCENT COLOR", ru = "🌈 ВЫБОР СВОЕГО ЦВЕТА (CUSTOM COLOR)" },
+        ["🌈 ПОСТ-ОБРАБОТКА И ШЕЙДЕРЫ (SHADERS & POST-FX)"] = { en = "🌈 SHADERS & POST-PROCESSING", ru = "🌈 ПОСТ-ОБРАБОТКА И ШЕЙДЕРЫ" },
+        ["🌌 Void Check (Не тепаться в воздух / ждать пустоту)"] = { en = "🌌 Void Safety Check (Wait for Map)", ru = "🌌 Защита от пустоты (Ждать карту)" },
+        ["🌌 КАСТОМНЫЙ СКАЙБОКС (CUSTOM SKYBOX)"] = { en = "🌌 CUSTOM SKYBOX", ru = "🌌 КАСТОМНЫЙ СКАЙБОКС (CUSTOM SKYBOX)" },
+        ["🌌 Пресет атмосферы: "] = { en = "🌌 Atmosphere Preset: ", ru = "🌌 Пресет атмосферы: " },
+        ["🌌 Скайбокс мира: "] = { en = "🌌 World Skybox: ", ru = "🌌 Скайбокс мира: " },
+        ["🌍 World"] = { en = "🌍 World & FX", ru = "🌍 Мир & Эффекты" },
+        ["🌐 Auto-Hop при 2-3 игроках (Pure Lua)"] = { en = "🌐 Auto-Hop if Low Players (2-3)", ru = "🌐 Auto-Hop при 2-3 игроках" },
+        ["🌐 Full-Map Penetration (Чистый прострел без ТП)"] = { en = "🌐 Full-Map Wall Penetration (No TP)", ru = "🌐 Чистый прострел без ТП (Full-Map)" },
+        ["🌐 MM2 SERVER HOP & AUTO-RECONNECT"] = { en = "🌐 MM2 SERVER HOP & RECONNECT", ru = "🌐 MM2 SERVER HOP & ПЕРЕЗАХОД" },
+        ["🌙 Ночное освещение (Night Time)"] = { en = "🌙 Night Lighting", ru = "🌙 Ночное освещение (Night Time)" },
+        ["🌪️ УПРАВЛЕНИЕ МУЛЬТИ-ФЛИНГОМ"] = { en = "🌪️ MULTI-FLING CONTROLS", ru = "🌪️ УПРАВЛЕНИЕ МУЛЬТИ-ФЛИНГОМ" },
+        ["🌫️ No Fog (Убрать туман карты)"] = { en = "🌫️ Remove Map Fog", ru = "🌫️ Убрать туман карты (No Fog)" },
+        ["🎁 Auto Claim Pass (Авто-забор наград Пасса)"] = { en = "🎁 Auto Claim Battle Pass Rewards", ru = "🎁 Авто-забор наград Пасса" },
+        ["🎁 Забрать открытые награды прямо сейчас"] = { en = "🎁 Claim Available Pass Rewards Now", ru = "🎁 Забрать открытые награды сейчас" },
+        ["🎃 Авто-покупка пропуска за 600 конфет (Auto Skip Tier)"] = { en = "🎃 Auto Skip Pass Tier (600 Candies)", ru = "🎃 Авто-покупка уровня (600 конфет)" },
+        ["🎃 ХЭЛЛОУИН ПАСС (AUTO BUY TIER 600 CANDIES)"] = { en = "🎃 HALLOWEEN PASS (AUTO BUY TIER)", ru = "🎃 ХЭЛЛОУИН ПАСС (AUTO BUY TIER)" },
+        ["🎛️ Множитель пинга (Ping Multiplier)"] = { en = "🎛️ Ping Multiplier", ru = "🎛️ Множитель пинга (Ping Multiplier)" },
+        ["🎥 ДИНАМИЧЕСКАЯ КАМЕРА (DYNAMIC CAMERA FX)"] = { en = "🎥 DYNAMIC CAMERA EFFECTS", ru = "🎥 ДИНАМИЧЕСКАЯ КАМЕРА (CAMERA FX)" },
+        ["🎥 Кинематографичная камера при сборе"] = { en = "🎥 Cinematic Camera on Coin Collect", ru = "🎥 Кинематографичная камера при сборе" },
+        ["🎨 ТЕМА DYNAMIC ISLAND"] = { en = "🎨 DYNAMIC ISLAND THEME", ru = "🎨 ТЕМА DYNAMIC ISLAND" },
+        ["🎨 ТЕМЫ ОФОРМЛЕНИЯ HUB"] = { en = "🎨 HUB UI THEMES", ru = "🎨 ТЕМЫ ОФОРМЛЕНИЯ HUB" },
+        ["🎨 Цвет прицела: "] = { en = "🎨 Crosshair Color: ", ru = "🎨 Цвет прицела: " },
+        ["🎨 Цвет трассера: "] = { en = "🎨 Tracer Color: ", ru = "🎨 Цвет трассера: " },
+        ["🎨 Цветокоррекция: "] = { en = "🎨 Color Correction: ", ru = "🎨 Цветокоррекция: " },
+        ["🎬 Preview Intro Splash Animation"] = { en = "🎬 Preview Intro Splash Animation", ru = "🎬 Предпросмотр интро-анимации" },
+        ["🎬 Чёрные полосы (Black Bars / Letterbox)"] = { en = "🎬 Cinematic Black Bars (Letterbox)", ru = "🎬 Чёрные полосы (Letterbox)" },
+        ["🎭 Роль игрока (Murderer/Sheriff/Hero)"] = { en = "🎭 Player Role (Murderer/Sheriff/Hero)", ru = "🎭 Роль игрока (Мардер/Шериф/Герой)" },
+        ["🎭 ЭМОЦИИ И ВЕСЕЛЬЕ (EMOTES & FUN)"] = { en = "🎭 EMOTES & ANIMATIONS", ru = "🎭 ЭМОЦИИ И ВЕСЕЛЬЕ (EMOTES & FUN)" },
+        ["🎮 Включить экранные кнопки (Action HUD)"] = { en = "🎮 Enable On-Screen HUD Buttons", ru = "🎮 Включить экранные кнопки (Action HUD)" },
+        ["🎮 Мобильные кнопки действий (Action HUD)"] = { en = "🎮 Mobile Action HUD Buttons", ru = "🎮 Мобильные кнопки действий (Action HUD)" },
+        ["🎮 НАЭКРАННЫЕ КНОПКИ (ACTION HUD)"] = { en = "🎮 ACTION HUD BUTTONS", ru = "🎮 НАЭКРАННЫЕ КНОПКИ (ACTION HUD)" },
+        ["🎯 Custom Crosshair (Прицел по центру)"] = { en = "🎯 Custom Center Crosshair", ru = "🎯 Кастомный прицел по центру" },
+        ["🎯 Murderer Knife Throw"] = { en = "🎯 Murderer Knife Throw", ru = "🎯 Бросок ножа Мардера" },
+        ["🎯 Off-Screen Radar Arrow"] = { en = "🎯 Off-Screen Radar Arrows", ru = "🎯 Стрелки радара за экраном" },
+        ["🎯 Sheriff / Gun Silent Aim"] = { en = "🎯 Sheriff / Gun Silent Aim", ru = "🎯 Silent Aim Шерифа / Оружия" },
+        ["🎯 Toggle Silent Aim"] = { en = "🎯 Toggle Silent Aim", ru = "🎯 Включить/Выключить Silent Aim" },
+        ["🎯 БРОСОК НОЖА & SILENT AIM (KNIFE THROW)"] = { en = "🎯 KNIFE THROW & SILENT AIM", ru = "🎯 БРОСОК НОЖА & SILENT AIM" },
+        ["🎯 БЫСТРЫЕ ФИЛЬТРЫ И ВЫБОР РОЛЕЙ"] = { en = "🎯 ROLE FILTERS & QUICK TARGET", ru = "🎯 БЫСТРЫЕ ФИЛЬТРЫ И ВЫБОР РОЛЕЙ" },
+        ["🎯 Включить бросок ножа с Silent Aim"] = { en = "🎯 Enable Knife Throw Silent Aim", ru = "🎯 Включить бросок ножа с Silent Aim" },
+        ["🎯 КАСТОМНЫЙ ПРИЦЕЛ (CUSTOM CROSSHAIR)"] = { en = "🎯 CUSTOM CROSSHAIR SETTINGS", ru = "🎯 КАСТОМНЫЙ ПРИЦЕЛ (CUSTOM CROSSHAIR)" },
+        ["🎯 Мгновенный бросок в цель"] = { en = "🎯 Instant Throw at Target", ru = "🎯 Мгновенный бросок в цель" },
+        ["🎯 НАСТРОЙКИ SILENT AIM ШЕРИФА"] = { en = "🎯 SHERIFF SILENT AIM SETTINGS", ru = "🎯 НАСТРОЙКИ SILENT AIM ШЕРИФА" },
+        ["🎯 Подсветка цели под курсором"] = { en = "🎯 Highlight Target Under Crosshair", ru = "🎯 Подсветка цели под прицелом" },
+        ["🎯 Тестовый выстрел трассера (Test Fire)"] = { en = "🎯 Test Fire Tracer Line", ru = "🎯 Тестовый выстрел трассера" },
+        ["🎲 Сканировать шансы мардера в лобби"] = { en = "🎲 Scan Murderer Chances in Lobby", ru = "🎲 Сканировать шансы мардера в лобби" },
+        ["🏃 Auto-Hop if Low Players (<= 3 чел)"] = { en = "🏃 Auto-Hop if Low Players (<= 3)", ru = "🏃 Авто-хоп если мало игроков (<= 3)" },
+        ["🏃 Survivor ESP"] = { en = "🏃 Innocent ESP", ru = "🏃 Невинные ESP" },
+        ["🏃 Смена сервера если мало игроков (<= 3)"] = { en = "🏃 Hop Server if Players <= 3", ru = "🏃 Смена сервера если мало игроков (<= 3)" },
+        ["🏎️ Dynamic Sprint FOV (Динамический FOV при беге)"] = { en = "🏎️ Dynamic Sprint FOV Boost", ru = "🏎️ Динамический FOV при спринте" },
+        ["🏗️ БЕЗОПАСНАЯ ПОДЗЕМНАЯ ПЛАТФОРМА"] = { en = "🏗️ SAFE UNDERGROUND PLATFORM", ru = "🏗️ БЕЗОПАСНАЯ ПОДЗЕМНАЯ ПЛАТФОРМА" },
+        ["🏗️ Спавн на платформе (-40 studs под ареной)"] = { en = "🏗️ Spawn on Platform (-40 studs below)", ru = "🏗️ Спавн на платформе (-40 studs под ареной)" },
+        ["🏛️ Lobby ESP (Серые игроки в лобби)"] = { en = "🏛️ Lobby Players ESP (Gray)", ru = "🏛️ ESP Игроков в лобби (Серый)" },
+        ["🏛️ Teleport to Lobby"] = { en = "🏛️ Teleport to Lobby", ru = "🏛️ Телепорт в лобби" },
+        ["🏝️ Включить Dynamic Island"] = { en = "🏝️ Enable Dynamic Island", ru = "🏝️ Включить Dynamic Island" },
+        ["🏝️ ОСНОВНЫЕ НАСТРОЙКИ DYNAMIC ISLAND"] = { en = "🏝️ DYNAMIC ISLAND MAIN SETTINGS", ru = "🏝️ ОСНОВНЫЕ НАСТРОЙКИ DYNAMIC ISLAND" },
+        ["🏝️ Открывать меню по нажатию на Dynamic Island"] = { en = "🏝️ Open Menu on Dynamic Island Tap", ru = "🏝️ Открывать меню по нажатию на Dynamic Island" },
+        ["🏷️ Nametags"] = { en = "🏷️ Player Nametags", ru = "🏷️ Тэги имен игроков" },
+        ["🏷️ Silent Aim Target ESP & Reticle"] = { en = "🏷️ Silent Aim Target Reticle", ru = "🏷️ Прицел и метка цели Silent Aim" },
+        ["🏷️ НАСТРОЙКИ ТЕГОВ ИГРОКОВ (NAMETAGS)"] = { en = "🏷️ PLAYER NAMETAGS SETTINGS", ru = "🏷️ НАСТРОЙКИ ТЕГОВ ИГРОКОВ" },
+        ["🏷️ Показывать значок роли"] = { en = "🏷️ Show Role Badge", ru = "🏷️ Показывать значок роли" },
+        ["👀 Laser Eyes (Лазерный взор из глаз)"] = { en = "👀 Laser Eyes FX", ru = "👀 Лазерный взор из глаз" },
+        ["👁️ ESP"] = { en = "👁️ Players ESP", ru = "👁️ Игроки ESP" },
+        ["👁️ НАБЛЮДЕНИЕ ОТ 3-ГО ЛИЦА (SPECTATE)"] = { en = "👁️ 3RD PERSON SPECTATE", ru = "👁️ НАБЛЮДЕНИЕ ОТ 3-ГО ЛИЦА (SPECTATE)" },
+        ["👁️ Прозрачность плавающей кнопки"] = { en = "👁️ Floating Button Transparency", ru = "👁️ Прозрачность плавающей кнопки" },
+        ["👁️ Угол обзора (Camera FOV)"] = { en = "👁️ Camera FOV Angle", ru = "👁️ Угол обзора (Camera FOV)" },
+        ["👋 Preview Welcome Screen Only"] = { en = "👋 Preview Welcome Splash Only", ru = "👋 Предпросмотр экрана приветствия" },
+        ["👋 Show Welcome Screen on Launch"] = { en = "👋 Show Welcome Screen on Launch", ru = "👋 Показывать приветствие при запуске" },
+        ["👟 Feet Ribbon Trails (Шлейфы из ног при беге)"] = { en = "👟 Footstep Ribbon Trails", ru = "👟 Неоновые шлейфы из ног" },
+        ["👣 Footstep Ripples (Неоновые кольца шагов)"] = { en = "👣 Footstep Neon Ripples", ru = "👣 Неоновые кольца шагов" },
+        ["👤 Никнейм игрока (Display Name)"] = { en = "👤 Player Display Name", ru = "👤 Никнейм игрока (Display Name)" },
+        ["👥 Innocent"] = { en = "👥 Innocents", ru = "👥 Невинные" },
+        ["👥 Innocents ESP"] = { en = "👥 Innocents ESP & Chams", ru = "👥 ESP Невинных & Chams" },
+        ["👥 ИГРОКИ (PLAYER ESP & CHAMS)"] = { en = "👥 PLAYER ESP & CHAMS", ru = "👥 ИГРОКИ (PLAYER ESP & CHAMS)" },
+        ["👥 Мин. игроков для авто-хопа"] = { en = "👥 Min Players for Auto-Hop", ru = "👥 Мин. игроков для авто-хопа" },
+        ["👥 СПИСОК ИГРОКОВ (ВЫБЕРИТЕ ДЛЯ НАБЛЮДЕНИЯ)"] = { en = "👥 PLAYER LIST (CLICK TO SPECTATE)", ru = "👥 СПИСОК ИГРОКОВ (ВЫБЕРИТЕ ДЛЯ НАБЛЮДЕНИЯ)" },
+        ["👥 СПИСОК ИГРОКОВ (ЖИВОЙ РАДАР & РОЛИ)"] = { en = "👥 LIVE PLAYER RADAR & ROLES", ru = "👥 СПИСОК ИГРОКОВ (РАДАР & РОЛИ)" },
+        ["👻 Death Soul Ascend (Взлетающая душа при смерти)"] = { en = "👻 Death Soul Ascend Effect", ru = "👻 Взлетающая душа при смерти" },
+        ["👻 Noclip (Walk through walls)"] = { en = "👻 Noclip (Walk through walls)", ru = "👻 Ноклип (Ходьба сквозь стены)" },
+        ["💀 Fake Dead / Ragdoll (Притвориться мёртвым)"] = { en = "💀 Fake Dead / Ragdoll", ru = "💀 Притвориться мёртвым (Ragdoll)" },
+        ["💀 Murderer"] = { en = "💀 Murderer", ru = "💀 Мардер" },
+        ["💀 Murderer ESP & Chams"] = { en = "💀 Murderer ESP & Chams", ru = "💀 ESP Мардера & Chams" },
+        ["💀 МАССОВОЕ УНИЧТОЖЕНИЕ (KILL ALL)"] = { en = "💀 MASS DESTRUCTION (KILL ALL)", ru = "💀 МАССОВОЕ УНИЧТОЖЕНИЕ (KILL ALL)" },
+        ["💀 Мгновенный сброс персонажа (Fast Reset)"] = { en = "💀 Fast Character Reset", ru = "💀 Мгновенный сброс персонажа (Fast Reset)" },
+        ["💀 Тест: Оповещение мардера"] = { en = "💀 Test: Murderer Alert", ru = "💀 Тест: Оповещение мардера" },
+        ["💀 Убить всех сейчас (Kill All)"] = { en = "💀 Kill All Now", ru = "💀 Убить всех сейчас (Kill All)" },
+        ["💡 Fullbright / Vision (Всегда светло)"] = { en = "💡 Fullbright (Always Bright World)", ru = "💡 Fullbright (Всегда светло)" },
+        ["💡 ОСВЕЩЕНИЕ И АТМОСФЕРА (LIGHTING)"] = { en = "💡 LIGHTING & ATMOSPHERE", ru = "💡 ОСВЕЩЕНИЕ И АТМОСФЕРА (LIGHTING)" },
+        ["💡 Тема островка привязана к GUI (Настроить во вкладке Themes 🎨)"] = { en = "💡 Island Theme Synced to GUI (Configure in Themes 🎨)", ru = "💡 Тема островка привязана к GUI (Вкладка Themes 🎨)" },
+        ["💥 Auto-Shoot Murderer (Авто-выстрел в мардера)"] = { en = "💥 Auto-Shoot Murderer", ru = "💥 Авто-выстрел в Мардера" },
+        ["💥 Bullet Impact Rings (Кольца попаданий пуль)"] = { en = "💥 Bullet Impact Hit Rings", ru = "💥 Кольца попаданий пуль" },
+        ["💥 Hitmarker Screen Pulse (Вспышка экрана при хите)"] = { en = "💥 Hitmarker Screen Flash", ru = "💥 Вспышка экрана при попадании" },
+        ["💥 Instant Shoot Murderer"] = { en = "💥 Instant Shoot Murderer", ru = "💥 Мгновенный выстрел в Мардера" },
+        ["💥 Instant Shoot Murderer (Сделать выстрел сейчас)"] = { en = "💥 Fire Shot at Murderer Now", ru = "💥 Сделать выстрел в Мардера сейчас" },
+        ["💥 Landing Shockwave (Ударная волна приземления)"] = { en = "💥 Landing Shockwave Rings", ru = "💥 Ударная волна приземления" },
+        ["💥 Toggle Auto-Shoot Murderer"] = { en = "💥 Toggle Auto-Shoot Murderer", ru = "💥 Вкл/Выкл авто-выстрел в Мардера" },
+        ["💥 WallBang Bypass (Всегда активен)"] = { en = "💥 WallBang Bypass (Always Active)", ru = "💥 Прострел сквозь стены (Активен)" },
+        ["💥 ВЫСТРЕЛ И АВТО-СТРЕЛЬБА (SHOOT CONTROLS)"] = { en = "💥 SHOOT & AUTO-FIRE CONTROLS", ru = "💥 ВЫСТРЕЛ И АВТО-СТРЕЛЬБА" },
+        ["💫 Motion Trail (Неоновый шлейф за персонажем)"] = { en = "💫 Neon Motion Trail", ru = "💫 Неоновый шлейф движения" },
+        ["💰 Safe AFK Auto-Farm (Tween, Anti-AFK & Low 3D)"] = { en = "💰 Safe AFK Auto-Farm (Tween & Low 3D)", ru = "💰 Безопасный AFK Авто-Фарм" },
+        ["💾 Auto-Save Config (Периодическое автосохранение)"] = { en = "💾 Auto-Save Config Periodically", ru = "💾 Периодическое автосохранение конфига" },
+        ["💾 Save Current Configuration"] = { en = "💾 Save Current Configuration", ru = "💾 Сохранить текущий конфиг" },
+        ["💾 МЕНЕДЖЕР ПРОФИЛЕЙ (CONFIG MANAGER)"] = { en = "💾 CONFIG PROFILE MANAGER", ru = "💾 МЕНЕДЖЕР ПРОФИЛЕЙ (CONFIG MANAGER)" },
+        ["📁 ИНТЕРФЕЙС И РАСПОЛОЖЕНИЕ ТАБОВ"] = { en = "📁 INTERFACE & TAB POSITION", ru = "📁 ИНТЕРФЕЙС И РАСПОЛОЖЕНИЕ ТАБОВ" },
+        ["📁 Положение табов: "] = { en = "📁 Tab Bar Position: ", ru = "📁 Положение табов: " },
+        ["📁 РАСПОЛОЖЕНИЕ ВКЛАДОК (TAB POSITION)"] = { en = "📁 TAB POSITION SETTINGS", ru = "📁 РАСПОЛОЖЕНИЕ ВКЛАДОК (TAB POSITION)" },
+        ["📁 УПРАВЛЕНИЕ КОНФИГУРАЦИЕЙ"] = { en = "📁 CONFIGURATION MANAGEMENT", ru = "📁 УПРАВЛЕНИЕ КОНФИГУРАЦИЕЙ" },
+        ["📂 Reload Saved Configuration"] = { en = "📂 Reload Saved Configuration", ru = "📂 Перезагрузить сохранённый конфиг" },
+        ["📊 СТАТИСТИКА АВТО-ФАРМА"] = { en = "📊 AUTO-FARM LIVE STATS", ru = "📊 СТАТИСТИКА АВТО-ФАРМА" },
+        ["📋 Toggle Hub Menu GUI"] = { en = "📋 Toggle Hub Menu GUI", ru = "📋 Открыть/Закрыть меню Hub" },
+        ["📋 ИМПОРТ И ЭКСПОРТ (CLIPBOARD SHARING)"] = { en = "📋 CLIPBOARD IMPORT & EXPORT", ru = "📋 ИМПОРТ И ЭКСПОРТ (CLIPBOARD)" },
+        ["📍 Проголосовать 1 раз за выбранную карту"] = { en = "📍 Cast 1 Vote for Selected Map", ru = "📍 Проголосовать 1 раз за карту" },
+        ["📍 ТЕЛЕПОРТАЦИЯ"] = { en = "📍 TELEPORTATION", ru = "📍 ТЕЛЕПОРТАЦИЯ" },
+        ["📍 Телепорт к выпавшему пистолету"] = { en = "📍 Teleport to Dropped Gun", ru = "📍 Телепорт к выпавшему пистолету" },
+        ["📍 Телепорт на подземную платформу"] = { en = "📍 Teleport to Underground Platform", ru = "📍 Телепорт на подземную платформу" },
+        ["📏 Дистанция до цели (Distance studs)"] = { en = "📏 Target Distance (Studs)", ru = "📏 Дистанция до цели (Studs)" },
+        ["📏 Радиус Knife Aura (10-45 studs)"] = { en = "📏 Knife Aura Radius (10-45 studs)", ru = "📏 Радиус Knife Aura (10-45 studs)" },
+        ["📏 Размер плавающей кнопки"] = { en = "📏 Floating Button Size", ru = "📏 Размер плавающей кнопки" },
+        ["📏 Размер прицела"] = { en = "📏 Crosshair Size", ru = "📏 Размер прицела" },
+        ["📏 Смещение по высоте (Y Offset)"] = { en = "📏 Target Height Offset (Y)", ru = "📏 Смещение по высоте (Y Offset)" },
+        ["📏 Толщина луча трассера"] = { en = "📏 Tracer Beam Thickness", ru = "📏 Толщина луча трассера" },
+        ["📐 Авто-адаптация под экран (Auto-Scale)"] = { en = "📐 Responsive Auto-Scale", ru = "📐 Авто-адаптация под экран" },
+        ["📐 Авто-подгон под монитор (Auto-Aspect)"] = { en = "📐 Auto Monitor Aspect Ratio", ru = "📐 Авто-подгон под монитор" },
+        ["📐 Включить растяг экрана (Stretched Res)"] = { en = "📐 Enable Stretched Resolution", ru = "📐 Включить растяг экрана" },
+        ["📐 РАЗМЕР И ПОЗИЦИЯ ОСТРОВКА"] = { en = "📐 ISLAND SIZE & POSITION", ru = "📐 РАЗМЕР И ПОЗИЦИЯ ОСТРОВКА" },
+        ["📐 РАСТЯГ ЭКРАНА (STRETCHED RESOLUTION)"] = { en = "📐 STRETCHED RESOLUTION", ru = "📐 РАСТЯГ ЭКРАНА (STRETCHED RESOLUTION)" },
+        ["📐 Стиль прицела: "] = { en = "📐 Crosshair Style: ", ru = "📐 Стиль прицела: " },
+        ["📢 Показывать статус и события"] = { en = "📢 Show Island Status & Events", ru = "📢 Показывать статус и события" },
+        ["📤 Скопировать конфиг в буфер обмена (Export)"] = { en = "📤 Export Config to Clipboard", ru = "📤 Скопировать конфиг в буфер" },
+        ["📥 Импортировать конфиг из буфера обмена (Import)"] = { en = "📥 Import Config from Clipboard", ru = "📥 Импортировать конфиг из буфера" },
+        ["📱 Авто-масштаб под экран телефона (Auto-Scale)"] = { en = "📱 Mobile Responsive Auto-Scale", ru = "📱 Авто-масштаб под экран телефона" },
+        ["📱 МОБИЛЬНЫЕ УСТРОЙСТВА (MOBILE SUPPORT)"] = { en = "📱 MOBILE DEVICES SUPPORT", ru = "📱 МОБИЛЬНЫЕ УСТРОЙСТВА (MOBILE SUPPORT)" },
+        ["📱 Открывать меню кликом на Dynamic Island на телефонах"] = { en = "📱 Open Menu on Island Tap on Phones", ru = "📱 Открывать меню кликом на Dynamic Island на телефонах" },
+        ["📱 РАЗМЕР ОКНА (UI SCALE)"] = { en = "📱 WINDOW SIZE (UI SCALE)", ru = "📱 РАЗМЕР ОКНА (UI SCALE)" },
+        ["📶 Отображать пинг (Player Ping ms)"] = { en = "📶 Show Player Ping (ms)", ru = "📶 Отображать пинг (Player Ping ms)" },
+        ["📶 Показывать пинг сервера"] = { en = "📶 Show Server Ping", ru = "📶 Показывать пинг сервера" },
+        ["📶 Учет сетевого пинга (Ping Compensation)"] = { en = "📶 Ping Lead Compensation", ru = "📶 Учет сетевого пинга (Compensation)" },
+        ["📷 Third-Person Camera Noclip (Сквозь стены)"] = { en = "📷 Third-Person Camera Noclip", ru = "📷 Камера сквозь стены (Camera Noclip)" },
+        ["📷 КАМЕРА И ОБЗОР (CAMERA NOCLIP & ZOOM)"] = { en = "📷 CAMERA NOCLIP & ZOOM", ru = "📷 КАМЕРА И ОБЗОР (CAMERA NOCLIP & ZOOM)" },
+        ["📹 Shoulder Cam (Тактическая камера от плеча)"] = { en = "📹 Tactical Shoulder Camera", ru = "📹 Тактическая камера от плеча" },
+        ["🔁 Авто-перезаход при кике (Reconnect MM2)"] = { en = "🔁 Auto-Reconnect on Kick", ru = "🔁 Авто-перезаход при кике" },
+        ["🔁 Возврат на исходную позицию (Anti-Void)"] = { en = "🔁 Return to Safe Spot (Anti-Void)", ru = "🔁 Возврат на позицию (Anti-Void)" },
+        ["🔁 Перезаход на ТОТ ЖЕ сервер (Exact Same Server)"] = { en = "🔁 Rejoin Exact Same Server", ru = "🔁 Перезаход на ТОТ ЖЕ сервер" },
+        ["🔄 Auto-Load Config on Hub Launch"] = { en = "🔄 Auto-Load Config on Launch", ru = "🔄 Авто-загрузка конфига при запуске" },
+        ["🔄 Auto-Load Config on Launch"] = { en = "🔄 Auto-Load Config on Launch", ru = "🔄 Авто-загрузка конфига при запуске" },
+        ["🔄 Auto-Reinject Script on Teleport / Hop"] = { en = "🔄 Auto-Reinject Script on Teleport", ru = "🔄 Авто-инжект скрипта при ТП" },
+        ["🔄 Reset to Default Configuration"] = { en = "🔄 Reset to Default Configuration", ru = "🔄 Сброс к стандартным настройкам" },
+        ["🔄 Обновить список карт и голоса"] = { en = "🔄 Refresh Maps & Vote Counts", ru = "🔄 Обновить список карт и голоса" },
+        ["🔄 Сброс обзора (15 studs Default)"] = { en = "🔄 Reset Camera Zoom (15 studs)", ru = "🔄 Сброс обзора (15 studs Default)" },
+        ["🔄 Сброс растяга (16:9 Default)"] = { en = "🔄 Reset Stretch (16:9 Default)", ru = "🔄 Сброс растяга (16:9 Default)" },
+        ["🔄 Сбросить масштаб меню к 65%"] = { en = "🔄 Reset UI Scale to 65%", ru = "🔄 Сбросить масштаб меню к 65%" },
+        ["🔄 Сбросить позиции кнопок HUD"] = { en = "🔄 Reset HUD Button Positions", ru = "🔄 Сбросить позиции кнопок HUD" },
+        ["🔄 Сбросить позицию кнопки меню"] = { en = "🔄 Reset Floating Button Position", ru = "🔄 Сбросить позицию кнопки меню" },
+        ["🔄 Сменить сервер прямо сейчас (Server Hop)"] = { en = "🔄 Hop to New Server Now", ru = "🔄 Сменить сервер прямо сейчас" },
+        ["🔄 Умный перезаход на НОВЫЙ сервер (Smart Rejoin)"] = { en = "🔄 Smart Rejoin to NEW Server", ru = "🔄 Умный перезаход на НОВЫЙ сервер" },
+        ["🔊 Sound Chimes for Notifications"] = { en = "🔊 Sound Chimes for Notifications", ru = "🔊 Звуковые сигналы уведомлений" },
+        ["🔊 UI Click Sound Effects"] = { en = "🔊 UI Click Sound Effects", ru = "🔊 Звуки нажатий интерфейса" },
+        ["🔍 Depth of Field (Кинематографичный фокус)"] = { en = "🔍 Cinematic Depth of Field", ru = "🔍 Кинематографичный фокус (DoF)" },
+        ["🔍 Макс. дистанция зума"] = { en = "🔍 Max Camera Zoom Distance", ru = "🔍 Макс. дистанция зума" },
+        ["🔍 Масштаб меню (UI Scale)"] = { en = "🔍 Menu UI Scale", ru = "🔍 Масштаб меню (UI Scale)" },
+        ["🔒 Зафиксировать кнопки (Защита от сдвига)"] = { en = "🔒 Lock Button Positions", ru = "🔒 Зафиксировать кнопки (Защита)" },
+        ["🔔 Smart Event Notifications"] = { en = "🔔 Smart Event Notifications", ru = "🔔 Умные игровые оповещения" },
+        ["🔔 ОПОВЕЩЕНИЯ И УВЕДОМЛЕНИЯ"] = { en = "🔔 NOTIFICATIONS & ALERTS", ru = "🔔 ОПОВЕЩЕНИЯ И УВЕДОМЛЕНИЯ" },
+        ["🔘 КНОПКА ОТКРЫТИЯ МЕНЮ (FLOATING TOGGLE)"] = { en = "🔘 FLOATING MENU BUTTON", ru = "🔘 КНОПКА ОТКРЫТИЯ МЕНЮ (FLOATING TOGGLE)" },
+        ["🔘 Плавающая кнопка меню (Mobile Toggle Button)"] = { en = "🔘 Mobile Floating Menu Button", ru = "🔘 Плавающая кнопка меню (Mobile)" },
+        ["🔘 Показывать плавающую кнопку меню"] = { en = "🔘 Show Floating Menu Button", ru = "🔘 Показывать плавающую кнопку меню" },
+        ["🔤 Размер текста островка"] = { en = "🔤 Island Text Size", ru = "🔤 Размер текста островка" },
+        ["🔤 Размер текста тегов"] = { en = "🔤 Nametag Text Size", ru = "🔤 Размер текста тегов" },
+        ["🔥 Weapon Chroma Flame (Неоновое пламя на оружии)"] = { en = "🔥 Weapon Chroma Flame Effect", ru = "🔥 Неоновое пламя на оружии" },
+        ["🔥 БОЕВЫЕ И ОРУЖЕЙНЫЕ ВИЗУАЛЫ (WEAPON & COMBAT FX)"] = { en = "🔥 WEAPON & COMBAT VISUALS", ru = "🔥 БОЕВЫЕ И ОРУЖЕЙНЫЕ ВИЗУАЛЫ" },
+        ["🔪 Knife Aura (Авто-удар ножом в радиусе)"] = { en = "🔪 Knife Aura (Auto-Strike Nearby)", ru = "🔪 Knife Aura (Авто-удар в радиусе)" },
+        ["🔪 РЕЖИМ МАРДЕРА (MURDERER SUITE)"] = { en = "🔪 MURDERER SUITE", ru = "🔪 РЕЖИМ МАРДЕРА (MURDERER SUITE)" },
+        ["🔫 ТРАССЕРЫ ПУЛЬ И ОРУЖИЯ (WEAPON TRACERS)"] = { en = "🔫 WEAPON TRACERS & BULLETS", ru = "🔫 ТРАССЕРЫ ПУЛЬ И ОРУЖИЯ" },
+        ["🔫 Только когда револьвер в руках"] = { en = "🔫 Only When Gun Equipped", ru = "🔫 Только когда револьвер в руках" },
+        ["🔭 Максимальный обзор карты (2000 studs)"] = { en = "🔭 Max Map View Distance (2000s)", ru = "🔭 Максимальный обзор карты (2000s)" },
+        ["🔮 Self Aura Glow (Неоновое свечение персонажа)"] = { en = "🔮 Self Character Glow Aura", ru = "🔮 Неоновое свечение персонажа" },
+        ["🔮 Упреждение движения (Movement Prediction)"] = { en = "🔮 Target Movement Prediction", ru = "🔮 Упреждение движения цели" },
+        ["🔴 Ruby Red (Default Crimson)"] = { en = "🔴 Ruby Red (Default Crimson)", ru = "🔴 Ruby Red (Рубиновый)" },
+        ["🔵 Cyber Blue (Neon Cyan)"] = { en = "🔵 Cyber Blue (Neon Cyan)", ru = "🔵 Cyber Blue (Неоновый кибер)" },
+        ["🕊️ Fly Mode (WASD + Space/Shift)"] = { en = "🕊️ Fly Mode (WASD + Space/Shift)", ru = "🕊️ Режим полета (WASD + Space/Shift)" },
+        ["🕒 Показывать время ОС"] = { en = "🕒 Show Clock Time", ru = "🕒 Показывать время ОС" },
+        ["🕺 Emote: Floss"] = { en = "🕺 Emote: Floss", ru = "🕺 Эмоция: Floss" },
+        ["🖥️ Disable 3D Render [F7]"] = { en = "🖥️ Disable 3D Render [F7]", ru = "🖥️ Отключить 3D рендер [F7]" },
+        ["🖥️ Пресет: "] = { en = "🖥️ Preset: ", ru = "🖥️ Пресет: " },
+        ["🖼️ Аватарка игрока (Headshot Thumbnail)"] = { en = "🖼️ Player Headshot Avatar", ru = "🖼️ Аватарка игрока (Thumbnail)" },
+        ["🗑️ Сбросить статистику монет (Сервер + Всё время)"] = { en = "🗑️ Reset Coin Stats (Server & All-Time)", ru = "🗑️ Сбросить статистику монет" },
+        ["🗡️ Giant Weapon Visual (Увеличенное оружие в руках)"] = { en = "🗡️ Giant Held Weapon Visual", ru = "🗡️ Увеличенное оружие в руках" },
+        ["🗡️ Knife Spin / Inspect (Бесконечное кручение ножа)"] = { en = "🗡️ Knife Spin / Inspect Loop", ru = "🗡️ Бесконечное кручение ножа" },
+        ["🗡️ Knife Throw Trails (Неоновый шлейф броска ножа)"] = { en = "🗡️ Knife Throw Neon Trail", ru = "🗡️ Неоновый шлейф броска ножа" },
+        ["🗡️ Murderer Long-Range Strike"] = { en = "🗡️ Murderer Long-Range Strike", ru = "🗡️ Дальний удар ножом Мардера" },
+        ["🗡️ Включить дальний удар по курсору"] = { en = "🗡️ Enable Long-Range Strike at Cursor", ru = "🗡️ Включить дальний удар по курсору" },
+        ["🗡️ ДАЛЬНИЙ УДАР НОЖОМ (LONG-RANGE STRIKE)"] = { en = "🗡️ LONG-RANGE KNIFE STRIKE", ru = "🗡️ ДАЛЬНИЙ УДАР НОЖОМ" },
+        ["🗡️ Иконка активного оружия (Held Weapon)"] = { en = "🗡️ Held Weapon Indicator", ru = "🗡️ Иконка активного оружия" },
+        ["🗡️ Ударить выделенную цель сейчас"] = { en = "🗡️ Strike Selected Target Now", ru = "🗡️ Ударить выделенную цель сейчас" },
+        ["🗳️ ДЮП ГОЛОСОВАНИЙ ЗА КАРТЫ (VOTE DUPE)"] = { en = "🗳️ MAP VOTE DUPLICATION", ru = "🗳️ ДЮП ГОЛОСОВАНИЙ ЗА КАРТЫ" },
+        ["🗺️ Teleport to Map Spawns"] = { en = "🗺️ Teleport to Map Spawns", ru = "🗺️ Телепорт на спавны карты" },
+        ["🗺️ ДОСТУПНЫЕ КАРТЫ ДЛЯ ГОЛОСОВАНИЯ"] = { en = "🗺️ AVAILABLE MAPS FOR VOTING", ru = "🗺️ ДОСТУПНЫЕ КАРТЫ ДЛЯ ГОЛОСОВАНИЯ" },
+        ["😇 Angel Halo (Неоновый парящий нимб)"] = { en = "😇 Angel Halo Effect", ru = "😇 Неоновый парящий нимб" },
+        ["🙈 Прятаться под лобби в ожидании раунда"] = { en = "🙈 Hide Under Lobby While Waiting", ru = "🙈 Прятаться под лобби в ожидании раунда" },
+        ["🙏 Emote: Pray"] = { en = "🙏 Emote: Pray", ru = "🙏 Эмоция: Pray" },
+        ["🚀 Купить ВСЕ доступные уровни Пасса"] = { en = "🚀 Buy ALL Available Pass Tiers", ru = "🚀 Купить ВСЕ доступные уровни Пасса" },
+        ["🚀 НАЧАТЬ FLING (START)"] = { en = "🚀 START FLING", ru = "🚀 НАЧАТЬ FLING (START)" },
+        ["🚀 Фиксированная скорость (Tween Speed)"] = { en = "🚀 Fixed Tween Speed", ru = "🚀 Фиксированная скорость (Tween)" },
+        ["🚨 Уклонение от Мардера (Пропуск опасных монет)"] = { en = "🚨 Evade Murderer (Skip Dangerous Coins)", ru = "🚨 Уклонение от Мардера (Пропуск монет)" },
+        ["🚪 Полный Unload скрипта (Удалить все ESP, UI и хуки)"] = { en = "🚪 Full Script Unload (Clean All ESP & Hooks)", ru = "🚪 Полный Unload скрипта" },
+        ["🛌 Фармить лёжа (Prone Mode)"] = { en = "🛌 Farm in Prone Mode", ru = "🛌 Фармить лёжа (Prone Mode)" },
+        ["🛑 ВЫГРУЗКА СКРИПТА (UNLOAD)"] = { en = "🛑 SCRIPT UNLOAD", ru = "🛑 ВЫГРУЗКА СКРИПТА (UNLOAD)" },
+        ["🛑 ОСТАНОВИТЬ FLING (STOP)"] = { en = "🛑 STOP FLING", ru = "🛑 ОСТАНОВИТЬ FLING (STOP)" },
+        ["🛒 Купить 1 уровень Пасса сейчас (600 конфет)"] = { en = "🛒 Buy 1 Pass Tier Now (600 Candies)", ru = "🛒 Купить 1 уровень Пасса (600 конфет)" },
+        ["🛡️ Anti-AFK (Защита от 20-мин отключения)"] = { en = "🛡️ Anti-AFK (Prevent 20-min Disconnect)", ru = "🛡️ Anti-AFK (Защита от отключения)" },
+        ["🛡️ Anti-AFK (Защита от кика за простой)"] = { en = "🛡️ Anti-AFK (Prevent Idle Kick)", ru = "🛡️ Anti-AFK (Защита от кика)" },
+        ["🛡️ Anti-Fling (Ghost Mode)"] = { en = "🛡️ Anti-Fling (Ghost Mode)", ru = "🛡️ Anti-Fling (Ghost Mode)" },
+        ["🛡️ Anti-Void (Защита от бездны)"] = { en = "🛡️ Anti-Void (Fall Protection)", ru = "🛡️ Anti-Void (Защита от бездны)" },
+        ["🛡️ Auto Disarm Traps (При приближении)"] = { en = "🛡️ Auto Disarm Traps (When Near)", ru = "🛡️ Обезвреживать ловушки при приближении" },
+        ["🛡️ Auto-Reconnect on Kick / Disconnect"] = { en = "🛡️ Auto-Reconnect on Kick", ru = "🛡️ Авто-перезаход при кике" },
+        ["🛡️ Legit / Closeting (Safe ESP, Wall Check & Aura 14s)"] = { en = "🛡️ Legit / Closeting (Safe ESP & Aura 14s)", ru = "🛡️ Legit / Closeting (Безопасный режим)" },
+        ["🛡️ Sheriff"] = { en = "🛡️ Sheriff", ru = "🛡️ Шериф" },
+        ["🛡️ Sheriff ESP"] = { en = "🛡️ Sheriff ESP & Chams", ru = "🛡️ ESP Шерифа & Chams" },
+        ["🛡️ Wall Check (Проверка прямой видимости)"] = { en = "🛡️ Wall Check (Line of Sight)", ru = "🛡️ Wall Check (Прямая видимость)" },
+        ["🛡️ ЗАЩИТА И ПЕРЕДВИЖЕНИЕ"] = { en = "🛡️ PROTECTION & MOVEMENT", ru = "🛡️ ЗАЩИТА И ПЕРЕДВИЖЕНИЕ" },
+        ["🛡️ ЗАЩИТА ОТ ПАДЕНИЯ (ANTI-VOID)"] = { en = "🛡️ ANTI-VOID PROTECTION", ru = "🛡️ ЗАЩИТА ОТ ПАДЕНИЯ (ANTI-VOID)" },
+        ["🛡️ Фарм строго под землёй (Анти-Мардер)"] = { en = "🛡️ Farm Strictly Underground (Anti-Murderer)", ru = "🛡️ Фарм строго под землёй (Анти-Мардер)" },
+        ["🟡 Cyber Gold (Solar Flare)"] = { en = "🟡 Cyber Gold (Solar Flare)", ru = "🟡 Cyber Gold (Золотой феникс)" },
+        ["🟢 Emerald Green (Matrix Jade)"] = { en = "🟢 Emerald Green (Matrix Jade)", ru = "🟢 Emerald Green (Изумрудный нефрит)" },
+        ["🟣 Neon Violet (Royal Amethyst)"] = { en = "🟣 Neon Violet (Royal Amethyst)", ru = "🟣 Neon Violet (Королевский аметист)" },
+        ["🤙 Emote: Dab"] = { en = "🤙 Emote: Dab", ru = "🤙 Эмоция: Dab" },
+        ["🥷 Emote: Ninja"] = { en = "🥷 Emote: Ninja", ru = "🥷 Эмоция: Ninja" },
+        ["🦘 Infinite Jump"] = { en = "🦘 Infinite Jump", ru = "🦘 Бесконечный прыжок" },
+        ["🧍 Множитель ширины моделей (Model Width)"] = { en = "🧍 Hitbox Width Multiplier", ru = "🧍 Множитель ширины моделей" },
+        ["🧘 Emote: Zen"] = { en = "🧘 Emote: Zen", ru = "🧘 Эмоция: Zen" },
+        ["🧟 Emote: Zombie"] = { en = "🧟 Emote: Zombie", ru = "🧟 Эмоция: Zombie" },
+        ["🧟 Zombie ESP"] = { en = "🧟 Zombie ESP & Chams", ru = "🧟 ESP Зомби & Chams" },
+        ["🧱 Silent Aim WallBang (Прострел сквозь стены)"] = { en = "🧱 Silent Aim WallBang", ru = "🧱 Silent Aim WallBang (Сквозь стены)" },
+        ["🧱 ПРОСТРЕЛ ЧЕРЕЗ СТЕНЫ (WALLBANG)"] = { en = "🧱 WALLBANG PENETRATION", ru = "🧱 ПРОСТРЕЛ ЧЕРЕЗ СТЕНЫ (WALLBANG)" },
+        ["🧱 Проверка прямой видимости (Wall Check)"] = { en = "🧱 Line of Sight (Wall Check)", ru = "🧱 Проверка прямой видимости (Wall Check)" },
+        ["🧲 COIN & CANDY AURA (МАГНИТ 2–7 STUDS)"] = { en = "🧲 COIN & CANDY AURA (MAGNET)", ru = "🧲 COIN & CANDY AURA (МАГНИТ)" },
+        ["🧲 Coin & Candy Aura (Авто-сбор монет и конфет)"] = { en = "🧲 Coin & Candy Aura (Auto-Collect)", ru = "🧲 Авто-сбор монет и конфет (Aura)" },
+        ["🩸 Damage Vignette (Пульс при получении урона)"] = { en = "🩸 Damage Vignette Pulse", ru = "🩸 Пульсирующий экран при уроне" },
+        ["🪑 Emote: Sit"] = { en = "🪑 Emote: Sit", ru = "🪑 Эмоция: Sit" },
+        ["🪙 Coin Collect Pulse (Золотая волна при сборе)"] = { en = "🪙 Coin Collect Golden Wave", ru = "🪙 Золотая волна при сборе монеты" },
+        ["🪙 Coins ESP (Active Badges)"] = { en = "🪙 Coins ESP (Active Badges)", ru = "🪙 ESP Монет (Бэйджи)" },
+        ["🪙 Включить Coin Auto-Farm"] = { en = "🪙 Enable Coin Auto-Farm", ru = "🪙 Включить Coin Auto-Farm" },
+        ["🪤 Traps ESP (Ловушки мардера)"] = { en = "🪤 Traps ESP (Murderer Traps)", ru = "🪤 ESP Ловушек Мардера" },
+        ["🪤 ЛОВУШКИ МАРДЕРА (TRAP ESP & DISARM)"] = { en = "🪤 MURDERER TRAPS & DISARM", ru = "🪤 ЛОВУШКИ МАРДЕРА (TRAP ESP & DISARM)" },
+        ["🪤 Обезвредить все ловушки на карте"] = { en = "🪤 Disarm All Traps on Map", ru = "🪤 Обезвредить все ловушки на карте" },
+        ["🪽 Neon Back Wings (Светящиеся неоновые крылья)"] = { en = "🪽 Neon Back Wings FX", ru = "🪽 Светящиеся неоновые крылья" },
+    }
+
+    _G.MM2_I18N_DICT = I18N_DICT
+    _G.MM2_LocalizedRegistry = {}
+    _G.MM2_LocalizedSubBtns = {}
+    _G.MM2_TabInfo = {
+        ["Visuals"] = { icon = "👁️", en = "Visuals", ru = "Визуалы" },
+        ["Combat"] = { icon = "🎯", en = "Combat", ru = "Бой" },
+        ["Troll"] = { icon = "🎭", en = "Troll", ru = "Троллинг" },
+        ["Spectate"] = { icon = "👀", en = "Spectate", ru = "Наблюдение" },
+        ["Farm"] = { icon = "🪙", en = "Farm", ru = "Фарм" },
+        ["Move"] = { icon = "🏃", en = "Move", ru = "Движение" },
+        ["Island"] = { icon = "🏝️", en = "Island", ru = "Островок" },
+        ["Themes"] = { icon = "🎨", en = "Themes", ru = "Темы" },
+        ["Settings"] = { icon = "⚙️", en = "Settings", ru = "Настройки" },
+        ["Configs"] = { icon = "📁", en = "Configs", ru = "Конфиги" },
+        ["Mobile"] = { icon = "📱", en = "Mobile", ru = "Мобильные" },
+    }
+
+    local function getLocalizedText(str, targetLang)
+        if not str then return "" end
+        local lang = targetLang or (Config and Config.Language) or "English"
+        local dict = _G.MM2_I18N_DICT
+        if dict then
+            local entry = dict[str]
+            if entry then
+                if lang == "Russian" then
+                    return entry.ru or str
+                else
+                    return entry.en or str
+                end
+            end
+        end
+        return str
+    end
+    _G.MM2_GetLocalizedText = getLocalizedText
+
+    local function showConfirmModal(opts)
+        if not MainFrame then return end
+        local old = MainFrame:FindFirstChild("ConfirmModalOverlay")
+        if old then old:Destroy() end
+
+        local overlay = Instance.new("TextButton")
+        overlay.Name = "ConfirmModalOverlay"
+        overlay.Size = UDim2.new(1, 0, 1, 0)
+        overlay.Position = UDim2.new(0, 0, 0, 0)
+        overlay.BackgroundColor3 = Color3.fromRGB(6, 8, 14)
+        overlay.BackgroundTransparency = 0.35
+        overlay.Text = ""
+        overlay.AutoButtonColor = false
+        overlay.ZIndex = 250
+        overlay.Parent = MainFrame
+        Instance.new("UICorner", overlay).CornerRadius = UDim.new(0, 10)
+
+        local modal = Instance.new("Frame")
+        modal.Name = "ModalWindow"
+        modal.Size = UDim2.new(0, 360, 0, 185)
+        modal.Position = UDim2.new(0.5, -180, 0.5, -92)
+        modal.BackgroundColor3 = Color3.fromRGB(18, 22, 32)
+        modal.BorderSizePixel = 0
+        modal.ZIndex = 251
+        modal.Parent = overlay
+        Instance.new("UICorner", modal).CornerRadius = UDim.new(0, 10)
+
+        local curTh = (UIThemes and Config and UIThemes[Config.UITheme]) or UIThemes["Red"]
+        local modalStroke = Instance.new("UIStroke")
+        modalStroke.Color = opts.confirmColor or (curTh and curTh.Main) or Color3.fromRGB(60, 120, 240)
+        modalStroke.Thickness = 1.5
+        modalStroke.Transparency = 0.25
+        modalStroke.Parent = modal
+
+        local topBar = Instance.new("Frame")
+        topBar.Size = UDim2.new(1, 0, 0, 34)
+        topBar.BackgroundColor3 = Color3.fromRGB(24, 30, 44)
+        topBar.BorderSizePixel = 0
+        topBar.ZIndex = 252
+        topBar.Parent = modal
+        Instance.new("UICorner", topBar).CornerRadius = UDim.new(0, 10)
+
+        local barFlat = Instance.new("Frame")
+        barFlat.Size = UDim2.new(1, 0, 0, 8)
+        barFlat.Position = UDim2.new(0, 0, 1, -8)
+        barFlat.BackgroundColor3 = Color3.fromRGB(24, 30, 44)
+        barFlat.BorderSizePixel = 0
+        barFlat.ZIndex = 252
+        barFlat.Parent = topBar
+
+        local titleLbl = Instance.new("TextLabel")
+        titleLbl.Size = UDim2.new(1, -34, 1, 0)
+        titleLbl.Position = UDim2.new(0, 12, 0, 0)
+        titleLbl.BackgroundTransparency = 1
+        titleLbl.Font = Enum.Font.GothamBold
+        titleLbl.TextSize = 11
+        titleLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+        titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+        titleLbl.Text = opts.title or "⚠️ Confirmation"
+        titleLbl.ZIndex = 253
+        titleLbl.Parent = topBar
+
+        local xClose = Instance.new("TextButton")
+        xClose.Size = UDim2.new(0, 24, 0, 24)
+        xClose.Position = UDim2.new(1, -28, 0.5, -12)
+        xClose.BackgroundTransparency = 1
+        xClose.Font = Enum.Font.GothamBold
+        xClose.TextSize = 12
+        xClose.TextColor3 = Color3.fromRGB(180, 195, 220)
+        xClose.Text = "✕"
+        xClose.ZIndex = 254
+        xClose.Parent = topBar
+        xClose.MouseButton1Click:Connect(function()
+            overlay:Destroy()
+        end)
+
+        local msgLbl = Instance.new("TextLabel")
+        msgLbl.Size = UDim2.new(1, -30, 0, 68)
+        msgLbl.Position = UDim2.new(0, 15, 0, 42)
+        msgLbl.BackgroundTransparency = 1
+        msgLbl.Font = Enum.Font.GothamMedium
+        msgLbl.TextSize = 11
+        msgLbl.TextColor3 = Color3.fromRGB(230, 238, 250)
+        msgLbl.TextWrapped = true
+        msgLbl.TextYAlignment = Enum.TextYAlignment.Center
+        msgLbl.Text = opts.desc or "Are you sure you want to perform this action?"
+        msgLbl.ZIndex = 253
+        msgLbl.Parent = modal
+
+        local btnBox = Instance.new("Frame")
+        btnBox.Size = UDim2.new(1, -28, 0, 34)
+        btnBox.Position = UDim2.new(0, 14, 1, -46)
+        btnBox.BackgroundTransparency = 1
+        btnBox.ZIndex = 253
+        btnBox.Parent = modal
+
+        local cancelBtn = Instance.new("TextButton")
+        cancelBtn.Size = UDim2.new(0.48, -4, 1, 0)
+        cancelBtn.Position = UDim2.new(0, 0, 0, 0)
+        cancelBtn.BackgroundColor3 = Color3.fromRGB(48, 56, 75)
+        cancelBtn.Font = Enum.Font.GothamBold
+        cancelBtn.TextSize = 10
+        cancelBtn.TextColor3 = Color3.fromRGB(220, 230, 245)
+        cancelBtn.Text = opts.cancelText or "✖ Cancel"
+        cancelBtn.AutoButtonColor = true
+        cancelBtn.ZIndex = 254
+        cancelBtn.Parent = btnBox
+        Instance.new("UICorner", cancelBtn).CornerRadius = UDim.new(0, 6)
+        cancelBtn.MouseButton1Click:Connect(function()
+            overlay:Destroy()
+        end)
+
+        local confirmBtn = Instance.new("TextButton")
+        confirmBtn.Size = UDim2.new(0.52, -4, 1, 0)
+        confirmBtn.Position = UDim2.new(0.48, 8, 0, 0)
+        confirmBtn.BackgroundColor3 = opts.confirmColor or (curTh and curTh.Main) or Color3.fromRGB(45, 140, 255)
+        confirmBtn.Font = Enum.Font.GothamBold
+        confirmBtn.TextSize = 10
+        confirmBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        confirmBtn.Text = opts.confirmText or "✔ Confirm"
+        confirmBtn.AutoButtonColor = true
+        confirmBtn.ZIndex = 254
+        confirmBtn.Parent = btnBox
+        Instance.new("UICorner", confirmBtn).CornerRadius = UDim.new(0, 6)
+        confirmBtn.MouseButton1Click:Connect(function()
+            overlay:Destroy()
+            if opts.onConfirm then
+                pcall(opts.onConfirm)
+            end
+        end)
+    end
+    _G.MM2_ShowConfirmModal = showConfirmModal
+
+    local function updateAllLocalizedTexts(newLang)
+        local lang = newLang or Config.Language or "English"
+
+        -- 1. Dynamic registered labels
+        if _G.MM2_LocalizedRegistry then
+            for _, item in ipairs(_G.MM2_LocalizedRegistry) do
+                if item.obj and item.obj.Parent then
+                    item.obj.Text = getLocalizedText(item.orig, lang)
+                end
+            end
+        end
+
+        -- 2. Tab buttons
+        if TabButtons and _G.MM2_TabInfo then
+            for name, btn in pairs(TabButtons) do
+                local info = _G.MM2_TabInfo[name]
+                if info and btn then
+                    local tName = (lang == "Russian" and info.ru) or info.en
+                    btn.Text = info.icon .. " " .. tName
+                end
+            end
+        end
+
+        -- 3. SubNav Buttons
+        if _G.MM2_LocalizedSubBtns then
+            for _, sItem in ipairs(_G.MM2_LocalizedSubBtns) do
+                if sItem.btn and sItem.btn.Parent then
+                    sItem.btn.Text = (lang == "Russian" and sItem.ru) or sItem.en
+                end
+            end
+        end
+
+        -- 4. Mobile Action HUD Buttons
+        if _G.MM2_UpdateActionHUDLabels then
+            _G.MM2_UpdateActionHUDLabels(lang)
+        end
+
+        -- 5. Language selector button visual
+        if _G.MM2_UpdateLangSelectorVisual then
+            _G.MM2_UpdateLangSelectorVisual(lang)
+        end
+    end
+    _G.MM2_UpdateAllLocalizedTexts = updateAllLocalizedTexts
+
+    local function setLanguage(newLang)
+        Config.Language = newLang
+        saveConfig()
+        updateAllLocalizedTexts(newLang)
+        if showNotification then
+            if newLang == "Russian" then
+                showNotification("🌐 ЯЗЫК ИЗМЕНЁН", "Язык интерфейса успешно переключен на Русский!", Color3.fromRGB(60, 210, 120), "🌐", 2.5)
+            else
+                showNotification("🌐 LANGUAGE UPDATED", "Interface language has been changed to English!", Color3.fromRGB(60, 210, 120), "🌐", 2.5)
+            end
+        end
+    end
+    _G.MM2_SetLanguage = setLanguage
+end
+
 local function createTab(name, icon)
     local page = Instance.new("ScrollingFrame")
     page.Size = UDim2.new(1, 0, 1, 0)
@@ -5371,7 +5982,9 @@ local function createTab(name, icon)
     btn.Font = Enum.Font.GothamBold
     btn.TextSize = 10
     btn.TextColor3 = Color3.fromRGB(170, 185, 210)
-    btn.Text = icon .. " " .. name
+    local info = _G.MM2_TabInfo and _G.MM2_TabInfo[name]
+    local dispName = info and (((Config and Config.Language) == "Russian" and info.ru) or info.en) or name
+    btn.Text = icon .. " " .. dispName
     btn.AutoButtonColor = false
     btn.Parent = TabBar
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 7)
@@ -5511,8 +6124,11 @@ local function createToggle(parent, title, configKey, callback)
     lbl.TextSize = 10
     lbl.TextColor3 = Color3.fromRGB(230, 240, 255)
     lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Text = title
+    lbl.Text = _G.MM2_GetLocalizedText and _G.MM2_GetLocalizedText(title) or title
     lbl.Parent = card
+    if _G.MM2_LocalizedRegistry then
+        table.insert(_G.MM2_LocalizedRegistry, { obj = lbl, orig = title })
+    end
 
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0, 40, 0, 20)
@@ -5594,8 +6210,11 @@ local function createSlider(parent, title, min, max, configKey, formatStr, callb
     lbl.TextSize = 10
     lbl.TextColor3 = Color3.fromRGB(230, 240, 255)
     lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Text = title
+    lbl.Text = _G.MM2_GetLocalizedText and _G.MM2_GetLocalizedText(title) or title
     lbl.Parent = card
+    if _G.MM2_LocalizedRegistry then
+        table.insert(_G.MM2_LocalizedRegistry, { obj = lbl, orig = title })
+    end
 
     local valBadge = Instance.new("Frame")
     valBadge.Size = UDim2.new(0, 74, 0, 18)
@@ -5724,9 +6343,12 @@ local function createButton(parent, title, accentColor, callback)
     btn.Font = Enum.Font.GothamBold
     btn.TextSize = 10
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.Text = title
+    btn.Text = _G.MM2_GetLocalizedText and _G.MM2_GetLocalizedText(title) or title
     btn.AutoButtonColor = false
     btn.Parent = parent
+    if _G.MM2_LocalizedRegistry then
+        table.insert(_G.MM2_LocalizedRegistry, { obj = btn, orig = title })
+    end
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
 
     local btnStroke = Instance.new("UIStroke")
@@ -5770,8 +6392,11 @@ local function createSectionHeader(parent, text)
     headerLbl.TextSize = 10
     headerLbl.TextColor3 = Color3.fromRGB(130, 155, 195)
     headerLbl.TextXAlignment = Enum.TextXAlignment.Left
-    headerLbl.Text = text
+    headerLbl.Text = _G.MM2_GetLocalizedText and _G.MM2_GetLocalizedText(text) or text
     headerLbl.Parent = headerFrame
+    if _G.MM2_LocalizedRegistry then
+        table.insert(_G.MM2_LocalizedRegistry, { obj = headerLbl, orig = text })
+    end
     return headerFrame
 end
 
@@ -5792,8 +6417,11 @@ local function createKeybindButton(parent, title, configKey, allowedKeys)
     lbl.TextSize = 10
     lbl.TextColor3 = Color3.fromRGB(230, 240, 255)
     lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Text = title
+    lbl.Text = _G.MM2_GetLocalizedText and _G.MM2_GetLocalizedText(title) or title
     lbl.Parent = card
+    if _G.MM2_LocalizedRegistry then
+        table.insert(_G.MM2_LocalizedRegistry, { obj = lbl, orig = title })
+    end
 
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0, 95, 0, 24)
@@ -6357,6 +6985,7 @@ local function resetConfig()
         IslandTheme = "Red",
         IslandSyncTheme = true,
         IslandTextSize = 10,
+        Language = "English",
         SilentAim = true,
         SilentAimVisuals = true,
         SilentAimWeaponOnly = true,
@@ -7082,9 +7711,12 @@ do
         btn.Font = Enum.Font.GothamBold
         btn.TextSize = 10
         btn.TextColor3 = Color3.fromRGB(170, 185, 210)
-        btn.Text = label
+        btn.Text = _G.MM2_GetLocalizedText and _G.MM2_GetLocalizedText(label) or label
         btn.AutoButtonColor = false
         btn.Parent = VisualsSubNav
+        if _G.MM2_LocalizedRegistry then
+            table.insert(_G.MM2_LocalizedRegistry, { obj = btn, orig = label })
+        end
         Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
 
         VisualsSubPages[key] = page
@@ -7579,9 +8211,12 @@ local function createCombatSubPage(key, label)
     btn.Font = Enum.Font.GothamBold
     btn.TextSize = 10
     btn.TextColor3 = Color3.fromRGB(170, 185, 210)
-    btn.Text = label
+    btn.Text = _G.MM2_GetLocalizedText and _G.MM2_GetLocalizedText(label) or label
     btn.AutoButtonColor = false
     btn.Parent = CombatSubNav
+    if _G.MM2_LocalizedRegistry then
+        table.insert(_G.MM2_LocalizedRegistry, { obj = btn, orig = label })
+    end
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
 
     CombatSubPages[key] = page
@@ -8410,10 +9045,13 @@ end
     btnFlingTab.Font = Enum.Font.GothamBold
     btnFlingTab.TextSize = 10
     btnFlingTab.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btnFlingTab.Text = "🌪️ Fling Engine"
+    btnFlingTab.Text = ((Config and Config.Language) == "Russian" and "🌪️ Флинг Игроков") or "🌪️ Fling Engine"
     btnFlingTab.AutoButtonColor = false
     btnFlingTab.Parent = TrollSubNav
     Instance.new("UICorner", btnFlingTab).CornerRadius = UDim.new(0, 6)
+    if _G.MM2_LocalizedSubBtns then
+        table.insert(_G.MM2_LocalizedSubBtns, { btn = btnFlingTab, en = "🌪️ Fling Engine", ru = "🌪️ Флинг Игроков" })
+    end
 
     local btnVoteDupeTab = Instance.new("TextButton")
     btnVoteDupeTab.Size = UDim2.new(0.48, -4, 0, 26)
@@ -8421,7 +9059,10 @@ end
     btnVoteDupeTab.Font = Enum.Font.GothamBold
     btnVoteDupeTab.TextSize = 10
     btnVoteDupeTab.TextColor3 = Color3.fromRGB(170, 185, 210)
-    btnVoteDupeTab.Text = "🗳️ Vote Dupe"
+    btnVoteDupeTab.Text = ((Config and Config.Language) == "Russian" and "🗳️ Дюп Голосов") or "🗳️ Vote Dupe"
+    if _G.MM2_LocalizedSubBtns then
+        table.insert(_G.MM2_LocalizedSubBtns, { btn = btnVoteDupeTab, en = "🗳️ Vote Dupe", ru = "🗳️ Дюп Голосов" })
+    end
     btnVoteDupeTab.AutoButtonColor = false
     btnVoteDupeTab.Parent = TrollSubNav
     Instance.new("UICorner", btnVoteDupeTab).CornerRadius = UDim.new(0, 6)
@@ -10218,6 +10859,139 @@ do
 end
 
 -- ⚙️ CONFIGS, KEYBINDS, NOTIFICATIONS & SERVER HOP TAB
+createSectionHeader(TabSettings, "🌐 INTERFACE LANGUAGE (ЯЗЫК ИНТЕРФЕЙСА)")
+do
+    local card = Instance.new("Frame")
+    card.Size = UDim2.new(1, 0, 0, 44)
+    card.BackgroundColor3 = Color3.fromRGB(20, 24, 34)
+    card.BorderSizePixel = 0
+    card.Parent = TabSettings
+    Instance.new("UICorner", card).CornerRadius = UDim.new(0, 8)
+
+    local cardStroke = Instance.new("UIStroke")
+    cardStroke.Color = Color3.fromRGB(36, 44, 62)
+    cardStroke.Thickness = 1
+    cardStroke.Transparency = 0.4
+    cardStroke.Parent = card
+
+    local langLbl = Instance.new("TextLabel")
+    langLbl.Size = UDim2.new(0.44, 0, 1, 0)
+    langLbl.Position = UDim2.new(0, 12, 0, 0)
+    langLbl.BackgroundTransparency = 1
+    langLbl.Font = Enum.Font.GothamBold
+    langLbl.TextSize = 10
+    langLbl.TextColor3 = Color3.fromRGB(230, 240, 255)
+    langLbl.TextXAlignment = Enum.TextXAlignment.Left
+    langLbl.Text = "🌐 Language / Язык:"
+    langLbl.Parent = card
+
+    local btnBox = Instance.new("Frame")
+    btnBox.Size = UDim2.new(0.53, -8, 0, 28)
+    btnBox.Position = UDim2.new(0.47, 0, 0.5, -14)
+    btnBox.BackgroundTransparency = 1
+    btnBox.Parent = card
+
+    local btnList = Instance.new("UIListLayout")
+    btnList.FillDirection = Enum.FillDirection.Horizontal
+    btnList.HorizontalAlignment = Enum.HorizontalAlignment.Right
+    btnList.VerticalAlignment = Enum.VerticalAlignment.Center
+    btnList.Padding = UDim.new(0, 6)
+    btnList.Parent = btnBox
+
+    local btnEN = Instance.new("TextButton")
+    btnEN.Size = UDim2.new(0, 88, 0, 26)
+    btnEN.Font = Enum.Font.GothamBold
+    btnEN.TextSize = 10
+    btnEN.Text = "🇺🇸 English"
+    btnEN.AutoButtonColor = false
+    btnEN.Parent = btnBox
+    Instance.new("UICorner", btnEN).CornerRadius = UDim.new(0, 6)
+
+    local strokeEN = Instance.new("UIStroke")
+    strokeEN.Color = Color3.fromRGB(255, 255, 255)
+    strokeEN.Thickness = 1
+    strokeEN.Transparency = 0.8
+    strokeEN.Parent = btnEN
+
+    local btnRU = Instance.new("TextButton")
+    btnRU.Size = UDim2.new(0, 88, 0, 26)
+    btnRU.Font = Enum.Font.GothamBold
+    btnRU.TextSize = 10
+    btnRU.Text = "🇷🇺 Русский"
+    btnRU.AutoButtonColor = false
+    btnRU.Parent = btnBox
+    Instance.new("UICorner", btnRU).CornerRadius = UDim.new(0, 6)
+
+    local strokeRU = Instance.new("UIStroke")
+    strokeRU.Color = Color3.fromRGB(255, 255, 255)
+    strokeRU.Thickness = 1
+    strokeRU.Transparency = 0.8
+    strokeRU.Parent = btnRU
+
+    local function updateVisuals(lang)
+        local cur = lang or (Config and Config.Language) or "English"
+        local th = (UIThemes and UIThemes[Config.UITheme]) or UIThemes["Red"]
+        local activeBg = (th and th.Main) or Color3.fromRGB(45, 140, 255)
+        local inactiveBg = Color3.fromRGB(26, 32, 46)
+
+        if cur == "Russian" then
+            btnRU.BackgroundColor3 = activeBg
+            btnRU.TextColor3 = Color3.fromRGB(255, 255, 255)
+            strokeRU.Transparency = 0.3
+            btnEN.BackgroundColor3 = inactiveBg
+            btnEN.TextColor3 = Color3.fromRGB(150, 168, 195)
+            strokeEN.Transparency = 0.85
+            langLbl.Text = "🌐 Язык: Русский"
+        else
+            btnEN.BackgroundColor3 = activeBg
+            btnEN.TextColor3 = Color3.fromRGB(255, 255, 255)
+            strokeEN.Transparency = 0.3
+            btnRU.BackgroundColor3 = inactiveBg
+            btnRU.TextColor3 = Color3.fromRGB(150, 168, 195)
+            strokeRU.Transparency = 0.85
+            langLbl.Text = "🌐 Language: English"
+        end
+    end
+    _G.MM2_UpdateLangSelectorVisual = updateVisuals
+    updateVisuals(Config.Language)
+
+    btnEN.MouseButton1Click:Connect(function()
+        if (Config.Language or "English") == "English" then return end
+        if _G.MM2_ShowConfirmModal then
+            _G.MM2_ShowConfirmModal({
+                title = "🌐 Смена языка интерфейса",
+                desc = "Вы уверены, что хотите переключить язык интерфейса на английский (English)? Все вкладки, кнопки и настройки обновятся.",
+                confirmText = "✔ Да, переключить на English",
+                cancelText = "✖ Отмена",
+                confirmColor = Color3.fromRGB(45, 140, 255),
+                onConfirm = function()
+                    _G.MM2_SetLanguage("English")
+                end
+            })
+        else
+            _G.MM2_SetLanguage("English")
+        end
+    end)
+
+    btnRU.MouseButton1Click:Connect(function()
+        if (Config.Language or "English") == "Russian" then return end
+        if _G.MM2_ShowConfirmModal then
+            _G.MM2_ShowConfirmModal({
+                title = "🌐 Switch Interface Language",
+                desc = "Are you sure you want to switch the interface language to Russian (Русский)? All tabs, buttons, and settings will update immediately.",
+                confirmText = "✔ Yes, Switch to Russian",
+                cancelText = "✖ Cancel",
+                confirmColor = Color3.fromRGB(45, 140, 255),
+                onConfirm = function()
+                    _G.MM2_SetLanguage("Russian")
+                end
+            })
+        else
+            _G.MM2_SetLanguage("Russian")
+        end
+    end)
+end
+
 createSectionHeader(TabSettings, "📁 ИНТЕРФЕЙС И РАСПОЛОЖЕНИЕ ТАБОВ")
 do
     local b2 = createButton(TabSettings, "📁 Положение табов: " .. _G.MM2_GetTabPosLabel(Config.TabPosition), Color3.fromRGB(36, 44, 64), function()
@@ -10596,7 +11370,8 @@ do
     createToggle(parentTab, "🔄 Auto-Load Config on Hub Launch", "AutoLoadConfig")
 
     -- Modal confirmation window overlay attached to MainFrame
-    local function showConfirmModal(opts)
+    local showConfirmModal = _G.MM2_ShowConfirmModal
+    local function oldShowConfirmModal(opts)
         if not MainFrame then return end
         local old = MainFrame:FindFirstChild("ConfirmModalOverlay")
         if old then old:Destroy() end
@@ -11272,6 +12047,12 @@ do
     end
     initConfigsTab()
 end
+
+pcall(function()
+    if _G.MM2_UpdateAllLocalizedTexts then
+        _G.MM2_UpdateAllLocalizedTexts(Config.Language or "English")
+    end
+end)
 
 -- Keybind Handling
 addConn(UserInputService.InputBegan:Connect(function(input, processed)
