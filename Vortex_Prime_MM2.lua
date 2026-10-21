@@ -612,6 +612,21 @@ local Config = {
     MobileButtonTransparencyPct = 15,
     MobileAutoScaling = true,
     MobileActionHUD = true,
+    MobileUIScalePct = 65,
+    MobileLockButtons = false,
+    MobileShootBtnEnabled = true,
+    MobileKnifeBtnEnabled = true,
+    MobileFarmBtnEnabled = true,
+    MobileShootPosX = -105,
+    MobileShootPosY = -190,
+    MobileKnifePosX = -105,
+    MobileKnifePosY = -145,
+    MobileFarmPosX = -105,
+    MobileFarmPosY = -100,
+    MobileHudBtnWidth = 84,
+    MobileHudBtnHeight = 36,
+    MobileHudTransparency = 0.20,
+    MobileHudTransparencyPct = 20,
 }
 _G.MM2_Config = Config
 
@@ -4810,8 +4825,10 @@ do
         local ms = MainFrame:FindFirstChildOfClass("UIScale")
         if not ms then return end
 
-        if not Config.MobileAutoScaling then
-            ms.Scale = 1.0
+        local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+
+        if not Config.MobileAutoScaling and Config.MobileUIScalePct then
+            ms.Scale = math.clamp((tonumber(Config.MobileUIScalePct) or 65) / 100, 0.40, 1.0)
             return
         end
 
@@ -4821,11 +4838,23 @@ do
         local targetH = tonumber(Config.UIRootHeight) or 420
         local targetW = tonumber(Config.UIRootWidth) or 550
 
-        local scaleY = (vp.Y - 24) / targetH
-        local scaleX = (vp.X - 24) / targetW
-        local finalScale = math.clamp(math.min(scaleX, scaleY), 0.55, 1.0)
-
-        ms.Scale = finalScale
+        if isMobile then
+            -- Comfortable mobile scale: menu won't fill the entire screen vertically
+            local scaleY = (vp.Y * 0.72) / targetH
+            local scaleX = (vp.X * 0.70) / targetW
+            local finalScale = math.clamp(math.min(scaleX, scaleY), 0.45, 0.78)
+            if Config.MobileUIScalePct then
+                finalScale = math.clamp((tonumber(Config.MobileUIScalePct) or 65) / 100, 0.40, 1.0)
+            else
+                Config.MobileUIScalePct = math.floor(finalScale * 100)
+            end
+            ms.Scale = finalScale
+        else
+            local scaleY = (vp.Y - 24) / targetH
+            local scaleX = (vp.X - 24) / targetW
+            local finalScale = math.clamp(math.min(scaleX, scaleY), 0.55, 1.0)
+            ms.Scale = finalScale
+        end
     end
 
     _G.MM2_UpdateMobileScaling = applyMobileScaling
@@ -4834,68 +4863,133 @@ do
     end
     task.delay(0.5, applyMobileScaling)
 
-    -- 🎮 Mobile Action HUD (Floating Quick Action Buttons for Touch)
-    local actionHud = Instance.new("Frame")
-    actionHud.Name = "MM2_Mobile_Action_HUD"
-    actionHud.Size = UDim2.new(0, 140, 0, 160)
-    actionHud.Position = UDim2.new(1, -150, 1, -210)
-    actionHud.BackgroundTransparency = 1
-    actionHud.ZIndex = 40
-    actionHud.Visible = (Config.MobileActionHUD ~= false) and (UserInputService.TouchEnabled or Config.ShowMobileHUDOnPC == true)
-    actionHud.Parent = ScreenGui
+    -- 🎮 Mobile Action HUD Buttons (Independently Draggable with Icon + Text)
+    local hudButtons = {}
 
-    local function createHudActionBtn(name, icon, bgCol, pos, cb)
+    local function createDraggableActionBtn(name, iconText, labelText, borderCol, defaultX, defaultY, configKeyX, configKeyY, configEnableKey, cb)
         local btn = Instance.new("TextButton")
         btn.Name = name
-        btn.Size = UDim2.new(0, 48, 0, 48)
-        btn.Position = pos
-        btn.BackgroundColor3 = Color3.fromRGB(20, 24, 34)
+        local curW = tonumber(Config.MobileHudBtnWidth) or 84
+        local curH = tonumber(Config.MobileHudBtnHeight) or 36
+        btn.Size = UDim2.new(0, curW, 0, curH)
+
+        local posX = tonumber(Config[configKeyX]) or defaultX
+        local posY = tonumber(Config[configKeyY]) or defaultY
+        btn.Position = UDim2.new(1, posX, 1, posY)
+        btn.BackgroundColor3 = Color3.fromRGB(16, 20, 30)
+        local trans = (tonumber(Config.MobileHudTransparencyPct) or 20) / 100
+        btn.BackgroundTransparency = trans
         btn.BorderSizePixel = 0
         btn.Text = ""
         btn.AutoButtonColor = false
-        btn.ZIndex = 41
-        btn.Parent = actionHud
-        Instance.new("UICorner", btn).CornerRadius = UDim.new(1, 0)
+        btn.ZIndex = 45
+        local isEnabled = (Config[configEnableKey] ~= false) and (Config.MobileActionHUD ~= false)
+        local shouldShow = isEnabled and (UserInputService.TouchEnabled or Config.ShowMobileHUDOnPC == true)
+        btn.Visible = shouldShow
+        btn.Parent = ScreenGui
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
 
         local st = Instance.new("UIStroke")
-        st.Color = bgCol
-        st.Thickness = 2.0
-        st.Transparency = 0.15
+        st.Color = borderCol
+        st.Thickness = 1.6
+        st.Transparency = 0.2
         st.Parent = btn
 
         local grad = Instance.new("UIGradient")
         grad.Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, bgCol),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 18, 25))
+            ColorSequenceKeypoint.new(0, borderCol),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(12, 15, 22))
         })
         grad.Rotation = 45
         grad.Parent = btn
 
-        local lbl = Instance.new("TextLabel")
-        lbl.Size = UDim2.new(1, 0, 1, 0)
-        lbl.BackgroundTransparency = 1
-        lbl.Font = Enum.Font.GothamBlack
-        lbl.TextSize = 20
-        lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-        lbl.Text = icon
-        lbl.ZIndex = 42
-        lbl.Parent = btn
+        local contentLbl = Instance.new("TextLabel")
+        contentLbl.Name = "Label"
+        contentLbl.Size = UDim2.new(1, -6, 1, 0)
+        contentLbl.Position = UDim2.new(0, 3, 0, 0)
+        contentLbl.BackgroundTransparency = 1
+        contentLbl.Font = Enum.Font.GothamBold
+        contentLbl.TextSize = 10
+        contentLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+        contentLbl.TextXAlignment = Enum.TextXAlignment.Center
+        contentLbl.Text = iconText .. " " .. labelText
+        contentLbl.ZIndex = 46
+        contentLbl.Parent = btn
+
+        local isDragging = false
+        local touchStart = nil
+        local touchStartTime = 0
+        local startPos = nil
 
         btn.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                TweenService:Create(btn, TweenInfo.new(0.1), {Size = UDim2.new(0, 42, 0, 42)}):Play()
+                isDragging = false
+                touchStart = input.Position
+                touchStartTime = tick()
+                startPos = btn.Position
+                local w = tonumber(Config.MobileHudBtnWidth) or 84
+                local h = tonumber(Config.MobileHudBtnHeight) or 36
+                TweenService:Create(btn, TweenInfo.new(0.1), {Size = UDim2.new(0, w - 4, 0, h - 3)}):Play()
             end
         end)
+
         btn.InputEnded:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                TweenService:Create(btn, TweenInfo.new(0.15, Enum.EasingStyle.Back), {Size = UDim2.new(0, 48, 0, 48)}):Play()
-                pcall(cb)
+                local w = tonumber(Config.MobileHudBtnWidth) or 84
+                local h = tonumber(Config.MobileHudBtnHeight) or 36
+                TweenService:Create(btn, TweenInfo.new(0.12, Enum.EasingStyle.Back), {Size = UDim2.new(0, w, 0, h)}):Play()
+                if touchStart then
+                    local dist = (input.Position - touchStart).Magnitude
+                    local dur = tick() - touchStartTime
+                    if dist < 10 and dur < 0.45 then
+                        pcall(cb)
+                    end
+                end
+                if isDragging then
+                    isDragging = false
+                    local vp = Camera and Camera.ViewportSize or Vector2.new(800, 600)
+                    local absX = btn.AbsolutePosition.X
+                    local absY = btn.AbsolutePosition.Y
+                    local offX = absX - vp.X
+                    local offY = absY - vp.Y
+                    Config[configKeyX] = math.floor(offX)
+                    Config[configKeyY] = math.floor(offY)
+                    saveConfig()
+                end
+                touchStart = nil
             end
         end)
+
+        UserInputService.InputChanged:Connect(function(input)
+            if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and touchStart then
+                if Config.MobileLockButtons then return end
+                local delta = input.Position - touchStart
+                if delta.Magnitude > 7 then
+                    isDragging = true
+                end
+                if isDragging then
+                    local vp = Camera and Camera.ViewportSize or Vector2.new(800, 600)
+                    local w = tonumber(Config.MobileHudBtnWidth) or 84
+                    local h = tonumber(Config.MobileHudBtnHeight) or 36
+                    local newX = math.clamp(startPos.X.Offset + delta.X, -vp.X + 4, -w - 4)
+                    local newY = math.clamp(startPos.Y.Offset + delta.Y, -vp.Y + 4, -h - 4)
+                    btn.Position = UDim2.new(1, newX, 1, newY)
+                end
+            end
+        end)
+
+        hudButtons[name] = {
+            btn = btn,
+            configEnableKey = configEnableKey,
+            configKeyX = configKeyX,
+            configKeyY = configKeyY,
+            defaultX = defaultX,
+            defaultY = defaultY
+        }
         return btn
     end
 
-    local shootHudBtn = createHudActionBtn("ShootBtn", "🔫", Color3.fromRGB(45, 160, 255), UDim2.new(0, 75, 0, 15), function()
+    local shootHudBtn = createDraggableActionBtn("ShootBtn", "🔫", "ВЫСТРЕЛ", Color3.fromRGB(45, 160, 255), -105, -190, "MobileShootPosX", "MobileShootPosY", "MobileShootBtnEnabled", function()
         if _G.MM2_PerformInstantShoot then
             _G.MM2_PerformInstantShoot()
         elseif _G.MM2_ShootMurdererDirectly then
@@ -4903,13 +4997,13 @@ do
         end
     end)
 
-    local knifeHudBtn = createHudActionBtn("KnifeBtn", "🗡️", Color3.fromRGB(255, 55, 75), UDim2.new(0, 15, 0, 50), function()
+    local knifeHudBtn = createDraggableActionBtn("KnifeBtn", "🗡️", "НОЖ", Color3.fromRGB(255, 55, 75), -105, -145, "MobileKnifePosX", "MobileKnifePosY", "MobileKnifeBtnEnabled", function()
         if _G.MM2_PerformKnifeReachStrike then
             _G.MM2_PerformKnifeReachStrike()
         end
     end)
 
-    local farmHudBtn = createHudActionBtn("FarmBtn", "🪙", Color3.fromRGB(255, 190, 40), UDim2.new(0, 75, 0, 85), function()
+    local farmHudBtn = createDraggableActionBtn("FarmBtn", "🪙", "ФАРМ", Color3.fromRGB(255, 190, 40), -105, -100, "MobileFarmPosX", "MobileFarmPosY", "MobileFarmBtnEnabled", function()
         Config.CoinAutoFarm = not Config.CoinAutoFarm
         saveConfig()
         if showNotification then
@@ -4917,9 +5011,28 @@ do
         end
     end)
 
-    _G.MM2_UpdateMobileActionHUD = function(visible)
-        if visible == nil then visible = Config.MobileActionHUD end
-        actionHud.Visible = (visible == true)
+    _G.MM2_UpdateMobileActionHUD = function()
+        local isOverallEnabled = (Config.MobileActionHUD ~= false)
+        local curW = tonumber(Config.MobileHudBtnWidth) or 84
+        local curH = tonumber(Config.MobileHudBtnHeight) or 36
+        local trans = (tonumber(Config.MobileHudTransparencyPct) or 20) / 100
+
+        for bName, bData in pairs(hudButtons) do
+            local bObj = bData.btn
+            local isBtnEnabled = (Config[bData.configEnableKey] ~= false) and isOverallEnabled
+            bObj.Visible = isBtnEnabled and (UserInputService.TouchEnabled or Config.ShowMobileHUDOnPC == true)
+            bObj.Size = UDim2.new(0, curW, 0, curH)
+            bObj.BackgroundTransparency = trans
+        end
+    end
+
+    _G.MM2_ResetActionHudPos = function()
+        for bName, bData in pairs(hudButtons) do
+            Config[bData.configKeyX] = bData.defaultX
+            Config[bData.configKeyY] = bData.defaultY
+            bData.btn.Position = UDim2.new(1, bData.defaultX, 1, bData.defaultY)
+        end
+        saveConfig()
     end
 end
 
@@ -5330,6 +5443,7 @@ local TabIsland = createTab("Island", "🏝️")
 local TabPersonalize = createTab("Themes", "🎨")
 local TabSettings = createTab("Settings", "⚙️")
 _G.TabConfigs = createTab("Configs", "📁")
+_G.TabMobile = createTab("Mobile", "📱")
 
 Tabs._ActiveTab = "Visuals"
 TabButtons["Visuals"].BackgroundColor3 = currentTheme.Main
@@ -10206,6 +10320,137 @@ createButton(TabSettings, "🚪 Полный Unload скрипта (Удалит
         _G.MM2_Hub_Cleanup()
     end
 end)
+
+-- ====================================================================
+-- 📱 TAB: MOBILE & TOUCH SETTINGS
+-- ====================================================================
+do
+    local function initMobileTab()
+        local parentTab = _G.TabMobile
+
+        -- 📱 SECTION 1: WINDOW SCALE & SIZE
+        createSectionHeader(parentTab, "📱 РАЗМЕР ОКНА (UI SCALE)")
+        createSlider(parentTab, "🔍 Масштаб меню (UI Scale)", 40, 100, "MobileUIScalePct", "%d%%", function(val)
+            Config.MobileUIScalePct = val
+            saveConfig()
+            if _G.MM2_UpdateMobileScaling then
+                _G.MM2_UpdateMobileScaling()
+            end
+        end)
+
+        createToggle(parentTab, "📐 Авто-адаптация под экран (Auto-Scale)", "MobileAutoScaling", function(on)
+            Config.MobileAutoScaling = on
+            saveConfig()
+            if _G.MM2_UpdateMobileScaling then
+                _G.MM2_UpdateMobileScaling()
+            end
+        end)
+
+        createButton(parentTab, "🔄 Сбросить масштаб меню к 65%", Color3.fromRGB(45, 120, 220), function()
+            Config.MobileUIScalePct = 65
+            saveConfig()
+            if _G.MM2_UpdateMobileScaling then
+                _G.MM2_UpdateMobileScaling()
+            end
+            showNotification("📱 UI SCALE", "Масштаб меню сброшен на 65%!", Color3.fromRGB(60, 200, 255), "📱", 2.5)
+        end)
+
+        -- 🔘 SECTION 2: FLOATING MENU BUTTON
+        createSectionHeader(parentTab, "🔘 КНОПКА ОТКРЫТИЯ МЕНЮ (FLOATING TOGGLE)")
+        createToggle(parentTab, "🔘 Показывать плавающую кнопку меню", "MobileFloatingButton", function(on)
+            Config.MobileFloatingButton = on
+            saveConfig()
+            if _G.MM2_UpdateMobileButton then
+                _G.MM2_UpdateMobileButton(on)
+            end
+        end)
+
+        createSlider(parentTab, "Размер кнопки меню", 34, 68, "MobileButtonSize", "%d px", function(val)
+            Config.MobileButtonSize = val
+            saveConfig()
+            if _G.MM2_UpdateMobileButton then
+                _G.MM2_UpdateMobileButton()
+            end
+        end)
+
+        createSlider(parentTab, "Прозрачность кнопки меню", 0, 80, "MobileButtonTransparencyPct", "%d%%", function(val)
+            Config.MobileButtonTransparencyPct = val
+            Config.MobileButtonTransparency = val / 100
+            saveConfig()
+            if _G.MM2_UpdateMobileButton then
+                _G.MM2_UpdateMobileButton()
+            end
+        end)
+
+        createButton(parentTab, "🔄 Сбросить позицию кнопки меню", Color3.fromRGB(50, 65, 90), function()
+            if _G.MM2_ResetMobileButtonPos then
+                _G.MM2_ResetMobileButtonPos()
+            end
+            showNotification("🔘 MOBILE BUTTON", "Позиция кнопки меню сброшена!", Color3.fromRGB(60, 200, 255), "🔘", 2.0)
+        end)
+
+        -- 🎮 SECTION 3: ACTION HUD (DRAGGABLE BUTTONS WITH TEXT)
+        createSectionHeader(parentTab, "🎮 НАЭКРАННЫЕ КНОПКИ (ACTION HUD)")
+        createToggle(parentTab, "🎮 Включить экранные кнопки (Action HUD)", "MobileActionHUD", function(on)
+            Config.MobileActionHUD = on
+            saveConfig()
+            if _G.MM2_UpdateMobileActionHUD then
+                _G.MM2_UpdateMobileActionHUD()
+            end
+        end)
+
+        createToggle(parentTab, "🔒 Зафиксировать кнопки (Защита от сдвига)", "MobileLockButtons", function(on)
+            Config.MobileLockButtons = on
+            saveConfig()
+            showNotification("🔒 HUD LOCK", on and "Кнопки зафиксированы!" or "Кнопки можно перетаскивать!", on and Color3.fromRGB(240, 180, 50) or Color3.fromRGB(60, 220, 120), "🔒", 2.0)
+        end)
+
+        createToggle(parentTab, "Кнопка '🔫 ВЫСТРЕЛ' (Shoot)", "MobileShootBtnEnabled", function(on)
+            Config.MobileShootBtnEnabled = on
+            saveConfig()
+            if _G.MM2_UpdateMobileActionHUD then _G.MM2_UpdateMobileActionHUD() end
+        end)
+
+        createToggle(parentTab, "Кнопка '🗡️ НОЖ' (Knife Aura)", "MobileKnifeBtnEnabled", function(on)
+            Config.MobileKnifeBtnEnabled = on
+            saveConfig()
+            if _G.MM2_UpdateMobileActionHUD then _G.MM2_UpdateMobileActionHUD() end
+        end)
+
+        createToggle(parentTab, "Кнопка '🪙 ФАРМ' (Toggle Farm)", "MobileFarmBtnEnabled", function(on)
+            Config.MobileFarmBtnEnabled = on
+            saveConfig()
+            if _G.MM2_UpdateMobileActionHUD then _G.MM2_UpdateMobileActionHUD() end
+        end)
+
+        createSlider(parentTab, "Ширина кнопок HUD", 65, 125, "MobileHudBtnWidth", "%d px", function(val)
+            Config.MobileHudBtnWidth = val
+            saveConfig()
+            if _G.MM2_UpdateMobileActionHUD then _G.MM2_UpdateMobileActionHUD() end
+        end)
+
+        createSlider(parentTab, "Высота кнопок HUD", 26, 48, "MobileHudBtnHeight", "%d px", function(val)
+            Config.MobileHudBtnHeight = val
+            saveConfig()
+            if _G.MM2_UpdateMobileActionHUD then _G.MM2_UpdateMobileActionHUD() end
+        end)
+
+        createSlider(parentTab, "Прозрачность кнопок HUD", 0, 80, "MobileHudTransparencyPct", "%d%%", function(val)
+            Config.MobileHudTransparencyPct = val
+            Config.MobileHudTransparency = val / 100
+            saveConfig()
+            if _G.MM2_UpdateMobileActionHUD then _G.MM2_UpdateMobileActionHUD() end
+        end)
+
+        createButton(parentTab, "🔄 Сбросить позиции кнопок HUD", Color3.fromRGB(215, 60, 75), function()
+            if _G.MM2_ResetActionHudPos then
+                _G.MM2_ResetActionHudPos()
+            end
+            showNotification("🎮 ACTION HUD", "Позиции экранных кнопок сброшены!", Color3.fromRGB(60, 200, 255), "🎮", 2.0)
+        end)
+    end
+    initMobileTab()
+end
 
 -- ====================================================================
 -- 📁 TAB: CONFIG MANAGER (PRESETS, CUSTOM PROFILES & CLOUD/CLIPBOARD)
