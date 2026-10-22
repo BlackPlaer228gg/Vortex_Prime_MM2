@@ -3316,6 +3316,115 @@ local function throwKnifeAtTarget(isManual)
     return true, "Knife thrown successfully"
 end
 
+do
+    -- ====================================================================
+    -- 🎯 COMBAT GLOBAL ACTIONS (INSTANT SHOOT, KNIFE STRIKE & FARM TOGGLE)
+    -- ====================================================================
+    _G.MM2_PerformInstantShoot = function()
+        local myRole = detectPlayerRole(LocalPlayer)
+        local isRu = ((Config and Config.Language) == "Russian")
+        if myRole == "Murderer" then
+            if showNotification then
+                showNotification("⚠️ SHOOT FAILED", isRu and "Вы мардер! Оружие только у Шерифа/Героя." or "You are the Murderer! Gun is for Sheriff/Hero only.", Color3.fromRGB(255, 180, 50), "⚠️", 2.5)
+            end
+            return false, "Cannot shoot as Murderer"
+        end
+        if isPlayerInLobby(LocalPlayer) or not isRoundActive() then
+            if showNotification then
+                showNotification("⚠️ SHOOT FAILED", isRu and "Нельзя стрелять в лобби или до начала раунда!" or "Cannot shoot while in lobby or before round starts!", Color3.fromRGB(255, 180, 50), "⚠️", 2.0)
+            end
+            return false, "In Lobby"
+        end
+        task.spawn(function()
+            local gun, isEquipped = _G.MM2_GetLocalGunTool and _G.MM2_GetLocalGunTool()
+            if not gun then
+                local gd = getGunDrop and getGunDrop()
+                if gd and grabGun then
+                    grabGun()
+                    task.wait(0.2)
+                end
+            end
+            local ok, err = shootMurderer(true)
+            if not ok and err and showNotification then
+                showNotification("⚠️ SHOOT FAILED", tostring(err), Color3.fromRGB(255, 180, 50), "⚠️", 2.5)
+            end
+        end)
+        return true
+    end
+    _G.MM2_ShootMurdererDirectly = _G.MM2_PerformInstantShoot
+
+    _G.MM2_PerformKnifeReachStrike = function()
+        local myRole = detectPlayerRole(LocalPlayer)
+        local isRu = ((Config and Config.Language) == "Russian")
+        if myRole ~= "Murderer" then
+            if showNotification then
+                showNotification("⚠️ KNIFE STRIKE", isRu and "Вы не мардер! Удар ножом доступен только Убийце." or "You are not the Murderer! Knife strike is only for Murderer.", Color3.fromRGB(255, 180, 50), "⚠️", 2.5)
+            end
+            return false, "Not Murderer"
+        end
+        if isPlayerInLobby(LocalPlayer) or not isRoundActive() then
+            if showNotification then
+                showNotification("⚠️ KNIFE STRIKE", isRu and "Нельзя атаковать в лобби или до начала раунда!" or "Cannot strike while in lobby or before round starts!", Color3.fromRGB(255, 180, 50), "⚠️", 2.0)
+            end
+            return false, "In Lobby"
+        end
+        task.spawn(function()
+            local ok, err = performLongRangeKnifeStrike()
+            if not ok and err and showNotification then
+                showNotification("⚠️ KNIFE FAILED", tostring(err), Color3.fromRGB(255, 180, 50), "⚠️", 2.5)
+            end
+        end)
+        return true
+    end
+
+    _G.MM2_ToggleCoinFarm = function(forceState)
+        local on = (forceState ~= nil) and forceState or not Config.CoinAutoFarm
+        Config.CoinAutoFarm = on
+        saveConfig()
+        if on then
+            _G.MM2_LocalPlayerDiedThisRound = false
+            _G.MM2_RoundLimitReached = false
+            _G.MM2_MurdererEliminatedThisRound = false
+            if isPlayerInLobby(LocalPlayer) then
+                if Config.CoinLobbyHide and _G.MM2_TeleportUnderLobby then
+                    _G.MM2_TeleportUnderLobby()
+                    if showNotification then
+                        showNotification("🙈 ЛОББИ СКРЫТНОСТЬ", "Вы телепортированы под лобби на платформу!", Color3.fromRGB(60, 200, 255), "🏗️", 2.5)
+                    end
+                end
+            else
+                if (Config.CoinUndergroundPlatform or Config.CoinFarmUnderground) and _G.MM2_HideSafelyUnderground then
+                    _G.MM2_HideSafelyUnderground("Начало фарма • Уход под карту 🛡️")
+                end
+            end
+            if _G.MM2_StartCoinFarm then
+                _G.MM2_StartCoinFarm()
+            else
+                _G.MM2_CoinBlacklist = {}
+                CachedCoinContainer = nil
+                CurrentFarmStatus = "Запуск фарма..."
+            end
+            if showNotification then
+                showNotification("🪙 COIN AUTO-FARM", "Авто-фарм и функции скрытности АКТИВИРОВАНЫ!", Color3.fromRGB(50, 220, 100), "🚀", 2.5)
+            end
+        else
+            if _G.MM2_StopCoinFarm then
+                _G.MM2_StopCoinFarm()
+            end
+            CurrentFarmStatus = "Фарм выключен"
+            if isPlayerInLobby(LocalPlayer) and _G.MM2_ReturnToLobbyFloor then
+                _G.MM2_ReturnToLobbyFloor()
+            end
+            if showNotification then
+                showNotification("🛑 COIN AUTO-FARM", "Авто-фарм и функции скрытности ВЫКЛЮЧЕНЫ. Физика восстановлена!", Color3.fromRGB(255, 75, 75), "🛑", 2.5)
+            end
+        end
+        if _G.MM2_UpdateFarmStatsLang then
+            pcall(_G.MM2_UpdateFarmStatsLang, Config.Language)
+        end
+    end
+end
+
 -- ====================================================================
 -- 🎨 MODERN GLASS GUI
 -- ====================================================================
@@ -4466,6 +4575,11 @@ notifProgressBar.Parent = NotificationCard
 -- ====================================================================
 do
     local NOTIF_TITLES = {
+        ["🎯 GUI CENTERED"] = { en = "🎯 GUI CENTERED", ru = "🎯 ОКНО ОТЦЕНТРОВАНО" },
+        ["🎯 ОКНО ОТЦЕНТРОВАНО"] = { en = "🎯 GUI CENTERED", ru = "🎯 ОКНО ОТЦЕНТРОВАНО" },
+        ["⚠️ SHOOT FAILED"] = { en = "⚠️ SHOOT FAILED", ru = "⚠️ ВЫСТРЕЛ НЕ УДАЛСЯ" },
+        ["⚠️ KNIFE STRIKE"] = { en = "⚠️ KNIFE STRIKE", ru = "⚠️ УДАР НОЖОМ" },
+        ["⚠️ KNIFE FAILED"] = { en = "⚠️ KNIFE FAILED", ru = "⚠️ УДАР НЕ УДАЛСЯ" },
         ["👀 НАБЛЮДЕНИЕ (3-Е ЛИЦО)"] = { en = "👀 SPECTATE (3RD PERSON)", ru = "👀 НАБЛЮДЕНИЕ (3-Е ЛИЦО)" },
         ["👀 SPECTATE (3RD PERSON)"] = { en = "👀 SPECTATE (3RD PERSON)", ru = "👀 НАБЛЮДЕНИЕ (3-Е ЛИЦО)" },
         ["🛑 FLING СТОП"] = { en = "🛑 FLING STOPPED", ru = "🛑 FLING СТОП" },
@@ -4687,6 +4801,14 @@ do
     }
 
     local NOTIF_DESCS = {
+        ["Окно Hub отцентровано по середине экрана!"] = { en = "Hub window centered on screen!", ru = "Окно Hub отцентровано по середине экрана!" },
+        ["Hub window centered on screen!"] = { en = "Hub window centered on screen!", ru = "Окно Hub отцентровано по середине экрана!" },
+        ["Вы мардер! Оружие только у Шерифа/Героя."] = { en = "You are the Murderer! Gun is for Sheriff/Hero only.", ru = "Вы мардер! Оружие только у Шерифа/Героя." },
+        ["You are the Murderer! Gun is for Sheriff/Hero only."] = { en = "You are the Murderer! Gun is for Sheriff/Hero only.", ru = "Вы мардер! Оружие только у Шерифа/Героя." },
+        ["Вы не мардер! Удар ножом доступен только Убийце."] = { en = "You are not the Murderer! Knife strike is only for Murderer.", ru = "Вы не мардер! Удар ножом доступен только Убийце." },
+        ["You are not the Murderer! Knife strike is only for Murderer."] = { en = "You are not the Murderer! Knife strike is only for Murderer.", ru = "Вы не мардер! Удар ножом доступен только Убийце." },
+        ["Нельзя стрелять в лобби или до начала раунда!"] = { en = "Cannot shoot while in lobby or before round starts!", ru = "Нельзя стрелять в лобби или до начала раунда!" },
+        ["Нельзя атаковать в лобби или до начала раунда!"] = { en = "Cannot strike while in lobby or before round starts!", ru = "Нельзя атаковать в лобби или до начала раунда!" },
         ["Фарм включен!"] = { en = "Farm enabled!", ru = "Фарм включен!" },
         ["Фарм выключен!"] = { en = "Farm disabled!", ru = "Фарм выключен!" },
         ["Авто-покупка уровней за 600 конфет включена!"] = { en = "Auto-purchase tiers for 600 candies enabled!", ru = "Авто-покупка уровней за 600 конфет включена!" },
@@ -5106,15 +5228,72 @@ if not MainFrame:FindFirstChildOfClass("UIScale") then
 end
 
 local isMenuAnimating = false
-toggleMenu = function()
+
+local function recenterMainFrame()
+    local vp = Camera and Camera.ViewportSize or Vector2.new(800, 600)
+    local targetW = math.clamp(tonumber(Config.UIRootWidth) or 550, 360, 950)
+    local targetH = math.clamp(tonumber(Config.UIRootHeight) or 420, 280, 720)
+    if UserInputService.TouchEnabled then
+        targetW = math.clamp(targetW, 360, math.max(360, vp.X - 16))
+        targetH = math.clamp(targetH, 280, math.max(280, vp.Y - 16))
+    end
+    Config.UIRootWidth = targetW
+    Config.UIRootHeight = targetH
+    Config.UIRootScaleX = 0.5
+    Config.UIRootScaleY = 0.5
+    Config.UIRootPosX = -math.floor(targetW / 2)
+    Config.UIRootPosY = -math.floor(targetH / 2)
+    saveConfig()
+    if MainFrame then
+        MainFrame.Size = UDim2.new(0, targetW, 0, targetH)
+        MainFrame.Position = UDim2.new(0.5, -math.floor(targetW / 2), 0.5, -math.floor(targetH / 2))
+    end
+end
+_G.MM2_RecenterGUI = function()
+    recenterMainFrame()
+    if MainFrame and not MainFrame.Visible and toggleMenu then
+        toggleMenu()
+    end
+    if showNotification then
+        local isRu = ((Config and Config.Language) == "Russian")
+        showNotification("🎯 GUI CENTERED", isRu and "Окно Hub отцентровано по середине экрана!" or "Hub window centered on screen!", Color3.fromRGB(60, 210, 120), "🎯", 2.0)
+    end
+end
+
+toggleMenu = function(forceCenter)
     if not MainFrame or isMenuAnimating then return end
     isMenuAnimating = true
-    local targetW = math.clamp(tonumber(Config.UIRootWidth) or 550, 420, 950)
-    local targetH = math.clamp(tonumber(Config.UIRootHeight) or 420, 320, 720)
+
+    local vp = Camera and Camera.ViewportSize or Vector2.new(800, 600)
+    local targetW = math.clamp(tonumber(Config.UIRootWidth) or 550, 360, 950)
+    local targetH = math.clamp(tonumber(Config.UIRootHeight) or 420, 280, 720)
+
+    local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+    if isMobile or vp.X < targetW or vp.Y < targetH then
+        targetW = math.clamp(targetW, 360, math.max(360, vp.X - 16))
+        targetH = math.clamp(targetH, 280, math.max(280, vp.Y - 16))
+    end
+
     local targetScaleX = tonumber(Config.UIRootScaleX) or 0.5
     local targetScaleY = tonumber(Config.UIRootScaleY) or 0.5
-    local targetPosX = tonumber(Config.UIRootPosX) or -targetW / 2
-    local targetPosY = tonumber(Config.UIRootPosY) or -targetH / 2
+    local targetPosX = tonumber(Config.UIRootPosX) or -math.floor(targetW / 2)
+    local targetPosY = tonumber(Config.UIRootPosY) or -math.floor(targetH / 2)
+
+    local absX = (targetScaleX * vp.X) + targetPosX
+    local absY = (targetScaleY * vp.Y) + targetPosY
+
+    local isOutside = (absX + targetW < 60) or (absX > vp.X - 60) or (absY < -10) or (absY > vp.Y - 45)
+    if forceCenter or isOutside or (isMobile and (absX < 0 or absY < 0 or absX + targetW > vp.X + 40 or absY + targetH > vp.Y + 40)) then
+        targetScaleX = 0.5
+        targetScaleY = 0.5
+        targetPosX = -math.floor(targetW / 2)
+        targetPosY = -math.floor(targetH / 2)
+        Config.UIRootScaleX = 0.5
+        Config.UIRootScaleY = 0.5
+        Config.UIRootPosX = targetPosX
+        Config.UIRootPosY = targetPosY
+        saveConfig()
+    end
 
     MainFrame.Size = UDim2.new(0, targetW, 0, targetH)
     MainFrame.Position = UDim2.new(targetScaleX, targetPosX, targetScaleY, targetPosY)
@@ -5145,6 +5324,7 @@ toggleMenu = function()
     end
     isMenuAnimating = false
 end
+_G.MM2_ToggleMenu = toggleMenu
 
 do
     local isDragging, dragStart, startPos = false, nil, nil
@@ -5215,7 +5395,16 @@ do
             MainFrame.Size = UDim2.new(0, newW, 0, newH)
         elseif isDragging and not _G.MM2_IsDraggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - dragStart
-            MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+            local vp = Camera and Camera.ViewportSize or Vector2.new(800, 600)
+            local curW = MainFrame.AbsoluteSize.X
+            local curH = MainFrame.AbsoluteSize.Y
+            local newOffsetX = startPos.X.Offset + delta.X
+            local newOffsetY = startPos.Y.Offset + delta.Y
+            local absX = (startPos.X.Scale * vp.X) + newOffsetX
+            local absY = (startPos.Y.Scale * vp.Y) + newOffsetY
+            local clampedAbsX = math.clamp(absX, 0, math.max(0, vp.X - curW))
+            local clampedAbsY = math.clamp(absY, 0, math.max(0, vp.Y - curH))
+            MainFrame.Position = UDim2.new(0, clampedAbsX, 0, clampedAbsY)
         end
     end)
 end
@@ -5295,42 +5484,68 @@ do
     local touchStartPos = nil
     local touchStartTime = 0
     local btnStartPos = nil
+    local hasMovedBtn = false
+    local lastToggleTick = 0
+    local lastTapTime = 0
+
+    local function triggerMenuToggle()
+        if tick() - lastToggleTick < 0.25 then return end
+        lastToggleTick = tick()
+        local now = tick()
+        if (now - lastTapTime) < 0.35 then
+            -- Double-tap detected: Force recenter!
+            toggleMenu(true)
+        else
+            toggleMenu()
+        end
+        lastTapTime = now
+    end
 
     mobileBtn.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             isDraggingBtn = false
+            hasMovedBtn = false
             touchStartPos = input.Position
             touchStartTime = tick()
             btnStartPos = mobileBtn.Position
-            TweenService:Create(mobileBtn, TweenInfo.new(0.12), {Size = UDim2.new(0, btnSize - 4, 0, btnSize - 4)}):Play()
+            local curSize = tonumber(Config.MobileButtonSize) or 46
+            TweenService:Create(mobileBtn, TweenInfo.new(0.08), {Size = UDim2.new(0, curSize - 4, 0, curSize - 4)}):Play()
         end
     end)
 
     mobileBtn.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             local curSize = tonumber(Config.MobileButtonSize) or 46
-            TweenService:Create(mobileBtn, TweenInfo.new(0.15, Enum.EasingStyle.Back), {Size = UDim2.new(0, curSize, 0, curSize)}):Play()
-            if touchStartPos then
-                local dist = (input.Position - touchStartPos).Magnitude
-                if dist < 14 and (tick() - touchStartTime) < 0.6 then
-                    toggleMenu()
-                end
-            end
+            TweenService:Create(mobileBtn, TweenInfo.new(0.12, Enum.EasingStyle.Back), {Size = UDim2.new(0, curSize, 0, curSize)}):Play()
             if isDraggingBtn then
                 isDraggingBtn = false
                 Config.MobileButtonPosX = mobileBtn.Position.X.Offset
                 Config.MobileButtonPosY = mobileBtn.Position.Y.Offset
                 saveConfig()
+            else
+                if touchStartPos then
+                    local dist = (input.Position - touchStartPos).Magnitude
+                    if dist < 25 and (tick() - touchStartTime) < 1.0 then
+                        triggerMenuToggle()
+                    end
+                end
             end
             touchStartPos = nil
+        end
+    end)
+
+    mobileBtn.Activated:Connect(function()
+        if not isDraggingBtn and not hasMovedBtn then
+            triggerMenuToggle()
         end
     end)
 
     UserInputService.InputChanged:Connect(function(input)
         if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and touchStartPos then
             local delta = input.Position - touchStartPos
-            if delta.Magnitude > 8 then
+            if delta.Magnitude > 14 then
                 isDraggingBtn = true
+                hasMovedBtn = true
             end
             if isDraggingBtn then
                 local vp = Camera and Camera.ViewportSize or Vector2.new(800, 600)
@@ -5341,6 +5556,25 @@ do
             end
         end
     end)
+
+    local function clampMobileButtonToScreen()
+        local vp = Camera and Camera.ViewportSize or Vector2.new(800, 600)
+        local curSize = tonumber(Config.MobileButtonSize) or 46
+        local curX = tonumber(Config.MobileButtonPosX) or 20
+        local curY = tonumber(Config.MobileButtonPosY) or 140
+        if curX < 4 or curX > (vp.X - curSize - 4) or curY < 4 or curY > (vp.Y - curSize - 4) then
+            curX = math.clamp(curX, 10, math.max(10, vp.X - curSize - 10))
+            curY = math.clamp(curY, 50, math.max(50, vp.Y - curSize - 10))
+            Config.MobileButtonPosX = curX
+            Config.MobileButtonPosY = curY
+            mobileBtn.Position = UDim2.new(0, curX, 0, curY)
+            saveConfig()
+        end
+    end
+    clampMobileButtonToScreen()
+    if Camera then
+        Camera:GetPropertyChangedSignal("ViewportSize"):Connect(clampMobileButtonToScreen)
+    end
 
     _G.MM2_UpdateMobileButton = function(visible)
         if visible == nil then visible = Config.MobileFloatingButton end
@@ -5463,16 +5697,25 @@ do
         local touchStart = nil
         local touchStartTime = 0
         local startPos = nil
+        local hasMoved = false
+        local lastActionTick = 0
+
+        local function doAction()
+            if tick() - lastActionTick < 0.25 then return end
+            lastActionTick = tick()
+            if cb then pcall(cb) end
+        end
 
         btn.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 isDragging = false
+                hasMoved = false
                 touchStart = input.Position
                 touchStartTime = tick()
                 startPos = btn.Position
                 local w = tonumber(Config.MobileHudBtnWidth) or 84
                 local h = tonumber(Config.MobileHudBtnHeight) or 36
-                TweenService:Create(btn, TweenInfo.new(0.1), {Size = UDim2.new(0, w - 4, 0, h - 3)}):Play()
+                TweenService:Create(btn, TweenInfo.new(0.08), {Size = UDim2.new(0, w - 4, 0, h - 3)}):Play()
             end
         end)
 
@@ -5481,13 +5724,7 @@ do
                 local w = tonumber(Config.MobileHudBtnWidth) or 84
                 local h = tonumber(Config.MobileHudBtnHeight) or 36
                 TweenService:Create(btn, TweenInfo.new(0.12, Enum.EasingStyle.Back), {Size = UDim2.new(0, w, 0, h)}):Play()
-                if touchStart then
-                    local dist = (input.Position - touchStart).Magnitude
-                    local dur = tick() - touchStartTime
-                    if dist < 10 and dur < 0.45 then
-                        pcall(cb)
-                    end
-                end
+
                 if isDragging then
                     isDragging = false
                     local vp = Camera and Camera.ViewportSize or Vector2.new(800, 600)
@@ -5498,8 +5735,21 @@ do
                     Config[configKeyX] = math.floor(offX)
                     Config[configKeyY] = math.floor(offY)
                     saveConfig()
+                else
+                    if touchStart then
+                        local dist = (input.Position - touchStart).Magnitude
+                        if dist < 25 and (tick() - touchStartTime) < 1.0 then
+                            doAction()
+                        end
+                    end
                 end
                 touchStart = nil
+            end
+        end)
+
+        btn.Activated:Connect(function()
+            if not isDragging and not hasMoved then
+                doAction()
             end
         end)
 
@@ -5507,8 +5757,9 @@ do
             if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and touchStart then
                 if Config.MobileLockButtons then return end
                 local delta = input.Position - touchStart
-                if delta.Magnitude > 7 then
+                if delta.Magnitude > 14 then
                     isDragging = true
+                    hasMoved = true
                 end
                 if isDragging then
                     local vp = Camera and Camera.ViewportSize or Vector2.new(800, 600)
@@ -5535,22 +5786,25 @@ do
     local shootHudBtn = createDraggableActionBtn("ShootBtn", "🔫", "ВЫСТРЕЛ", Color3.fromRGB(45, 160, 255), -105, -190, "MobileShootPosX", "MobileShootPosY", "MobileShootBtnEnabled", function()
         if _G.MM2_PerformInstantShoot then
             _G.MM2_PerformInstantShoot()
-        elseif _G.MM2_ShootMurdererDirectly then
-            _G.MM2_ShootMurdererDirectly()
+        elseif shootMurderer then
+            shootMurderer(true)
         end
     end)
 
     local knifeHudBtn = createDraggableActionBtn("KnifeBtn", "🗡️", "НОЖ", Color3.fromRGB(255, 55, 75), -105, -145, "MobileKnifePosX", "MobileKnifePosY", "MobileKnifeBtnEnabled", function()
         if _G.MM2_PerformKnifeReachStrike then
             _G.MM2_PerformKnifeReachStrike()
+        elseif performLongRangeKnifeStrike then
+            performLongRangeKnifeStrike()
         end
     end)
 
     local farmHudBtn = createDraggableActionBtn("FarmBtn", "🪙", "ФАРМ", Color3.fromRGB(255, 190, 40), -105, -100, "MobileFarmPosX", "MobileFarmPosY", "MobileFarmBtnEnabled", function()
-        Config.CoinAutoFarm = not Config.CoinAutoFarm
-        saveConfig()
-        if showNotification then
-            showNotification("🪙 AUTO-FARM", Config.CoinAutoFarm and "Фарм включен!" or "Фарм выключен!", Config.CoinAutoFarm and Color3.fromRGB(60, 220, 100) or Color3.fromRGB(240, 70, 70), "🪙", 2.0)
+        if _G.MM2_ToggleCoinFarm then
+            _G.MM2_ToggleCoinFarm()
+        else
+            Config.CoinAutoFarm = not Config.CoinAutoFarm
+            saveConfig()
         end
     end)
 
@@ -5891,6 +6145,9 @@ end
 -- ====================================================================
 do
     local I18N_DICT = {
+        ["🎯 Центрировать окно Hub по середине экрана"] = { en = "🎯 Center Hub Window on Screen", ru = "🎯 Центрировать окно Hub по середине экрана" },
+        ["🎯 GUI CENTERED"] = { en = "🎯 GUI CENTERED", ru = "🎯 ОКНО ОТЦЕНТРОВАНО" },
+        ["🎯 ОКНО ОТЦЕНТРОВАНО"] = { en = "🎯 GUI CENTERED", ru = "🎯 ОКНО ОТЦЕНТРОВАНО" },
         ["Combat"] = { en = "Combat", ru = "Бой" },
         ["Configs"] = { en = "Configs", ru = "Конфиги" },
         ["ESP"] = { en = "ESP & Chams", ru = "ESP & Подсветка" },
@@ -11805,6 +12062,12 @@ do
             saveConfig()
             if _G.MM2_UpdateMobileScaling then
                 _G.MM2_UpdateMobileScaling()
+            end
+        end)
+
+        createButton(parentTab, "🎯 Центрировать окно Hub по середине экрана", Color3.fromRGB(40, 150, 90), function()
+            if _G.MM2_RecenterGUI then
+                _G.MM2_RecenterGUI()
             end
         end)
 
